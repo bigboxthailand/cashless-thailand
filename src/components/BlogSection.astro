@@ -1,0 +1,121 @@
+---
+const articles = [
+  {
+    title: "อนาคตของ Bitcoin ในปี 2026: จากสินทรัพย์ทางเลือกสู่เงินสำรองโลก",
+    excerpt: "เจาะลึกวิสัยทัศน์และปัจจัยทางเศรษฐกิจที่จะขับเคลื่อน Bitcoin ให้กลายเป็นหัวใจหลักของระบบการเงินยุคใหม่...",
+    date: "20 JAN 2026",
+    category: "INSIGHTS",
+    isFeatured: true
+  },
+  {
+    title: "Hardware Wallet vs Cold Storage: เลือกแบบไหนให้ปลอดภัยที่สุด?",
+    excerpt: "ความต่างที่คุณต้องรู้ก่อนเก็บเหรียญหลักล้าน...",
+    date: "18 JAN 2026",
+    category: "SECURITY",
+    isFeatured: false
+  },
+  {
+    title: "Lightning Network 101: จ่ายกาแฟด้วยบิทคอยน์ใน 1 วินาที",
+    excerpt: "คู่มือเริ่มต้นการใช้งาน Layer 2 สำหรับคนไทย...",
+    date: "15 JAN 2026",
+    category: "TECHNOLOGY",
+    isFeatured: false
+  }
+];
+
+const featured = articles.find(a => a.isFeatured);
+const secondary = articles.filter(a => !a.isFeatured);
+---
+
+<section class="max-w-[1800px] mx-auto px-6 md:px-12 py-32 border-t border-white/5">
+    <div class="mb-20 reveal">
+        <h2 class="text-xs font-black tracking-[0.5em] text-[#D4AF37] mb-6 flex items-center gap-4">
+            <span class="w-12 h-[1px] bg-[#D4AF37]"></span>
+            KNOWLEDGE BASE
+        </h2>
+        <div class="flex justify-between items-end">
+            <h3 class="text-5xl md:text-8xl font-[900] tracking-tighter uppercase leading-none">
+                The <span class="italic text-white/10">Standard</span> <br/> Reports.
+            </h3>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-12">
+        <div class="lg:col-span-7 group cursor-pointer reveal" style="animation-delay: 0.2s">
+            <div class="relative overflow-hidden rounded-[2.5rem] bg-[#0a0a0a] aspect-[16/9] border border-white/5 group-hover:border-[#D4AF37]/30 transition-all duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-white/5 font-black text-9xl italic group-hover:scale-110 transition-transform duration-1000">
+                    FEATURED
+                </div>
+            </div>
+            
+            <div class="mt-8 space-y-6">
+                <div class="flex items-center gap-6">
+                    <span class="eng text-[10px] font-black tracking-[0.2em] px-3 py-1 border border-[#D4AF37] text-[#D4AF37] rounded-md uppercase">{featured.category}</span>
+                    <span class="eng text-[10px] font-medium tracking-widest text-white/30 uppercase">{featured.date}</span>
+                </div>
+                <h4 class="text-3xl md:text-5xl font-bold leading-tight hover:text-gold transition-all duration-300">
+                    {featured.title}
+                </h4>
+                <p class="text-xl text-white/40 font-light leading-relaxed max-w-2xl">
+                    {featured.excerpt}
+                </p>
+                <div class="pt-4">
+                    <button class="eng text-xs font-black uppercase tracking-[0.3em] text-white border-b border-white/20 pb-2 hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all">
+                        Read Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-12">
+            {secondary.map((article, i) => (
+                <div class="group cursor-pointer flex flex-col sm:flex-row gap-8 reveal" style={`animation-delay: ${0.4 + (i * 0.2)}s`}>
+                    <div class="w-full sm:w-48 aspect-square bg-[#0a0a0a] rounded-3xl shrink-0 border border-white/5 overflow-hidden group-hover:border-[#D4AF37]/30 transition-all">
+                         <div class="w-full h-full flex items-center justify-center text-white/5 font-black text-2xl italic">ARTICLE</div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <span class="eng text-[9px] font-black tracking-[0.2em] text-[#D4AF37] uppercase">{article.category}</span>
+                            <span class="eng text-[9px] font-medium tracking-widest text-white/30 uppercase">{article.date}</span>
+                        </div>
+                        <h4 class="text-xl font-bold leading-snug group-hover:text-gold transition-all duration-300">
+                            {article.title}
+                        </h4>
+                        <p class="text-sm text-white/40 line-clamp-2 leading-relaxed">
+                            {article.excerpt}
+                        </p>
+                    </div>
+                </div>
+            ))}
+            
+            <div class="mt-auto p-8 rounded-[2rem] bg-gradient-to-br from-[#111] to-black border border-[#D4AF37]/20 relative overflow-hidden group reveal" style="animation-delay: 0.8s">
+                <div class="absolute top-[-20%] right-[-10%] w-32 h-32 bg-[#D4AF37]/10 blur-3xl rounded-full group-hover:bg-[#D4AF37]/20 transition-all"></div>
+                <h5 class="text-xl font-bold mb-4 relative z-10 uppercase italic tracking-tighter">Stay <span class="text-[#D4AF37]">Ahead.</span></h5>
+                <p class="text-xs text-white/40 mb-6 relative z-10 leading-relaxed uppercase tracking-widest font-medium">รับบทวิเคราะห์เจาะลึกส่งตรงถึงอีเมลคุณ</p>
+                <form class="flex gap-2 relative z-10">
+                    <input type="email" placeholder="YOUR EMAIL" class="bg-black/50 border border-white/5 rounded-xl px-4 py-3 text-[10px] eng tracking-widest focus:border-[#D4AF37] outline-none grow transition-all"/>
+                    <button class="bg-[#D4AF37] text-black p-3 rounded-xl hover:scale-105 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .text-gold {
+        background: linear-gradient(to right, #F9E79F, #D4AF37, #996515);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

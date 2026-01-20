@@ -1,0 +1,292 @@
+---
+// src/pages/products/[id].astro
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import CartDrawer from '../../components/CartDrawer.astro';
+
+export async function getStaticPaths() {
+  // ข้อมูลสินค้า (Database จำลอง)
+  const products = [
+    {
+      id: 'trezor-safe-3-gold',
+      title: "Trezor Safe 3 (Bitcoin Only) - Gold Edition",
+      price: 7500,
+      description: "ฮาร์ดแวร์วอลเล็ตที่ปลอดภัยที่สุด พร้อมชิป EAL6+ ในดีไซน์สีทอง Limited Edition สำหรับนักลงทุน Bitcoin ระดับ High-end โดยเฉพาะ",
+      specs: ["EAL6+ Secure Element", "Open Source Design", "Bitcoin-Only Firmware", "Passphrase Protection"],
+      images: [
+        "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=1000",
+        "https://images.unsplash.com/photo-1642104704074-907c0698cbd9?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Hardware"
+    },
+    {
+      id: 'onekey-classic-1s',
+      title: "OneKey Classic 1S (EAL6+)",
+      price: 3790,
+      description: "กระเป๋าฮาร์ดแวร์ที่สมดุลที่สุดระหว่างความปลอดภัยและการใช้งาน รองรับ Bluetooth เชื่อมต่อมือถือง่าย แต่ปลอดภัยระดับ EAL6+",
+      specs: ["Ultra-thin design", "Bluetooth / USB-C", "EAL6+ Certified", "NFT Support"],
+      images: [
+        "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Hardware"
+    },
+    {
+      id: 'blockstream-jade',
+      title: "Blockstream Jade - Transparent",
+      price: 2490,
+      description: "ความปลอดภัยแบบ Air-gapped ที่แท้จริง สแกน QR Code เพื่อเซ็นธุรกรรมโดยไม่ต้องเสียบสาย",
+      specs: ["Fully Air-Gapped", "Camera for QR Scan", "Liquid Network Support", "Cheap & Secure"],
+      images: [
+        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Hardware"
+    },
+    {
+      id: 'bitcoin-mastery-2026',
+      title: "Bitcoin Mastery 2026",
+      price: 4900,
+      description: "คอร์สเรียนเจาะลึก Bitcoin ตั้งแต่พื้นฐานจนถึงการเก็บรักษาขั้นสูง (Multi-sig) พร้อม Workshop จับมือทำ",
+      specs: ["12 Hours Video", "Lifetime Access", "Private Discord Group", "Certificate"],
+      images: [
+        "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Course"
+    },
+    {
+      id: 'node-workshop',
+      title: "Full Node Workshop",
+      price: 3500,
+      description: "เรียนรู้วิธีรัน Bitcoin Full Node ด้วยตัวเอง เพื่อความเป็นส่วนตัวสูงสุด ไม่ต้องพึ่งพา Server ของคนอื่น",
+      specs: ["Live Workshop", "Hardware Setup Guide", "Networking Basics", "Lightning Channel Mgmt"],
+      images: [
+        "https://images.unsplash.com/photo-1558494949-ef526b0042a0?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Workshop"
+    },
+    {
+      id: 'bitcast-cardnest',
+      title: "Bitcast Cardnest - Leather Case",
+      price: 395,
+      description: "ซองหนังแท้สำหรับใส่ Hardware Wallet ปกป้องอุปกรณ์ราคาแพงของคุณด้วยความหรูหรา",
+      specs: ["Genuine Leather", "Handmade", "Fits Trezor/OneKey", "Premium Packaging"],
+      images: [
+        "https://images.unsplash.com/photo-1628191013620-3023246eb767?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Accessory"
+    },
+    {
+      id: 'metal-plate',
+      title: "Private Key Metal Plate",
+      price: 1290,
+      description: "แผ่นเหล็กจด Seed Phrase กันน้ำ กันไฟ กันสนิม ประกันข้อมูลของคุณให้อยู่ไปชั่วลูกชั่วหลาน",
+      specs: ["Stainless Steel 304", "Fireproof 1400°C", "Tamper-evident stickers", "Easy to punch"],
+      images: [
+        "https://images.unsplash.com/photo-1536566482680-fca31930a0bd?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Backup"
+    },
+     {
+      id: 'privacy-screen',
+      title: "Privacy Screen Filter",
+      price: 490,
+      description: "ฟิล์มกันรอยแบบ Privacy สำหรับหน้าจอ Hardware Wallet ป้องกันการแอบมองจากคนรอบข้าง",
+      specs: ["Privacy Filter", "Anti-scratch", "Easy Installation", "Crystal Clear"],
+      images: [
+        "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=1000"
+      ],
+      type: "Accessory"
+    }
+  ];
+
+  return products.map(product => ({
+    params: { id: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<Layout title={`${product.title} | Cashless Thailand`}>
+    <Navbar />
+    <CartDrawer />
+
+    <main class="relative z-10 bg-[#050505] pt-32 pb-20 min-h-screen">
+        
+        <div class="max-w-[1200px] mx-auto px-6 mb-8">
+            <a href="/" class="text-white/40 hover:text-[#D4AF37] text-xs eng uppercase tracking-widest transition-colors">Home</a>
+            <span class="text-white/20 mx-2">/</span>
+            <a href="/shop" class="text-white/40 hover:text-[#D4AF37] text-xs eng uppercase tracking-widest transition-colors">Shop</a>
+            <span class="text-white/20 mx-2">/</span>
+            <span class="text-[#D4AF37] text-xs eng uppercase tracking-widest">{product.title}</span>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+            
+            <div class="space-y-4">
+                <div class="aspect-square bg-[#111] rounded-[2rem] overflow-hidden border border-white/5 relative group">
+                    <img 
+                        id="main-image"
+                        src={product.images[0]} 
+                        alt={product.title}
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div class="absolute top-6 left-6 px-4 py-1 bg-black/80 backdrop-blur-md border border-[#D4AF37]/30 rounded-full">
+                        <span class="eng text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">{product.type}</span>
+                    </div>
+                </div>
+                
+                {product.images.length > 1 && (
+                    <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                        {product.images.map((img, i) => (
+                            <button 
+                                class="w-24 h-24 rounded-xl overflow-hidden border border-white/10 hover:border-[#D4AF37] transition-all shrink-0 thumbnail-btn"
+                                data-src={img}
+                            >
+                                <img src={img} class="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div class="flex flex-col justify-center">
+                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">{product.title}</h1>
+                
+                <div class="flex items-end gap-4 mb-8">
+                    <span class="text-3xl text-[#D4AF37] font-black eng">{product.price.toLocaleString()} THB</span>
+                    <span class="text-sm text-white/40 eng mb-1">≈ {Math.floor(product.price / 3).toLocaleString()} Sats</span>
+                </div>
+
+                <div class="h-[1px] w-full bg-gradient-to-r from-[#D4AF37]/30 to-transparent mb-8"></div>
+
+                <p class="text-white/60 font-light leading-relaxed mb-8 text-lg">
+                    {product.description}
+                </p>
+
+                <div class="mb-12">
+                    <h3 class="text-[#D4AF37] text-xs font-bold uppercase tracking-widest mb-4">Key Features</h3>
+                    <ul class="space-y-3">
+                        {product.specs.map(spec => (
+                            <li class="flex items-center gap-3 text-white/80">
+                                <svg class="w-5 h-5 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>{spec}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div class="hidden lg:flex gap-4">
+                    <div class="flex items-center border border-white/20 rounded-xl px-4 h-14">
+                        <button class="text-white/50 hover:text-white text-xl p-2">-</button>
+                        <input type="text" value="1" class="w-12 bg-transparent text-center text-white font-bold outline-none" readonly>
+                        <button class="text-white/50 hover:text-white text-xl p-2">+</button>
+                    </div>
+                    
+                    <button 
+                        id="add-to-cart-desktop"
+                        class="flex-1 bg-[#D4AF37] text-black h-14 rounded-xl font-black uppercase tracking-wider hover:bg-[#b8962e] transition-colors shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] cursor-pointer relative z-20"
+                        data-id={product.id}
+                        data-title={product.title}
+                        data-price={product.price}
+                        data-image={product.images[0]}
+                    >
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-0 left-0 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-[#D4AF37]/20 p-4 lg:hidden z-[100] flex gap-4 items-center animate-slide-up">
+        <div class="flex flex-col">
+            <span class="text-xs text-white/40 uppercase">Total</span>
+            <span class="text-lg text-[#D4AF37] font-black">{product.price.toLocaleString()}</span>
+        </div>
+        
+        <button 
+            id="add-to-cart-mobile"
+            class="flex-1 bg-[#D4AF37] text-black h-12 rounded-lg font-bold uppercase tracking-wider shadow-lg cursor-pointer relative z-20"
+            data-id={product.id}
+            data-title={product.title}
+            data-price={product.price}
+            data-image={product.images[0]}
+        >
+            Add to Cart
+        </button>
+    </div>
+
+    <Footer />
+</Layout>
+
+<script>
+    import { cartStore } from '../../scripts/cartStore.js';
+
+    document.addEventListener('astro:page-load', () => {
+        
+        // ฟังก์ชันสำหรับเพิ่มสินค้า (ใช้ร่วมกันทั้ง Desktop และ Mobile)
+        const handleAddToCart = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const btn = e.currentTarget;
+            
+            // ดึงข้อมูลจากปุ่มโดยตรง (วิธีนี้ไม่มีพลาด)
+            const product = {
+                id: btn.dataset.id,
+                title: btn.dataset.title,
+                price: parseFloat(btn.dataset.price),
+                image: btn.dataset.image,
+            };
+
+            // ส่งเข้า Store
+            cartStore.add(product);
+            
+            // Animation ปุ่มกด
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 150);
+
+            // เปิดตะกร้าโชว์
+            document.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true } }));
+        };
+
+        // ผูก Event กับปุ่ม Desktop
+        const btnDesktop = document.getElementById('add-to-cart-desktop');
+        if (btnDesktop) {
+            btnDesktop.addEventListener('click', handleAddToCart);
+        }
+
+        // ผูก Event กับปุ่ม Mobile
+        const btnMobile = document.getElementById('add-to-cart-mobile');
+        if (btnMobile) {
+            btnMobile.addEventListener('click', handleAddToCart);
+        }
+
+        // Gallery Logic
+        const mainImage = document.getElementById('main-image');
+        const thumbs = document.querySelectorAll('.thumbnail-btn');
+        thumbs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const src = btn.getAttribute('data-src');
+                if (mainImage && src) {
+                    mainImage.style.opacity = '0';
+                    setTimeout(() => {
+                        mainImage.src = src;
+                        mainImage.style.opacity = '1';
+                    }, 200);
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+        animation: slideUp 0.5s ease-out forwards;
+    }
+</style>

@@ -1,0 +1,335 @@
+---
+// src/pages/checkout.astro
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Secure Checkout | Cashless Thailand">
+    <Navbar />
+
+    <main class="relative z-10 bg-[#050505] min-h-screen pt-32 pb-20">
+        <form id="checkout-form" class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-8 lg:gap-16">
+            
+            <div class="absolute opacity-0 -z-10 w-0 h-0 overflow-hidden">
+                <label for="website-honeypot">Website</label>
+                <input type="text" name="website_check" id="website-honeypot" tabindex="-1" autocomplete="off">
+            </div>
+
+            <div class="lg:col-span-7 space-y-10">
+                <div class="border-b border-white/10 pb-6">
+                    <h1 class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter">Checkout</h1>
+                    <p class="text-white/40 mt-2 text-sm">กรอกข้อมูลจัดส่งและยืนยันการชำระเงิน</p>
+                </div>
+
+                <section class="space-y-6">
+                    <h2 class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3">
+                        <span class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs">1</span>
+                        Shipping Info
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">First Name</label>
+                            <input type="text" name="firstname" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="ชื่อจริง">
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">Last Name</label>
+                            <input type="text" name="lastname" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="นามสกุล">
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">Phone Number</label>
+                            <input type="tel" name="phone" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="เบอร์โทรศัพท์">
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">Address</label>
+                            <textarea name="address" rows="3" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="ที่อยู่จัดส่ง"></textarea>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">Province</label>
+                            <input type="text" name="province" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="จังหวัด">
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label class="text-xs text-white/50 uppercase tracking-wider">Postal Code</label>
+                            <input type="text" name="zipcode" required class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors" placeholder="รหัสไปรษณีย์">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="hidden lg:block border-t border-white/10 pt-8">
+                     <h3 class="text-white font-bold mb-6">Order Items</h3>
+                     <div id="checkout-items-desktop" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 relative">
+                <div class="bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-[2rem] p-6 md:p-8 sticky top-32 shadow-2xl">
+                    
+                    <h2 class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3 mb-6">
+                        <span class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs">2</span>
+                        Payment
+                    </h2>
+
+                    <div class="flex p-1 bg-black rounded-xl mb-6 border border-white/10">
+                        <button type="button" id="btn-promptpay" class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider bg-[#D4AF37] text-black shadow-lg transition-all">PromptPay</button>
+                        <button type="button" id="btn-crypto" class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/40 hover:text-white transition-all">Crypto</button>
+                    </div>
+
+                    <div id="payment-promptpay" class="text-center space-y-6 animate-fade-in">
+                        <div class="bg-white p-4 rounded-2xl inline-block shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] relative overflow-hidden group">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" class="w-48 h-48 mix-blend-multiply mx-auto" />
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[#D4AF37]/20 to-transparent h-[10px] w-full animate-scan"></div>
+                        </div>
+                        <div class="text-white/60 text-xs uppercase tracking-widest">
+                            <p>บริษัท แคชเลส (ประเทศไทย) จำกัด</p>
+                            <p class="text-[#D4AF37] font-bold mt-1">081-234-5678 (KBank)</p>
+                        </div>
+                    </div>
+
+                    <div id="payment-crypto" class="hidden text-center space-y-6 animate-fade-in">
+                        <div class="p-6 border border-dashed border-[#F7931A]/50 rounded-2xl bg-[#F7931A]/5">
+                            <p class="text-[#F7931A] font-bold text-lg mb-2">Bitcoin (BTC)</p>
+                            <code class="text-white/80 text-xs break-all bg-black/50 p-2 rounded block select-all">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</code>
+                            <p class="text-white/30 text-[10px] mt-2 uppercase">Send only BTC to this address</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-white/10 space-y-4">
+                         <div class="flex justify-between items-end mb-4">
+                            <span class="text-white/60 text-sm">Total Amount</span>
+                            <span id="final-total" class="text-3xl font-black text-white">0.00 ฿</span>
+                        </div>
+
+                        <label class="flex items-center justify-center w-full py-4 border-2 border-dashed border-white/20 hover:border-[#D4AF37] rounded-xl cursor-pointer transition-all hover:bg-[#D4AF37]/5 group">
+                            <div class="flex items-center gap-3 text-white/50 group-hover:text-[#D4AF37]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                <span class="text-sm font-bold uppercase tracking-wider" id="file-label">Attach Slip / Proof</span>
+                            </div>
+                            <input type="file" name="slip" class="hidden" id="slip-input" accept="image/*" required>
+                        </label>
+
+                        <div class="bg-black/50 border border-white/10 p-4 rounded-xl mt-4">
+                            <label class="block text-xs text-white/50 uppercase tracking-wider mb-2 text-center">
+                                Security Check: <span id="num1" class="text-[#D4AF37] font-bold text-lg">0</span> + <span id="num2" class="text-[#D4AF37] font-bold text-lg">0</span> = ?
+                            </label>
+                            <input type="number" id="captcha-input" required class="w-full bg-[#111] border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-center font-bold text-lg" placeholder="ใส่ผลลัพธ์">
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black py-4 rounded-xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_40px_-10px_rgba(212,175,55,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mt-4">
+                            Confirm Order
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+    </main>
+
+    <Footer />
+</Layout>
+
+<script>
+    import { cartStore } from '../scripts/cartStore.js';
+
+    document.addEventListener('astro:page-load', () => {
+        
+        // --- [A] MATH CAPTCHA SETUP ---
+        const n1 = Math.floor(Math.random() * 10);
+        const n2 = Math.floor(Math.random() * 10);
+        const correctSum = n1 + n2;
+
+        const num1El = document.getElementById('num1');
+        const num2El = document.getElementById('num2');
+        if (num1El && num2El) {
+            num1El.innerText = n1.toString();
+            num2El.innerText = n2.toString();
+        }
+        // -----------------------------
+
+        const cart = cartStore.get();
+        const { total } = cartStore.totals();
+        const container = document.getElementById('checkout-items-desktop');
+        const finalTotal = document.getElementById('final-total');
+        
+        if (cart.length === 0) {
+            window.location.href = '/shop';
+            return;
+        }
+
+        if (container) {
+            container.innerHTML = cart.map(item => `
+                <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
+                        <img src="${item.image}" class="w-full h-full object-cover opacity-80" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-bold text-sm truncate">${item.title}</h4>
+                        <p class="text-[#D4AF37] text-xs">${item.price.toLocaleString()} ฿ <span class="text-white/30">x ${item.quantity}</span></p>
+                    </div>
+                    <div class="text-white font-bold text-sm">
+                        ${(item.price * item.quantity).toLocaleString()} ฿
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        if(finalTotal) finalTotal.innerText = total.toLocaleString() + ' THB';
+
+        const fileInput = document.getElementById('slip-input');
+        const fileLabel = document.getElementById('file-label');
+        
+        fileInput?.addEventListener('change', (e:any) => {
+            const file = e.target.files[0];
+            if(file) {
+                if (file.size > 3 * 1024 * 1024) {
+                    alert('⚠️ ไฟล์ภาพมีขนาดใหญ่เกินไป (ต้องไม่เกิน 3MB)\nกรุณาลดขนาดภาพหรือถ่ายภาพหน้าจอใหม่');
+                    e.target.value = ""; 
+                    fileLabel.innerText = "Attach Slip / Proof";
+                    fileLabel.classList.remove('text-[#D4AF37]');
+                    return;
+                }
+                fileLabel.innerText = "✓ Attached: " + file.name;
+                fileLabel.classList.add('text-[#D4AF37]');
+            }
+        });
+
+        const btnPrompt = document.getElementById('btn-promptpay');
+        const btnCrypto = document.getElementById('btn-crypto');
+        const divPrompt = document.getElementById('payment-promptpay');
+        const divCrypto = document.getElementById('payment-crypto');
+
+        btnPrompt?.addEventListener('click', () => {
+            divPrompt?.classList.remove('hidden');
+            divCrypto?.classList.add('hidden');
+            btnPrompt.classList.add('bg-[#D4AF37]', 'text-black');
+            btnPrompt.classList.remove('text-white/40');
+            btnCrypto?.classList.remove('bg-[#D4AF37]', 'text-black');
+            btnCrypto?.classList.add('text-white/40');
+        });
+
+        btnCrypto?.addEventListener('click', () => {
+            divCrypto?.classList.remove('hidden');
+            divPrompt?.classList.add('hidden');
+            btnCrypto.classList.add('bg-[#D4AF37]', 'text-black');
+            btnCrypto.classList.remove('text-white/40');
+            btnPrompt?.classList.remove('bg-[#D4AF37]', 'text-black');
+            btnPrompt?.classList.add('text-white/40');
+        });
+
+        // -----------------------------------------------------------
+        // HANDLE SUBMIT
+        // -----------------------------------------------------------
+        const form = document.getElementById('checkout-form');
+        
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        };
+
+        form?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // [B] HONEYPOT CHECK
+            const honeypot = (document.getElementById('website-honeypot') as HTMLInputElement).value;
+            if (honeypot) {
+                console.warn("Bot detected!");
+                return;
+            }
+
+            // [C] MATH CAPTCHA CHECK
+            const userAnswer = parseInt((document.getElementById('captcha-input') as HTMLInputElement).value);
+            if (userAnswer !== correctSum) {
+                alert(`❌ คำตอบผิดครับ! กรุณาตรวจสอบผลบวก (${n1} + ${n2})`);
+                return;
+            }
+
+            const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Uploading & Processing...";
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const formData = new FormData(e.target as HTMLFormElement);
+            const customerInfo = Object.fromEntries(formData.entries());
+            const items = cartStore.get();
+            const { total } = cartStore.totals();
+            const orderId = `ORD-${new Date().getFullYear()}${Math.floor(Math.random() * 10000)}`;
+            const isCrypto = document.getElementById('btn-crypto')?.classList.contains('bg-[#D4AF37]');
+            const paymentMethod = isCrypto ? 'Crypto (BTC)' : 'PromptPay';
+
+            let slipData = { image: null, name: null, type: null };
+            const file = (document.getElementById('slip-input') as HTMLInputElement).files?.[0];
+            
+            if (file) {
+                try {
+                    const base64: any = await fileToBase64(file);
+                    slipData.image = base64.split(',')[1];
+                    slipData.name = file.name;
+                    slipData.type = file.type;
+                } catch (err) {
+                    console.error("File error", err);
+                }
+            }
+
+            const orderData = {
+                id: orderId,
+                customer: customerInfo,
+                items: items,
+                total: total,
+                paymentMethod: paymentMethod,
+                date: new Date().toLocaleString('th-TH'),
+                slipImage: slipData.image,
+                slipName: slipData.name,
+                slipMimeType: slipData.type
+            };
+
+            // *** ใส่ URL ของคุณตรงนี้ ***
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_URL_ของคุณ_ที่นี่/exec';
+
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'text/plain' }, 
+                    body: JSON.stringify(orderData)
+                });
+
+                localStorage.setItem('lastOrder', JSON.stringify(orderData));
+                cartStore.save([]); 
+                window.location.href = '/thankyou';
+
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง');
+                console.error('Checkout Error:', error);
+                
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes scan {
+        0% { top: 0%; opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan {
+        animation: scan 2s linear infinite;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

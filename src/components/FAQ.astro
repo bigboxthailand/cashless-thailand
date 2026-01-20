@@ -1,0 +1,40 @@
+---
+const faqs = [
+    { q: "Hardware Wallet ต่างจากกระเป๋าในเว็บเทรดอย่างไร?", a: "Hardware Wallet เก็บ Private Key ของคุณไว้ในอุปกรณ์ออฟไลน์ ทำให้แฮ็กเกอร์ไม่สามารถขโมยเหรียญได้ผ่านอินเทอร์เน็ต ต่างจากเว็บเทรดที่กุญแจอยู่ที่ผู้ให้บริการ" },
+    { q: "ถ้าเครื่องหาย หรือพัง เหรียญจะหายไหม?", a: "ไม่หายครับ! ตราบใดที่คุณจด Seed Phrase (คำศัพท์ 12-24 คำ) เอาไว้ คุณสามารถซื้อเครื่องใหม่รุ่นไหนก็ได้เพื่อกู้คืนเหรียญกลับมาได้ทันที" },
+    { q: "มือใหม่ควรเริ่มจากรุ่นไหนดี?", a: "แนะนำ Trezor Safe 3 หรือ OneKey Classic 1S ครับ เพราะใช้งานง่าย ราคาเริ่มต้นไม่แพง และมีความปลอดภัยสูงตามมาตรฐานสากล" },
+    { q: "สินค้ามีการรับประกันไหม?", a: "สินค้าทุกชิ้นจาก Cashless Thailand เป็นของแท้ 100% นำเข้าอย่างถูกต้อง และมีการรับประกันศูนย์ไทย 1 ปีเต็ม หากมีปัญหาเปลี่ยนเครื่องใหม่ให้ทันที" }
+];
+---
+
+<section class="max-w-[1000px] mx-auto px-6 md:px-12 py-32">
+    <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">FAQ</h2>
+        <p class="text-white/40">คำถามที่พบบ่อยเกี่ยวกับการเก็บรักษา Bitcoin</p>
+    </div>
+
+    <div class="space-y-4">
+        {faqs.map((item, i) => (
+            <details class="group bg-[#0a0a0a] rounded-2xl border border-white/5 open:border-[#D4AF37]/50 transition-all duration-300 reveal" style={`animation-delay: ${i * 0.1}s`}>
+                <summary class="flex justify-between items-center p-6 cursor-pointer list-none">
+                    <span class="text-lg font-bold text-white group-hover:text-[#D4AF37] transition-colors">{item.q}</span>
+                    <span class="text-[#D4AF37] transform group-open:rotate-180 transition-transform duration-300">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </span>
+                </summary>
+                <div class="px-6 pb-6 text-white/60 leading-relaxed font-light">
+                    {item.a}
+                </div>
+            </details>
+        ))}
+    </div>
+</section>
+
+<style>
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+</style>
