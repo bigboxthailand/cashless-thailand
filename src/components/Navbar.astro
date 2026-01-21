@@ -8,14 +8,13 @@
     <div class="max-w-[1800px] mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative z-10">
         
         <a href="/" class="group relative flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#D4AF37] rounded-lg flex items-center justify-center transform group-hover:rotate-45 transition-transform duration-500">
-                <span class="eng font-black text-black text-xl">C</span>
-            </div>
-            <div class="flex flex-col">
-                <span class="eng font-black text-white text-lg tracking-tighter leading-none group-hover:text-[#D4AF37] transition-colors">CASHLESS</span>
-                <span class="eng text-[10px] text-white/40 font-bold tracking-[0.3em] uppercase group-hover:tracking-[0.4em] transition-all">Thailand</span>
-            </div>
-        </a>
+            <img 
+                src="/images/logo.webp" 
+                alt="Cashless Thailand Logo" 
+                class="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300" 
+            />
+            
+            </a>
 
         <div class="hidden lg:flex items-center gap-10">
             <a href="/" class="nav-link eng text-xs font-bold uppercase tracking-widest text-white/60 hover:text-[#D4AF37] transition-colors">Home</a>
@@ -65,7 +64,7 @@
         </div>
 
         <div class="flex items-center gap-6">
-            <a href="https://line.me/ti/p/@cashlessthailand" target="_blank" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:border-[#D4AF37] transition-all group">
+            <a href="https://linktr.ee/CryptoClock" target="_blank" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:border-[#D4AF37] transition-all group">
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 <span class="eng text-[10px] font-bold uppercase tracking-widest text-white group-hover:text-[#D4AF37]">Support</span>
             </a>
@@ -94,7 +93,7 @@
         const cartBtn = document.getElementById('cart-trigger');
         if (cartBtn) {
             const newBtn = cartBtn.cloneNode(true);
-            cartBtn.parentNode.replaceChild(newBtn, cartBtn);
+            if(cartBtn.parentNode) cartBtn.parentNode.replaceChild(newBtn, cartBtn);
             newBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 cartStore.open();
@@ -127,10 +126,11 @@
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
                 nav?.classList.add('py-0');
-                navBg?.classList.remove('opacity-0');
+                navBg?.classList.remove('opacity-0'); 
             } else {
                 nav?.classList.remove('py-0');
-                navBg?.classList.add('opacity-0');
+                navBg?.classList.add('opacity-0'); 
+
             }
         });
     });
