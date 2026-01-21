@@ -1,0 +1,756 @@
+{
+  "cryptoclock-basic": {
+    "title": "CryptoClock User Manual",
+    "intro": "คู่มือการใช้งานฉบับสมบูรณ์: ตั้งแต่การเชื่อมต่อ WiFi, การปรับแต่งหน้าจอ, ไปจนถึงเทคนิคการใช้งานสำหรับนักเทรด",
+    "sections": [
+      {
+        "id": "features",
+        "type": "features",
+        "title": "ฟังก์ชันหลัก (Key Features)",
+        "items": [
+          "ติดตามราคา Crypto Real-time (เขียวขึ้น/แดงลง)",
+          "ราคาทองคำ (สมาคมค้าทองคำ) และหุ้น (SET/NASDAQ)",
+          "ราคาน้ำมัน (ปตท./บางจาก) และอัตราแลกเปลี่ยน",
+          "แสดงกราฟิกราคาสูงสุด/ต่ำสุด ใน 24 ชม.",
+          "ปรับแต่งรูปโปรไฟล์ ชื่อ และตำแหน่งบริษัทได้",
+          "รองรับกว่า 80 เหรียญจาก Bitkub และ Binance",
+          "ปรับความสว่างและเวลาพักหน้าจอ (Sleep Mode) ได้"
+        ]
+      },
+      {
+        "id": "use-cases",
+        "type": "grid_card",
+        "title": "ประโยชน์การใช้งาน (Why Invest?)",
+        "items": [
+          {
+            "head": "สำหรับนักเทรด (Trader)",
+            "body": "ไม่พลาดทุกการเปลี่ยนแปลงราคา ตัดสินใจซื้อขายได้ทันที พร้อมดู High/Low ใน 24 ชม.",
+            "image": "/images/manuals/marketing/target-trader.webp"
+          },
+          {
+            "head": "สำหรับบริษัท/Exchange",
+            "body": "เพิ่มความน่าเชื่อถือ ตกแต่งออฟฟิศให้ดูทันสมัย และใช้ดูภาพรวมตลาดได้ตลอดเวลา",
+            "image": "/images/manuals/marketing/target-company.webp"
+          },
+          {
+            "head": "สำหรับ KOL/Influencer",
+            "body": "ใช้ประกอบฉาก Live Stream สร้างคอนเทนต์ที่ดูเป็นมืออาชีพและน่าเชื่อถือ",
+            "image": "/images/manuals/marketing/target-kol.webp"
+          },
+          {
+            "head": "สำหรับนักลงทุนระยะยาว",
+            "body": "ติดตามมูลค่าสินทรัพย์ ทองคำ น้ำมัน และหุ้น เพื่อปรับพอร์ตการลงทุนได้ทันท่วงที",
+            "image": "/images/manuals/marketing/target-investor.webp"
+          }
+        ]
+      },
+      {
+        "id": "wifi-setup",
+        "type": "steps",
+        "title": "1. การเริ่มต้นใช้งาน (Connect WiFi)",
+        "intro": "ขั้นตอนการเชื่อมต่อนาฬิกาเข้ากับอินเทอร์เน็ตครั้งแรก",
+        "items": [
+          {
+            "head": "1.1 เปิดเครื่องและรอสัญญาณ",
+            "body": "เสียบปลั๊ก USB-C (5V/2A) เมื่อเครื่องเริ่มทำงานจะทำการค้นหา WiFi หากยังไม่เคยเชื่อมต่อ เครื่องจะปล่อย Hotspot ชื่อ 'CryptoClock' ออกมา",
+            "image": "/images/manuals/basic/1-setup-power.jpeg"
+          },
+          {
+            "head": "1.2 เชื่อมต่อ Hotspot",
+            "body": "ใช้มือถือหรือคอมพิวเตอร์ ค้นหา WiFi และกดเชื่อมต่อกับชื่อ 'CryptoClock' (รอสักครู่เพื่อให้มือถือจับสัญญาณ)",
+            "image": "/images/manuals/basic/1-wifi-search.jpg"
+          },
+          {
+            "head": "1.3 เข้าหน้าตั้งค่า (Config)",
+            "body": "เมื่อเชื่อมต่อแล้ว ระบบควรจะเด้งหน้าตั้งค่าขึ้นมาอัตโนมัติ หากไม่เด้ง ให้เปิด Browser พิมพ์ 192.168.4.1 หรือสแกน QR Code ที่หน้าจอ",
+            "image": "/images/manuals/basic/1-wifi-portal.jpg"
+          },
+          {
+            "head": "1.4 เลือก WiFi บ้าน",
+            "body": "กด Configure WiFi > เลือกชื่อ WiFi บ้านของคุณ > ใส่รหัสผ่าน \n(ข้อควรระวัง: รองรับเฉพาะคลื่น 2.4GHz เท่านั้น ยังไม่รองรับ 5GHz)",
+            "image": "/images/manuals/basic/1-wifi-select.jpg"
+          },
+          {
+            "head": "1.5 บันทึกและรีสตาร์ท",
+            "body": "กดปุ่ม Update เครื่องจะทำการบันทึกค่าและ Restart ตัวเองเพื่อเชื่อมต่ออินเทอร์เน็ตจริง",
+            "image": "/images/manuals/basic/1-wifi-save.jpg"
+          }
+        ]
+      },
+      {
+        "id": "interface",
+        "type": "steps",
+        "title": "2. การแสดงผลหน้าจอ (Interface)",
+        "intro": "ทำความเข้าใจหน้าจอต่างๆ ของ CryptoClock",
+        "items": [
+          {
+            "head": "2.1 หน้าจอหลัก (Profile)",
+            "body": "แสดงรูปโปรไฟล์, ชื่อ, ตำแหน่งบริษัท และนาฬิกา (อัปเดตเวลาอัตโนมัติผ่านเน็ต)",
+            "image": "/images/manuals/basic/2-face-main.jpg"
+          },
+          {
+            "head": "2.2 หน้าจอราคาเหรียญ",
+            "body": "แตะที่หน้าจอเพื่อสลับโหมด จะแสดงราคา Real-time, % เปลี่ยนแปลง, และ High/Low 24 ชม.",
+            "image": "/images/manuals/basic/2-face-crypto.jpeg"
+          },
+          {
+            "head": "2.3 หน้าจอตั้งค่า (Settings Info)",
+            "body": "แสดง IP Address, Device ID และ Version ของเครื่อง สำหรับใช้ในการตั้งค่าผ่านเว็บ",
+            "image": "/images/manuals/basic/2-face-system.jpeg"
+          }
+        ]
+      },
+      {
+        "id": "settings",
+        "type": "steps",
+        "title": "3. การตั้งค่าขั้นสูง (Advanced Settings)",
+        "intro": "วิธีการปรับแต่งค่าต่างๆ ผ่าน Web Interface",
+        "items": [
+          {
+            "head": "3.1 เข้าสู่เมนูตั้งค่า",
+            "body": "แตะค้างที่รูปโปรไฟล์ หรือสแกน QR Code เพื่อเข้าสู่ Web Config บนมือถือ (ต้องต่อ WiFi วงเดียวกัน)",
+            "image": "/images/manuals/basic/3-config-qrcode.jpeg"
+          },
+          {
+            "head": "3.2 ปรับความสว่างและเวลา",
+            "body": "สามารถปรับ Brightness (ความสว่าง), Update Interval (ความถี่ราคา), และ Sleep Time (เวลาพักหน้าจอ) ได้ตามต้องการ",
+            "image": "/images/manuals/basic/3-settings-menu.jpeg"
+          },
+          {
+            "head": "3.3 เปลี่ยนรูปโปรไฟล์",
+            "body": "อัปโหลดรูป .jpg ขนาดไม่เกิน 100x100px และแก้ไขชื่อ/Motto ที่แสดงบนหน้าจอ",
+            "image": "/images/manuals/basic/3-config-upload.png"
+          },
+          {
+            "head": "3.4 เลือกเหรียญ",
+            "body": "กดที่เมนู Coin Selection เลือกเหรียญจาก Binance/Bitkub แล้วกด Submit เครื่องจะรีสตาร์ทเพื่อแสดงเหรียญใหม่",
+            "image": "/images/manuals/basic/3-coin-select-web.png"
+          }
+        ]
+      },
+      {
+        "id": "specs",
+        "type": "specs",
+        "title": "ข้อมูลทางเทคนิค (Hardware Specs)",
+        "items": [
+          { "label": "CPU", "value": "Dual-core 32-bit (240MHz)" },
+          { "label": "RAM", "value": "520 KB SRAM" },
+          { "label": "Flash", "value": "32Mbit SPI Flash" },
+          { "label": "WiFi", "value": "802.11 b/g/n (2.4GHz Only)" },
+          { "label": "Input Voltage", "value": "4.75-5.25V (USB-C)" },
+          { "label": "Working Temp", "value": "-20℃ ~ 70℃" }
+        ]
+      },
+      {
+        "id": "faq",
+        "type": "faq",
+        "title": "คำถามที่พบบ่อย (FAQ)",
+        "items": [
+          {
+            "head": "เชื่อมต่อ WiFi ไม่ได้ ทำอย่างไร?",
+            "body": "1. ตรวจสอบว่าเป็น WiFi 2.4GHz เท่านั้น \n2. รหัสผ่านต้องไม่มีอักขระพิเศษแปลกๆ \n3. ลองใช้มือถือปล่อย Hotspot เทสดูว่าเครื่องปกติหรือไม่"
+          },
+          {
+            "head": "หน้าจอค้างหรือไม่แสดงผล",
+            "body": "กดปุ่ม Reset ด้านหลังเครื่อง (ปุ่มริมสุด) 1 ครั้งเพื่อรีสตาร์ท หรือถอดปลั๊กเสียบใหม่"
+          },
+          {
+            "head": "ราคาเหรียญไม่อัปเดต",
+            "body": "ตรวจสอบสัญญาณอินเทอร์เน็ต หรือลองเปลี่ยนแหล่งข้อมูล (Source) จาก Bitkub เป็น Binance หรือกลับกัน"
+          }
+        ]
+      }
+    ]
+  },
+  "cryptoclock-pro": {
+    "title": "CryptoClock Pro User Guide",
+    "intro": "คู่มือสำหรับรุ่น Pro ที่มาพร้อมจอ IPS Full Color และฟังก์ชันขั้นสูงสำหรับเทรดเดอร์ รวมถึงกราฟแท่งเทียนและการติดตาม Portfolio",
+    "sections": [
+      {
+        "type": "list",
+        "title": "ฟังก์ชันเด่น (Pro Features)",
+        "items": [
+          "หน้าจอ IPS LCD คมชัดทุกมุมมอง",
+          "กราฟแท่งเทียน (Candlestick) Timeframe 15m - 1D",
+          "เชื่อมต่อ API เพื่อดูมูลค่ารวมของ Portfolio",
+          "ระบบสัมผัส (Capacitive Touch) เปลี่ยนหน้าจอง่ายๆ",
+          "รองรับ NFC (เฉพาะรุ่น NFC Edition) แตะเพื่อสั่งงาน"
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "1. การตั้งค่าและเชื่อมต่อ",
+        "items": [
+          {
+            "head": "1.1 เริ่มต้นใช้งาน",
+            "body": "เสียบสาย USB-C หน้าจอจะติดขึ้นมาพร้อมกราฟิก Boot screen เชื่อมต่อ WiFi ตามขั้นตอนมาตรฐาน (เหมือนรุ่น Basic)"
+          },
+          {
+            "head": "1.2 การควบคุมด้วยการสัมผัส",
+            "body": "แตะขอบขวาของจอเพื่อ 'ถัดไป', ขอบซ้ายเพื่อ 'ย้อนกลับ', และแตะตรงกลางค้างไว้เพื่อเข้าเมนู 'ด่วน'"
+          }
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "2. การตั้งค่า Portfolio & API",
+        "items": [
+          {
+            "head": "2.1 เตรียม API Key",
+            "body": "เข้าไปที่เว็บ Exchange ของคุณ (เช่น Binance/Bitkub) สร้าง API Key โดยเลือกสิทธิ์เป็น 'Read-Only' เท่านั้น (ห้ามติ๊ก Withdraw/Trade เด็ดขาดเพื่อความปลอดภัย)"
+          },
+          {
+            "head": "2.2 เชื่อมต่อกับนาฬิกา",
+            "body": "เข้าหน้า Web Config ของ CryptoClock Pro ไปที่เมนู 'Portfolio' กรอก API Key และ Secret Key ที่ได้มา จากนั้นกด Save"
+          },
+          {
+            "head": "2.3 การแสดงผล",
+            "body": "เลือกโหมดหน้าจอเป็น 'Portfolio View' เครื่องจะดึงมูลค่าสินทรัพย์ทั้งหมดมาแสดงเป็นสกุลเงินที่คุณเลือก (THB/USD)"
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "คำถามที่พบบ่อย (FAQ)",
+        "items": [
+          {
+            "head": "กราฟไม่ขึ้น / ขึ้นเป็นเส้นตรง",
+            "body": "อาจเกิดจาก Volume เหรียญนั้นต่ำมากในช่วงเวลานั้น หรือ API ของ Exchange มีการจำกัด Rate Limit ให้รอสักครู่ ระบบจะดึงข้อมูลใหม่"
+          },
+          {
+            "head": "ยอดเงินใน Portfolio ไม่ตรง",
+            "body": "ระบบจะอัปเดตทุกๆ 1-5 นาที (ตั้งค่าได้) หากมีการเทรดหรือโอนเหรียญเข้าออก อาจต้องรอรอบการอัปเดตถัดไป"
+          }
+        ]
+      }
+    ]
+  },
+  "cryptoclock-epaper": {
+    "title": "CryptoClock ePaper Guide",
+    "intro": "คู่มือสำหรับนาฬิกา E-Ink ที่เน้นความสบายตาและการประหยัดพลังงาน เรียนรู้วิธีดูแลรักษาหน้าจอและยืดอายุแบตเตอรี่",
+    "sections": [
+      {
+        "type": "list",
+        "title": "ฟังก์ชันเด่น (E-Ink Features)",
+        "items": [
+          "จอ E-Ink สบายตาเหมือนกระดาษ ไม่มีแสงสีฟ้า",
+          "แสดงผลค้างได้แม้แบตหมด (Always On Display)",
+          "แบตเตอรี่ใช้งานได้ยาวนาน 30-60 วัน",
+          "กรอบไม้แท้ งานประกอบ Hand-made Premium"
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "1. ธรรมชาติของ E-Ink ที่ควรทราบ",
+        "items": [
+          {
+            "head": "1.1 การกระพริบของหน้าจอ",
+            "body": "หน้าจอจะมีการกระพริบ ดำ-ขาว สลับกันทุกครั้งที่มีการเปลี่ยนข้อมูล เพื่อเป็นการล้างเม็ดหมึก (Refresh) ป้องกันภาพค้าง ถือเป็นอาการปกติ"
+          },
+          {
+            "head": "1.2 Ghosting Effect",
+            "body": "หากสังเกตเห็นเงาจางๆ ของตัวเลขเก่า ให้กดปุ่ม Refresh ด้านหลังเครื่อง ระบบจะทำการ Full Refresh เพื่อล้างหน้าจอให้สะอาด"
+          }
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "2. การดูแลรักษาแบตเตอรี่",
+        "items": [
+          {
+            "head": "2.1 การชาร์จไฟ",
+            "body": "เมื่อสัญลักษณ์แบตเตอรี่แจ้งเตือน ให้ชาร์จด้วยสาย USB-C ประมาณ 2-3 ชั่วโมงจนไฟสถานะเปลี่ยนเป็นสีเขียว"
+          },
+          {
+            "head": "2.2 ยืดอายุการใช้งาน",
+            "body": "แนะนำให้ตั้งค่า Interval การอัปเดตราคาเป็น 5 นาทีขึ้นไป หากตั้งถี่เกินไป (เช่น 1 นาที) แบตเตอรี่จะหมดเร็วขึ้น"
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "คำถามที่พบบ่อย (FAQ)",
+        "items": [
+          {
+            "head": "หน้าจอแสดงผลช้ากว่ารุ่นอื่น",
+            "body": "เป็นข้อจำกัดของเทคโนโลยี E-Ink ที่ต้องใช้เวลาจัดเรียงเม็ดหมึกประมาณ 2-3 วินาที แลกมากับความคมชัดและความสบายตา"
+          },
+          {
+            "head": "วางในที่มืดมองไม่เห็น",
+            "body": "รุ่นนี้ไม่มี Backlight (แสงสว่างในตัว) ต้องอาศัยแสงไฟจากภายนอกเหมือนการอ่านหนังสือจริง เพื่อสุขภาพดวงตาที่ดีที่สุด"
+          }
+        ]
+      }
+    ]
+  },
+  "cryptoclock-saving": {
+    "title": "CryptoClock Saving Guide",
+    "intro": "คู่มือรุ่นประหยัดพลังงาน ดีไซน์ Retro 7-Segment เรียบง่ายแต่ทรงพลัง เหมาะสำหรับผู้ที่ต้องการโฟกัสแค่ราคา",
+    "sections": [
+      {
+        "type": "list",
+        "title": "ฟังก์ชันเด่น",
+        "items": [
+          "จอ LED 7-Segment สไตล์ Retro ยุค 90",
+          "ประหยัดไฟสูงสุด (กินไฟน้อยกว่า 1W)",
+          "ระบบ Auto-Dimming หรี่แสงอัตโนมัติในที่มืด",
+          "ขนาดจิ๋ว พกพาสะดวก"
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "1. การใช้งาน",
+        "items": [
+          {
+            "head": "1.1 การอ่านค่า",
+            "body": "เนื่องจากข้อจำกัดของจอ 7-Segment ชื่อเหรียญจะแสดงเป็นตัวย่อ (เช่น BTC, ETH) ตามด้วยราคาที่วิ่งผ่านหน้าจอ"
+          },
+          {
+            "head": "1.2 โหมดกลางคืน (Night Mode)",
+            "body": "เซ็นเซอร์วัดแสงจะทำงานอัตโนมัติ หากห้องมืดลง ไฟตัวเลขจะหรี่ลงเพื่อไม่ให้แยงตาขณะนอนหลับ"
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "FAQ",
+        "items": [
+          {
+            "head": "แสดงภาษาไทยได้ไหม?",
+            "body": "ไม่ได้ครับ จอ 7-Segment แสดงได้เฉพาะตัวเลขและตัวอักษรภาษาอังกฤษพื้นฐานเท่านั้น"
+          },
+          {
+            "head": "ใช้ Power Bank ได้ไหม?",
+            "body": "ได้ครับ เนื่องจากกินไฟน้อยมาก Power Bank ทั่วไปอาจตัดไฟ (เพราะนึกว่าไม่ได้ใช้งาน) แนะนำให้ใช้รุ่นที่มีโหมด Low Current หรือเสียบไฟบ้านจะเสถียรที่สุด"
+          }
+        ]
+      }
+    ]
+  },
+  "bitterm-series": {
+    "title": "BiTTerm Enterprise Deployment Guide",
+    "intro": "คู่มือมาตรฐาน (SOP) ฉบับสมบูรณ์สำหรับการติดตั้ง บริหารจัดการ และดูแลรักษา BiTTerm ATM Series ครอบคลุมตั้งแต่ระดับโครงสร้างระบบจนถึงกฎหมายและแผนงานในอนาคต",
+    "sections": [
+      {
+        "id": "exec-summary",
+        "type": "features",
+        "title": "0. Executive Summary",
+        "intro": "บทสรุปผู้บริหาร: วัตถุประสงค์และขอบเขตของระบบ",
+        "items": [
+          "Objective: โครงสร้างพื้นฐานเชื่อมต่อ Blockchain Payment Gateway สำหรับโลกธุรกิจจริง",
+          "Target Audience: ร้านค้าปลีก (Retail), ตู้ Kiosk, และพาร์ทเนอร์ทางธุรกิจ",
+          "Scope: ครอบคลุมตั้งแต่อุปกรณ์หน้างาน (Terminal) ถึงระบบ Settlement หลังบ้าน",
+          "Key Value: ลดความเสี่ยงจากความผันผวนของราคาด้วยระบบ Real-time Spot Rate"
+        ]
+      },
+      {
+        "id": "overview",
+        "type": "grid_card",
+        "title": "1. Product Overview & Value Proposition",
+        "intro": "ภาพรวมผลิตภัณฑ์และจุดขายหลัก",
+        "items": [
+          {
+            "head": "Bitเติม คืออะไร",
+            "body": "ระบบรับชำระและเติมเงินสินทรัพย์ดิจิทัล (Crypto POS & Top-up) บนโครงสร้างพื้นฐาน Lightning Network",
+            "image": "/images/manuals/bitterm/marketing/overview-industrial.webp"
+          },
+          {
+            "head": "แก้ปัญหาความล่าช้า",
+            "body": "รองรับ Instant Settlement ผ่าน Layer-2 Technology ตัดปัญหารอ Confirmation นาน",
+            "image": "/images/manuals/bitterm/marketing/overview-lightning.webp"
+          },
+          {
+            "head": "สำหรับร้านค้า",
+            "body": "ลดความเสี่ยงในการถือครองสินทรัพย์ และมีระบบบัญชีที่ตรวจสอบง่าย (Reconciliation)",
+            "image": "/images/manuals/bitterm/marketing/overview-income.webp"
+          },
+          {
+            "head": "สำหรับองค์กร",
+            "body": "เชื่อมต่อ API เพื่อขยายบริการไปยัง Platform ของตนเองได้ทันที (Whitelabel Ready)",
+            "image": "/images/manuals/bitterm/marketing/overview-security.webp"
+          }
+        ]
+      },
+      {
+        "id": "architecture",
+        "type": "specs",
+        "title": "2. System Architecture & Specifications",
+        "intro": "สถาปัตยกรรมระบบและสเปกฮาร์ดแวร์",
+        "items": [
+          { "label": "Architecture", "value": "Hybrid Cloud-Edge (Terminal + Cloud Core)" },
+          { "label": "Processor", "value": "Quad-core ARM Cortex-A72 (Industrial Grade)" },
+          { "label": "Connectivity", "value": "Gigabit Ethernet, Wi-Fi 5 (ac), 4G LTE Failover" },
+          { "label": "Display", "value": "10.1\" Industrial Touchscreen (Anti-glare)" },
+          { "label": "Security", "value": "TLS 1.3 Encryption / Device Identity Certificate" },
+          { "label": "Peripherals", "value": "QR Scanner, NFC Reader, Thermal Printer (80mm)" },
+          { "label": "Power Input", "value": "12V/24V DC with Surge Protection" }
+        ]
+      },
+      {
+        "id": "installation",
+        "type": "steps",
+        "title": "3. Installation & Deployment Protocols",
+        "intro": "มาตรฐานการติดตั้ง Hardware (Technician Only)",
+        "items": [
+          {
+            "head": "3.1 Unboxing & Physical Setup",
+            "body": "ตรวจสอบ Seal ป้องกันการเปิด (Tamper-evident) และติดตั้งในพื้นที่แห้ง อากาศถ่ายเทสะดวก",
+            "image": "/images/manuals/bitterm/installation/install-site-survey.webp"
+          },
+          {
+            "head": "3.2 Floor Mounting",
+            "body": "เจาะยึดพื้น 4 จุดด้วยดอกสว่านเบอร์ 12 ลึก 10cm และฝังพุกเหล็ก (Expansion Anchor Bolts)",
+            "image": "/images/manuals/bitterm/installation/install-bolting.webp"
+          },
+          {
+            "head": "3.3 Network & Boot",
+            "body": "เสียบสาย LAN และไฟ AC ผ่าน UPS รอระบบ Boot และนำ Pairing Code ไปกรอกใน Merchant Dashboard",
+            "image": "/images/manuals/bitterm/installation/install-cabling.webp"
+          }
+        ]
+      },
+      {
+        "id": "merchant",
+        "type": "steps",
+        "title": "4. Merchant Operations Guide",
+        "intro": "คู่มือปฏิบัติงานประจำวันสำหรับร้านค้า (Daily Routine)",
+        "items": [
+          {
+            "head": "4.1 Daily Start-up",
+            "body": "Start of Day: เปิดเครื่อง > เช็คสถานะ Online > พิมพ์ Test Slip ยืนยันความพร้อม",
+            "image": "/images/manuals/bitterm/merchant/merchant-startup.webp"
+          },
+          {
+            "head": "4.2 Fee & Spread",
+            "body": "เข้าเมนู Admin > Extensions > LNURLDevice เพื่อกำหนด Profit Margin (แนะนำ 3-5%)",
+            "image": "/images/manuals/bitterm/merchant/merchant-fees.webp"
+          },
+          {
+            "head": "4.3 Settlement",
+            "body": "End of Day: พิมพ์ Z-Report และตรวจสอบยอดเงินสดใน Cashbox เทียบกับ Dashboard",
+            "image": "/images/manuals/bitterm/merchant/merchant-settlement.webp"
+          }
+        ]
+      },
+      {
+        "id": "customer",
+        "type": "steps",
+        "title": "5. Customer User Guide",
+        "intro": "ขั้นตอนการใช้งานสำหรับลูกค้า (End-User)",
+        "items": [
+          {
+            "head": "Step 1: Initiate",
+            "body": "แตะหน้าจอ เลือกภาษา และตรวจสอบอัตราแลกเปลี่ยน (Rate) ก่อนทำรายการ",
+            "image": "/images/manuals/bitterm/customer/user-step1-start.webp"
+          },
+          {
+            "head": "Step 2: Insert Cash",
+            "body": "สอดธนบัตร (รองรับ 20-1000 บาท) หน้าจอจะแสดงยอด Crypto ที่ได้รับแบบ Real-time",
+            "image": "/images/manuals/bitterm/customer/user-step2-insert.webp"
+          },
+          {
+            "head": "Step 3: Scan & Settlement",
+            "body": "สแกน QR Code ด้วย Wallet (Lightning Network) ยอดเงินเข้าทันทีใน 3-5 วินาที",
+            "image": "/images/manuals/bitterm/customer/user-step3-scan.webp"
+          }
+        ]
+      },
+      {
+        "id": "assets",
+        "type": "features",
+        "title": "6. Wallet, Asset & Token Handling",
+        "intro": "การจัดการสินทรัพย์ดิจิทัล",
+        "items": [
+          "Supported Assets: Bitcoin (Mainnet/Lightning), USDT/USDC (Supported Chains)",
+          "Dynamic Address: สร้าง Address ใหม่ทุกธุรกรรมเพื่อ Privacy",
+          "Confirmation Logic: On-chain รอ 1-3 Confirms / Lightning สำเร็จทันที"
+        ]
+      },
+      {
+        "id": "fees",
+        "type": "specs",
+        "title": "7. Fees, Limits & Policies",
+        "intro": "โครงสร้างค่าธรรมเนียมและวงเงิน",
+        "items": [
+          { "label": "Network Fee", "value": "ผู้ทำรายการรับผิดชอบ (Miner Fee)" },
+          { "label": "Service Fee", "value": "รวมใน Rate หรือแยกแสดงตาม Config" },
+          { "label": "Min Transaction", "value": "100 THB / รายการ" },
+          { "label": "Max Transaction", "value": "100,000 THB / รายการ" },
+          { "label": "Daily Limit", "value": "ตามระดับ KYC ของผู้ใช้งาน" },
+          { "label": "Refund Policy", "value": "คืนเป็น Fiat/Crypto ณ มูลค่าตั้งต้น (Case-by-case)" }
+        ]
+      },
+      {
+        "id": "security",
+        "type": "grid_card",
+        "title": "8. Security, Compliance & Risk Control",
+        "intro": "ความปลอดภัยและการกำกับดูแล",
+        "items": [
+          {
+            "head": "Anti-Tamper",
+            "body": "หากมีการงัดแงะ ระบบจะทำการ Zeroization (ลบ Key สำคัญ) ทันที",
+            "image": "/images/manuals/bitterm/security/sec-tamper.webp"
+          },
+          {
+            "head": "Non-Custodial Hybrid",
+            "body": "ร้านค้าเลือก Auto-sweep เข้า Cold Wallet หรือพักบน Custodian Partner ได้",
+            "image": "/images/manuals/bitterm/security/sec-coldwallet.webp"
+          },
+          {
+            "head": "Anti-Fraud & AML",
+            "body": "Rate Limiting และ Blacklist Monitoring ป้องกันการฟอกเงิน",
+            "image": "/images/manuals/bitterm/security/sec-aml.webp"
+          },
+          {
+            "head": "Data Privacy",
+            "body": "ข้อมูลส่วนบุคคลเข้ารหัสและจัดเก็บตามระยะเวลาที่กฎหมายกำหนด",
+            "image": "/images/manuals/bitterm/security/sec-privacy.webp"
+          }
+        ]
+      },
+      {
+        "id": "api",
+        "type": "steps",
+        "title": "9. API Integration Guide",
+        "intro": "คู่มือการเชื่อมต่อระบบสำหรับพาร์ทเนอร์",
+        "items": [
+          {
+            "head": "9.1 Authentication",
+            "body": "ใช้ API Key และ Secret Key ผ่าน HTTP Header `X-API-KEY`",
+            "image": "/images/manuals/bitterm/api/api-auth.webp"
+          },
+          {
+            "head": "9.2 Webhook",
+            "body": "ตั้งค่า Callback URL เพื่อรับสถานะธุรกรรม (Pending/Confirmed) Real-time",
+            "image": "/images/manuals/bitterm/api/api-webhook.webp"
+          },
+          {
+            "head": "9.3 Sandbox",
+            "body": "ทดสอบที่ `api-sandbox.bitterm.com` ด้วย Testnet Coin ก่อน Production",
+            "image": "/images/manuals/bitterm/api/api-sandbox.webp"
+          }
+        ]
+      },
+      {
+        "id": "logs",
+        "type": "features",
+        "title": "10. Monitoring, Logs & Audit",
+        "intro": "การบันทึกข้อมูลเพื่อการตรวจสอบ (Audit Trail)",
+        "items": [
+          "Transaction Log: รายละเอียด Hash, Time, Amount, Status",
+          "Event Log: การ Login, การเปลี่ยน Config, การเปิด-ปิดเครื่อง",
+          "Error Log: บันทึกความผิดพลาดของระบบและเครือข่าย",
+          "Data Retention: เก็บรักษาข้อมูลอย่างน้อย 5 ปี หรือตามกฎหมายกำหนด"
+        ]
+      },
+      {
+        "id": "troubleshooting",
+        "type": "faq",
+        "title": "11. Troubleshooting & Maintenance",
+        "items": [
+          {
+            "head": "Network Error",
+            "body": "ตรวจสอบสาย LAN/Wi-Fi และ Router หากไม่หายให้ทำ Hard Reset"
+          },
+          {
+            "head": "Printer Error",
+            "body": "ตรวจสอบกระดาษหมด ฝาปิดไม่สนิท หรือความร้อนหัวพิมพ์สูงเกินไป"
+          },
+          {
+            "head": "Transaction Pending",
+            "body": "หากรอนานเกินไป ให้เช็ค TxID บน Blockchain Explorer"
+          },
+          {
+            "head": "Preventive Maintenance",
+            "body": "ทำความสะอาดหน้าจอ/เป่าฝุ่นทุกเดือน ห้ามใช้น้ำยาเคมีรุนแรง"
+          }
+        ]
+      },
+      {
+        "id": "firmware",
+        "type": "steps",
+        "title": "12. Firmware & Lifecycle",
+        "intro": "การอัปเดตและวงจรชีวิตผลิตภัณฑ์",
+        "items": [
+          {
+            "head": "12.1 OTA Update",
+            "body": "ระบบตรวจสอบเวอร์ชันใหม่ทุก 03:00 น. และอัปเดตเมื่อ Idle",
+            "image": "/images/manuals/bitterm/firmware/fw-check.webp"
+          },
+          {
+            "head": "12.2 End-of-Life Policy",
+            "body": "สนับสนุน Software Patch อย่างน้อย 5 ปี นับจากวันหยุดจำหน่าย",
+            "image": "/images/manuals/bitterm/firmware/fw-install.webp"
+          }
+        ]
+      },
+      {
+        "id": "legal",
+        "type": "features",
+        "title": "13. Legal Disclaimer & Terms",
+        "intro": "ข้อจำกัดความรับผิดชอบและข้อกำหนดทางกฎหมาย",
+        "items": [
+          "Limitation of Liability: ไม่รับผิดชอบต่อความเสียหายจากความผันผวนของราคา",
+          "Regulatory Notice: ผู้ใช้ต้องปฏิบัติตามกฎหมายภาษี/ฟอกเงินในเขตอำนาจศาลตน",
+          "User Responsibility: ร้านค้าต้องรักษาความปลอดภัยของ Password อย่างเคร่งครัด"
+        ]
+      },
+      {
+        "id": "support",
+        "type": "grid_card",
+        "title": "14. Support & Escalation",
+        "intro": "ช่องทางสนับสนุนและ SLA",
+        "items": [
+          {
+            "head": "Critical Issue (SLA 1 Hr)",
+            "body": "กรณีระบบล่ม/รับเงินไม่ได้ ติดต่อ Hotline ฉุกเฉิน 24 ชม.",
+            "image": "/images/manuals/bitterm/support/supp-emergency.webp"
+          },
+          {
+            "head": "General Inquiry (SLA 24 Hr)",
+            "body": "สอบถามทั่วไป แจ้งปัญหาไม่เร่งด่วนผ่าน Merchant Portal Ticket",
+            "image": "/images/manuals/bitterm/support/supp-ticket.webp"
+          }
+        ]
+      },
+      {
+        "id": "roadmap",
+        "type": "steps",
+        "title": "15. Roadmap & Future Expansion",
+        "intro": "แผนงานพัฒนาในอนาคต",
+        "items": [
+          {
+            "head": "Phase Q3/20xx: NFC Support",
+            "body": "รองรับการแตะจ่ายด้วย NFC Cards (Bolt Card Support)",
+            "image": "/images/manuals/bitterm/roadmap/nfc.webp"
+          },
+          {
+            "head": "Phase Q4/20xx: Multi-chain",
+            "body": "เพิ่มการรองรับ Multi-chain assets และ Layer 2 chains อื่นๆ",
+            "image": "/images/manuals/bitterm/roadmap/multichain.webp"
+          },
+          {
+            "head": "Phase Q1/20xx: Loyalty Program",
+            "body": "ระบบสะสมแต้มและ NFT Rewards บนตัวเครื่อง",
+            "image": "/images/manuals/bitterm/roadmap/loyalty.webp"
+          }
+        ]
+      }
+    ]
+  },
+  "bitpos-terminal": {
+    "title": "BiTPos Terminal Guide",
+    "intro": "คู่มือการใช้งานเครื่อง POS รับชำระเงินด้วย Bitcoin Lightning Network สำหรับร้านค้า",
+    "sections": [
+      {
+        "type": "list",
+        "title": "ฟีเจอร์ร้านค้า",
+        "items": [
+          "รับเงินทันทีผ่าน Lightning Network (วินาทีเดียวจบ)",
+          "พิมพ์ใบเสร็จในตัว (Thermal Printer)",
+          "รองรับ NFC (Bolt Card)",
+          "สรุปยอดขายรายวันอัตโนมัติ"
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "1. เริ่มต้นใช้งาน",
+        "items": [
+          {
+            "head": "1.1 ใส่กระดาษใบเสร็จ",
+            "body": "เปิดฝาครอบด้านบน วางม้วนกระดาษ Thermal ขนาด 58mm โดยให้ด้านมันหงายขึ้น ปิดฝาให้สนิท"
+          },
+          {
+            "head": "1.2 Login ร้านค้า",
+            "body": "เปิดแอป BiTPos ใส่ Pairing Code จาก LNBits หรือ BTCPay Server ของร้านคุณเพื่อเชื่อมต่อกระเป๋าเงิน"
+          }
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "2. วิธีรับเงินลูกค้า",
+        "items": [
+          {
+            "head": "2.1 ระบุจำนวนเงิน",
+            "body": "กดจำนวนเงินบาทที่ต้องการรับ (เช่น 150 บาท) ระบบจะแปลงเป็น Satoshi อัตโนมัติตามเรทปัจจุบัน"
+          },
+          {
+            "head": "2.2 การชำระเงิน",
+            "body": "ลูกค้าสามารถเลือก 'สแกน QR Code' ด้วยมือถือ หรือ 'แตะบัตร NFC' ที่หัวเครื่อง เสียง Beep ยาวจะดังขึ้นเมื่อได้รับเงินสำเร็จ พร้อมพิมพ์ใบเสร็จทันที"
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "FAQ",
+        "items": [
+          {
+            "head": "เปลี่ยนกระดาษยังไง?",
+            "body": "ใช้กระดาษความร้อนขนาด 58mm ทั่วไป (แบบเดียวกับเครื่องรูดบัตรเครดิต) หาซื้อได้ตามร้านเครื่องเขียน"
+          },
+          {
+            "head": "ต้องใช้อินเทอร์เน็ตไหม?",
+            "body": "จำเป็นครับ เครื่องรองรับทั้ง WiFi และใส่ซิม 4G หากเน็ตหลุดจะไม่สามารถเจน QR Code ได้"
+          }
+        ]
+      }
+    ]
+  },
+  "bitnode-personal": {
+    "title": "BiTNode Personal Guide",
+    "intro": "คู่มือการติดตั้งและดูแลรักษา Bitcoin Full Node ส่วนตัวของคุณ เส้นทางสู่ความเป็นอิสระทางการเงินอย่างแท้จริง",
+    "sections": [
+      {
+        "type": "list",
+        "title": "สเปกและระบบ",
+        "items": [
+          "OS: Umbrel หรือ Start9 (Linux based)",
+          "Storage: NVMe SSD ความเร็วสูง (สำคัญมากสำหรับการ Sync)",
+          "Cooling: Passive Cooling เคสอลูมิเนียมทั้งตัว ไร้เสียงรบกวน"
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "1. การติดตั้ง Hardware",
+        "items": [
+          {
+            "head": "1.1 การเชื่อมต่อ",
+            "body": "เสียบสาย LAN เข้ากับ Router บ้านของคุณ (แนะนำให้ต่อตรง ไม่ผ่าน Switch) และเสียบสายไฟ USB-C PD"
+          },
+          {
+            "head": "1.2 เข้าสู่ระบบครั้งแรก",
+            "body": "รอประมาณ 5 นาที แล้วเปิด Browser บนคอมพิวเตอร์ พิมพ์ 'http://umbrel.local' (หรือ IP Address ของเครื่อง)"
+          }
+        ]
+      },
+      {
+        "type": "steps",
+        "title": "2. ขั้นตอนที่สำคัญที่สุด (Setup Wizard)",
+        "items": [
+          {
+            "head": "2.1 จด Seed Phrase",
+            "body": "ระบบจะแสดงคำศัพท์ 24 คำ (Seed Phrase) **สำคัญมาก!** ให้จดลงกระดาษและเก็บในที่ปลอดภัย ห้ามถ่ายรูปหรือเซฟลงคอมเด็ดขาด นี่คือกุญแจเดียวในการกู้เงินของคุณ"
+          },
+          {
+            "head": "2.2 Initial Block Download (IBD)",
+            "body": "หลังจากตั้งรหัสผ่าน เครื่องจะเริ่มดาวน์โหลดประวัติธุรกรรม Bitcoin ทั้งหมดตั้งแต่อดีต (IBD) ขั้นตอนนี้จะใช้เวลา 2-4 วัน ห้ามถอดปลั๊กหรือปิดเน็ต"
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "FAQ & Troubleshooting",
+        "items": [
+          {
+            "head": "ตัวเครื่องร้อนมาก ผิดปกติไหม?",
+            "body": "ปกติครับ เคสถูกออกแบบมาให้เป็น Heatsink ระบายความร้อน ผิวสัมผัสอาจร้อนถึง 45-50 องศาขณะ Sync ข้อมูล ไม่ต้องกังวล"
+          },
+          {
+            "head": "ไฟดับขณะ Sync เป็นอะไรไหม?",
+            "body": "ระบบ File System (Btrfs/Ext4) มีความทนทาน เมื่อไฟมาเครื่องจะบูตและทำ Self-check สักพักแล้วจะทำงานต่อเอง แนะนำให้มี UPS สำรองไฟจะดีที่สุด"
+          }
+        ]
+      }
+    ]
+  }
+}

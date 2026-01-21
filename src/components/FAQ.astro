@@ -1,34 +1,113 @@
 ---
-const faqs = [
-    { q: "Hardware Wallet ต่างจากกระเป๋าในเว็บเทรดอย่างไร?", a: "Hardware Wallet เก็บ Private Key ของคุณไว้ในอุปกรณ์ออฟไลน์ ทำให้แฮ็กเกอร์ไม่สามารถขโมยเหรียญได้ผ่านอินเทอร์เน็ต ต่างจากเว็บเทรดที่กุญแจอยู่ที่ผู้ให้บริการ" },
-    { q: "ถ้าเครื่องหาย หรือพัง เหรียญจะหายไหม?", a: "ไม่หายครับ! ตราบใดที่คุณจด Seed Phrase (คำศัพท์ 12-24 คำ) เอาไว้ คุณสามารถซื้อเครื่องใหม่รุ่นไหนก็ได้เพื่อกู้คืนเหรียญกลับมาได้ทันที" },
-    { q: "มือใหม่ควรเริ่มจากรุ่นไหนดี?", a: "แนะนำ Trezor Safe 3 หรือ OneKey Classic 1S ครับ เพราะใช้งานง่าย ราคาเริ่มต้นไม่แพง และมีความปลอดภัยสูงตามมาตรฐานสากล" },
-    { q: "สินค้ามีการรับประกันไหม?", a: "สินค้าทุกชิ้นจาก Cashless Thailand เป็นของแท้ 100% นำเข้าอย่างถูกต้อง และมีการรับประกันศูนย์ไทย 1 ปีเต็ม หากมีปัญหาเปลี่ยนเครื่องใหม่ให้ทันที" }
+// src/components/FAQ.astro
+
+const faqCategories = [
+  {
+    id: 'basics',
+    label: 'Bitcoin Basics',
+    questions: [
+        { q: "Hardware Wallet ต่างจากกระเป๋าในเว็บเทรดอย่างไร?", a: "Hardware Wallet เก็บ Private Key ของคุณไว้ในอุปกรณ์ออฟไลน์ (Cold Storage) ทำให้แฮ็กเกอร์ไม่สามารถเจาะระบบผ่านอินเทอร์เน็ตได้ ต่างจากเว็บเทรดที่กุญแจอยู่ที่ผู้ให้บริการ หากเว็บปิดตัวหรือถูกแฮ็ก เหรียญคุณอาจสูญหายได้" },
+        { q: "ถ้าเครื่องหาย หรือพัง เหรียญจะหายไหม?", a: "ไม่หายครับ! ตราบใดที่คุณจด Seed Phrase (คำศัพท์ 12-24 คำ) เอาไว้ในกระดาษหรือแผ่นเหล็ก คุณสามารถซื้อเครื่องใหม่รุ่นไหนก็ได้เพื่อ 'กู้คืน' เหรียญกลับมาได้ครบทุกบาททุกสตางค์" },
+        { q: "มือใหม่ควรเริ่มจากรุ่นไหนดี?", a: "สำหรับมือใหม่ แนะนำรุ่นที่ใช้งานง่ายและมีหน้าจอสัมผัส เช่น OneKey Classic 1S หรือ Trezor Safe 3 ที่สมดุลทั้งความปลอดภัยและราคาครับ" }
+    ]
+  },
+  {
+    id: 'products',
+    label: 'Products & Usage',
+    questions: [
+        { q: "CryptoClock ต้องต่อคอมพิวเตอร์ตลอดเวลาไหม?", a: "ไม่ต้องครับ CryptoClock ทำงานแยกอิสระ เพียงแค่เสียบปลั๊กไฟ (USB-C) และเชื่อมต่อ WiFi ครั้งแรกผ่านมือถือ ก็พร้อมแสดงราคาได้ตลอด 24 ชม." },
+        { q: "BiTNode กินไฟเยอะไหม?", a: "น้อยมากครับ! BiTNode ใช้บอร์ด Raspberry Pi หรือเทียบเท่า กินไฟเฉลี่ยเพียง 5-10W (ค่าไฟประมาณ 30-50 บาทต่อเดือน) สามารถเปิดทิ้งไว้ได้ตลอดปีโดยไม่ต้องกังวล" },
+        { q: "ตู้ BiTTerm รองรับเหรียญอะไรบ้าง?", a: "BiTTerm ออกแบบมาเพื่อ Bitcoin (BTC) บนเครือข่าย Lightning Network โดยเฉพาะ เพื่อความรวดเร็วและค่าธรรมเนียมที่ถูกที่สุดครับ" }
+    ]
+  },
+  {
+    id: 'service',
+    label: 'Warranty & Shipping',
+    questions: [
+        { q: "สินค้ามีการรับประกันไหม?", a: "สินค้าทุกชิ้นจาก Cashless Thailand เป็นของแท้ 100% นำเข้าอย่างถูกต้อง และมีการรับประกันศูนย์ไทย 1 ปีเต็ม หากเครื่องมีปัญหาจากการผลิต เราเปลี่ยนเครื่องใหม่ให้ทันทีครับ" },
+        { q: "จัดส่งสินค้านานไหม?", a: "สินค้าพร้อมส่ง (In Stock) จะจัดส่งภายใน 1-2 วันทำการ หากเป็นสินค้า Pre-order จะใช้เวลาประมาณ 14-20 วันครับ โดยเราแพ็คกันกระแทกอย่างแน่นหนาทุกกล่อง" },
+        { q: "มีทีมงานสอนใช้งานไหม?", a: "มีครับ! เรามีคู่มือภาษาไทยให้ และมีทีม Support คนไทยคอยดูแลผ่าน Line OA ตลอดการใช้งาน ไม่ต้องกังวลว่าจะทำไม่เป็นครับ" }
+    ]
+  }
 ];
 ---
 
-<section class="max-w-[1000px] mx-auto px-6 md:px-12 py-32">
+<section class="max-w-[1000px] mx-auto px-6 md:px-12 py-32" id="faq-section">
     <div class="text-center mb-16 reveal">
-        <h2 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">FAQ</h2>
-        <p class="text-white/40">คำถามที่พบบ่อยเกี่ยวกับการเก็บรักษา Bitcoin</p>
+        <h2 class="eng text-[#D4AF37] text-xs font-black tracking-[0.5em] uppercase mb-4">Support</h2>
+        <h2 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-8">FAQ</h2>
+        
+        <div class="inline-flex flex-wrap justify-center gap-2 p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
+            {faqCategories.map((cat, index) => (
+                <button 
+                    class={`tab-btn px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${index === 0 ? 'bg-[#D4AF37] text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                    data-target={cat.id}
+                >
+                    {cat.label}
+                </button>
+            ))}
+        </div>
     </div>
 
-    <div class="space-y-4">
-        {faqs.map((item, i) => (
-            <details class="group bg-[#0a0a0a] rounded-2xl border border-white/5 open:border-[#D4AF37]/50 transition-all duration-300 reveal" style={`animation-delay: ${i * 0.1}s`}>
-                <summary class="flex justify-between items-center p-6 cursor-pointer list-none">
-                    <span class="text-lg font-bold text-white group-hover:text-[#D4AF37] transition-colors">{item.q}</span>
-                    <span class="text-[#D4AF37] transform group-open:rotate-180 transition-transform duration-300">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-                    </span>
-                </summary>
-                <div class="px-6 pb-6 text-white/60 leading-relaxed font-light">
-                    {item.a}
-                </div>
-            </details>
+    <div class="relative min-h-[400px]">
+        {faqCategories.map((cat, index) => (
+            <div 
+                id={cat.id} 
+                class={`faq-panel space-y-4 transition-all duration-500 absolute top-0 left-0 w-full ${index === 0 ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 z-0 translate-y-4 pointer-events-none'}`}
+            >
+                {cat.questions.map((item, i) => (
+                    <details class="group bg-[#0a0a0a] rounded-2xl border border-white/5 open:border-[#D4AF37]/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center p-6 cursor-pointer list-none select-none">
+                            <span class="text-lg font-bold text-white group-hover:text-[#D4AF37] transition-colors pr-8">{item.q}</span>
+                            <span class="text-[#D4AF37] transform group-open:rotate-180 transition-transform duration-300 flex-shrink-0">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                            </span>
+                        </summary>
+                        <div class="px-6 pb-6 text-white/60 leading-relaxed font-light border-t border-white/5 pt-4 mt-2">
+                            {item.a}
+                        </div>
+                    </details>
+                ))}
+            </div>
         ))}
     </div>
 </section>
+
+<script>
+    // Tab Switching Logic
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.faq-panel');
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 1. Update Buttons State
+            btns.forEach(b => {
+                b.classList.remove('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]');
+                b.classList.add('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+            });
+            btn.classList.remove('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+            btn.classList.add('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]');
+
+            // 2. Update Panels State
+            // @ts-ignore
+            const targetId = btn.dataset.target;
+            
+            panels.forEach(panel => {
+                if(panel.id === targetId) {
+                    // Show
+                    panel.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
+                    panel.classList.add('opacity-100', 'translate-y-0', 'z-10');
+                } else {
+                    // Hide
+                    panel.classList.remove('opacity-100', 'translate-y-0', 'z-10');
+                    panel.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
+                    // Optional: Close details when switching tabs
+                    panel.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
+                }
+            });
+        });
+    });
+</script>
 
 <style>
     .reveal {

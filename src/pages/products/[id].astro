@@ -5,197 +5,117 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import CartDrawer from '../../components/CartDrawer.astro';
 
+// 1. ดึงข้อมูล
+import productsData from '../../data/products.json';
+
 export async function getStaticPaths() {
-  const products = [
-    // --- 1. CryptoClock Basic (แก้ตัวเลือกที่ 3 เป็นสีใส) ---
-    {
-      id: 'cryptoclock-basic',
-      title: "CryptoClock Basic",
-      price: 1500,
-      description: "นาฬิกาคริปโตดูราคารุ่นเริ่มต้น ขนาดกะทัดรัด เชื่อมต่อ WiFi แสดงราคา Bitcoin และ Altcoins ได้แบบ Real-time",
-      specs: ["WiFi Connected", "LED Matrix Display", "USB-C Power"],
-      images: ["/images/Basic_White_Center.webp"],
-      variantType: "color",
-      variants: [
-        { name: 'White', color: '#F0F0F0', image: '/images/Basic_White_Center.webp', price: 1500 },
-        { name: 'Black', color: '#111111', image: '/images/Basic_Black_Center.webp', price: 1500 },
-        // [แก้ตรงนี้] เปลี่ยนจาก Orange เป็น Transparent (สีใส)
-        { name: 'Transparent', color: '#E5E5E5', image: '/images/Basic_Tran_Center.webp', price: 1500 }
-      ],
-      type: "Clock"
-    },
-
-    // --- 2. CryptoClock Saving (เลือกสี: ดำ ขาว ส้ม) ---
-    {
-      id: 'cryptoclock-saving',
-      title: "CryptoClock Saving",
-      price: 990,
-      description: "รุ่นประหยัดเน้นการใช้งานหลัก แสดงราคาตัวเลขขนาดใหญ่ชัดเจน ไม่มีฟังก์ชันซับซ้อน กินไฟน้อย",
-      specs: ["7-Segment Display", "Low Power", "Plug & Play"],
-      images: ["/images/cryptoclock-saving.webp"],
-      variantType: "color",
-      variants: [
-        { name: 'White', color: '#F0F0F0', image: '/images/cryptoclock-saving.webp', price: 990 },
-        { name: 'Black', color: '#111111', image: '/images/cryptoclock-saving.webp', price: 990 },
-        { name: 'Orange', color: '#D4AF37', image: '/images/cryptoclock-saving.webp', price: 990 }
-      ],
-      type: "Clock"
-    },
-
-    // --- 3. CryptoClock Pro (เลือก Pro หรือ Pro + NFC) ---
-    {
-      id: 'cryptoclock-pro',
-      title: "CryptoClock Pro",
-      price: 2500,
-      description: "รุ่น Pro อัปเกรดหน้าจอเป็น IPS ความละเอียดสูง แสดงกราฟแท่งเทียนได้ พร้อมระบบแจ้งเตือนราคา",
-      specs: ["High-Res IPS Screen", "Candlestick Charts", "Price Alerts"],
-      images: ["/images/cryptoclock-pro.webp"],
-      variantType: "text", // ปุ่มข้อความ
-      variants: [
-        { name: 'Pro Standard', image: '/images/cryptoclock-pro.webp', price: 2500 },
-        { name: 'Pro + NFC', image: '/images/cryptoclock-pro.webp', price: 3200 }
-      ],
-      type: "Clock"
-    },
-
-    // --- 4. BiTTerm (มี 3 รุ่น + Option PromptPay) ---
-    {
-      id: 'bitterm-series', 
-      title: "BiTTerm Series",
-      price: 15000,
-      description: "ตู้เติม Bitcoin สำหรับร้านค้า รับเงินสดแลกเป็น Bitcoin ผ่าน Lightning Network มีให้เลือกหลายขนาดเพื่อรองรับธุรกิจทุกระดับ",
-      specs: ["Lightning Network", "Cash Acceptor", "Thermal Printer", "Wifi/4G"],
-      images: ["/images/bitterm-mini.webp"],
-      variantType: "text",
-      variants: [
-        { name: 'BiTTerm Mini', image: '/images/bitterm-mini.webp', price: 15000 },
-        { name: 'BiTTerm Pro', image: '/images/bitterm-mini.webp', price: 25000 },
-        { name: 'BiTTerm Pro Max', image: '/images/bitterm-mini.webp', price: 39000 }
-      ],
-      addons: [
-        { id: 'promptpay', name: 'PromptPay Module', price: 8500, desc: 'รองรับการสแกนจ่ายเงินบาท (QR PromptPay)' }
-      ],
-      type: "Kiosk"
-    },
-
-    // --- 5. BiTNode (เลือก RPi หรือ Umbrel Home) ---
-    {
-      id: 'bitnode-personal',
-      title: "BiTNode Personal",
-      price: 5500,
-      description: "อุปกรณ์รัน Bitcoin Full Node แบบสำเร็จรูป เลือกได้ระหว่างชุด Kit ประหยัด หรือเครื่องระดับ High-End",
-      specs: ["Pre-synced Blockchain", "2TB SSD", "Umbrel OS Ready"],
-      images: ["/images/bitnode-personal.webp"],
-      variantType: "text",
-      variants: [
-        { name: 'Raspberry Pi 5 Kit', image: '/images/bitnode-personal.webp', price: 5500 },
-        { name: 'Umbrel Home Server', image: '/images/bitnode-personal.webp', price: 24900 }
-      ],
-      type: "Node"
-    },
-
-    // --- สินค้าอื่นๆ (คงเดิม) ---
-    {
-      id: 'cryptoclock-promax',
-      title: "CryptoClock Pro Max",
-      price: 3500,
-      description: "ที่สุดของนาฬิกาคริปโต หน้าจอขนาดใหญ่พิเศษ",
-      specs: ["Large IPS Display", "Portfolio Tracking"],
-      images: ["/images/cryptoclock-promax.webp"],
-      type: "Clock"
-    },
-    {
-      id: 'bitpos-terminal',
-      title: "BiTPos Terminal",
-      price: 8900,
-      description: "เครื่องคิดเงินอัจฉริยะ รองรับ Bitcoin และ Lightning",
-      specs: ["Touch Screen 5.5\"", "Built-in Printer", "NFC"],
-      images: ["/images/bitpos-terminal.webp"],
-      type: "POS"
-    },
-    {
-      id: 'cryptoclock-epaper',
-      title: "CryptoClock ePaper",
-      price: 4500,
-      description: "หน้าจอ E-Ink ถนอมสายตา",
-      specs: ["E-Ink Display", "Battery Life 1 Month"],
-      images: ["/images/cryptoclock-epaper-47.webp"],
-      variantType: "text",
-      variants: [
-        { name: '4.7 Inch', image: '/images/cryptoclock-epaper-47.webp', price: 4500 },
-        { name: '7.5 Inch', image: '/images/cryptoclock-epaper-75.webp', price: 6500 }
-      ],
-      type: "Clock"
-    }
-  ];
-
-  return products.map(product => ({
+  return productsData.map(product => ({
     params: { id: product.id },
     props: { product },
   }));
 }
 
 const { product } = Astro.props;
+
+// Helper variables
+const hasMarketing = product.marketing && product.marketing.benefits?.length > 0;
+const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
+const hasGallery = product.media.gallery && product.media.gallery.length > 1;
+const price = product.pricing.basePrice.toLocaleString();
+const currency = product.pricing.currency;
+
+// [สำคัญ] แปลงข้อมูล Product เป็น JSON String เพื่อส่งให้ Script
+const productJson = JSON.stringify(product);
 ---
 
-<Layout title={`${product.title} | Cashless Thailand`}>
+<Layout title={`${product.meta.title} | Cashless Thailand`} description={product.meta.description}>
     <Navbar />
     <CartDrawer />
 
-    <main class="relative z-10 bg-[#050505] pt-32 pb-20 min-h-screen">
-        <div class="max-w-[1200px] mx-auto px-6 mb-8">
-            <a href="/shop" class="text-white/40 hover:text-[#D4AF37] text-xs eng uppercase tracking-widest transition-colors">Shop</a>
-            <span class="text-white/20 mx-2">/</span>
-            <span class="text-[#D4AF37] text-xs eng uppercase tracking-widest">{product.title}</span>
-        </div>
-
-        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            <div class="space-y-4">
-                <div class="aspect-square bg-[#111] rounded-[2rem] overflow-hidden border border-white/5 relative group flex items-center justify-center p-8">
+    <main 
+        id="product-page-container" 
+        class="bg-[#050505] min-h-screen pt-32 pb-20 overflow-x-hidden"
+        data-product-json={productJson}
+    >
+        
+        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32 animate-fade-in">
+            
+            <div class="space-y-6">
+                <div class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <img 
                         id="main-image" 
-                        src={product.images[0]} 
-                        alt={product.title} 
-                        class="w-full h-full object-contain transition-all duration-500 group-hover:scale-105" 
+                        src={product.media.mainImage} 
+                        alt={product.meta.title} 
+                        class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 group-hover:rotate-1" 
+                        loading="eager"
                     />
                 </div>
+
+                {hasGallery && (
+                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                        {product.media.gallery.map((img, index) => (
+                            <button 
+                                class="w-20 h-20 rounded-2xl border border-white/10 bg-[#111] overflow-hidden hover:border-[#D4AF37] transition-all flex-shrink-0 snap-start focus:ring-2 focus:ring-[#D4AF37] focus:outline-none thumbnail-btn" 
+                                data-src={img}
+                                aria-label={`View image ${index + 1}`}
+                            >
+                                <img src={img} class="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div class="flex flex-col justify-center">
-                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">{product.title}</h1>
-                <div class="flex items-end gap-4 mb-8">
-                    <span id="price-display" class="text-3xl text-[#D4AF37] font-black eng">{product.price.toLocaleString()}</span>
-                    <span class="text-3xl text-[#D4AF37] font-black eng"> THB</span>
-                </div>
-                <p class="text-white/60 font-light leading-relaxed mb-8 text-lg">{product.description}</p>
+            <div class="flex flex-col justify-center relative">
                 
-                {product.variants && (
-                    <div class="mb-8">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-widest block mb-3">
-                            {product.variantType === 'color' ? 'Select Color' : 'Select Model'}
+                <div class="flex items-center gap-4 mb-6">
+                    <a href="/shop" class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors">Shop</a>
+                    <span class="text-white/20">/</span>
+                    <span class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest">{product.meta.title}</span>
+                </div>
+
+                {product.meta.tags && (
+                    <div class="flex gap-2 mb-6">
+                        {product.meta.tags.map(tag => (
+                            <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">{tag}</span>
+                        ))}
+                    </div>
+                )}
+                
+                <h1 class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight">{product.meta.title}</h1>
+                <p class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg">{product.meta.description}</p>
+                
+                <div class="flex items-baseline gap-3 mb-10">
+                    <span class="text-5xl text-white font-black eng tracking-tighter">{price}</span>
+                    <span class="text-xl text-[#D4AF37] font-bold eng">{currency}</span>
+                </div>
+
+                {product.config && product.config.variants && (
+                    <div class="mb-10 p-6 bg-[#111] rounded-3xl border border-white/5">
+                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] block mb-4">
+                            Select {product.config.variantType === 'color' ? 'Color' : 'Model'}
                         </span>
                         
-                        <div class="flex gap-3 flex-wrap" id="variant-selector">
-                            {product.variants.map((variant, index) => (
-                                product.variantType === 'color' ? (
+                        <div class="flex gap-4 flex-wrap" id="variant-selector">
+                            {product.config.variants.map((variant, index) => (
+                                product.config.variantType === 'color' ? (
                                     <button 
-                                        class={`variant-btn w-10 h-10 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-transparent hover:scale-110'}`}
-                                        style={`background-color: ${variant.color}`}
+                                        class={`variant-btn w-12 h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-transparent hover:scale-110'}`}
+                                        style={`background-color: ${variant.value}`}
                                         data-image={variant.image}
                                         data-name={variant.name}
-                                        data-price={variant.price}
                                         aria-label={variant.name}
                                     >
-                                        <span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                        <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10">
                                             {variant.name}
                                         </span>
                                     </button>
                                 ) : (
                                     <button 
-                                        class={`variant-btn px-6 py-3 rounded-xl border transition-all duration-300 font-bold text-sm eng uppercase tracking-wider ${index === 0 ? 'bg-[#D4AF37] text-black border-[#D4AF37] active-variant' : 'bg-white/5 text-white/60 border-white/10 hover:border-[#D4AF37] hover:text-white'}`}
+                                        class={`variant-btn px-6 py-3 rounded-xl border-2 text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? 'border-[#D4AF37] bg-[#D4AF37] text-black active-variant' : 'border-white/10 text-white/60 hover:border-white hover:text-white'}`}
                                         data-image={variant.image}
                                         data-name={variant.name}
-                                        data-price={variant.price}
                                     >
                                         {variant.name}
                                     </button>
@@ -205,60 +125,106 @@ const { product } = Astro.props;
                     </div>
                 )}
 
-                {product.addons && (
-                    <div class="mb-8 border-t border-white/10 pt-6">
-                        <span class="text-xs font-bold text-white/40 uppercase tracking-widest block mb-3">Extra Options</span>
-                        <div class="space-y-3">
-                            {product.addons.map((addon) => (
-                                <label class="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:border-[#D4AF37]/50 transition-colors group">
-                                    <div class="flex items-center gap-4">
-                                        <div class="relative flex items-center">
-                                            <input type="checkbox" class="addon-checkbox peer appearance-none w-6 h-6 border-2 border-white/20 rounded bg-transparent checked:bg-[#D4AF37] checked:border-[#D4AF37] transition-all" 
-                                                data-price={addon.price} 
-                                                data-name={addon.name} 
-                                            />
-                                            <svg class="absolute w-4 h-4 text-black pointer-events-none opacity-0 peer-checked:opacity-100 left-1 top-1 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                        </div>
-                                        <div>
-                                            <span class="block text-white font-bold text-sm">{addon.name}</span>
-                                            <span class="block text-white/40 text-xs mt-0.5">{addon.desc}</span>
-                                        </div>
-                                    </div>
-                                    <span class="text-[#D4AF37] font-bold text-sm">+ {addon.price.toLocaleString()} ฿</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                <ul class="space-y-3 mb-12">
-                    {product.specs.map(spec => (
-                        <li class="flex items-center gap-3 text-white/80">
-                            <span class="text-[#D4AF37]">•</span> <span>{spec}</span>
-                        </li>
-                    ))}
-                </ul>
-
-                <div class="flex gap-4 h-14">
-                    <div class="flex items-center bg-white/5 border border-white/10 rounded-xl px-2 w-32 justify-between">
-                        <button id="qty-minus" class="text-white/50 hover:text-white w-8 h-full flex items-center justify-center text-xl transition-colors">-</button>
-                        <input id="qty-input" type="number" value="1" min="1" class="w-10 bg-transparent text-center text-white font-bold outline-none appearance-none" readonly />
-                        <button id="qty-plus" class="text-white/50 hover:text-white w-8 h-full flex items-center justify-center text-xl transition-colors">+</button>
+                <div class="flex gap-4 h-14 mb-10">
+                    <div class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-32 justify-between">
+                        <button id="qty-minus" class="text-white/30 hover:text-white w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">-</button>
+                        <input id="qty-input" type="number" value="1" min="1" class="w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono" readonly />
+                        <button id="qty-plus" class="text-white/30 hover:text-white w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">+</button>
                     </div>
                     
                     <button 
                         id="add-to-cart-btn"
-                        class="flex-1 bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider hover:bg-[#b8962e] transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] active:scale-95"
-                        data-base-id={product.id}
-                        data-base-title={product.title}
-                        data-base-price={product.price}
-                        data-image={product.images[0]} 
+                        class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
                     >
-                        Add to Cart
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            Add to Cart
+                            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        </span>
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5">
+                    {product.manualLink && (
+                        <a href={product.manualLink} class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
+                            <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-white uppercase tracking-wider">User Guide</span>
+                                <span class="text-[10px] text-white/40">Setup & Manual</span>
+                            </div>
+                        </a>
+                    )}
+                    <a href="#specs" class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
+                        <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">Tech Specs</span>
+                            <span class="text-[10px] text-white/40">Hardware Details</span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
+
+        {hasMarketing && (
+            <div class="relative py-32 border-t border-white/5 overflow-hidden">
+                <div class="absolute inset-0 bg-[#0a0a0a]"></div>
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>
+
+                <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+                    <div class="text-center mb-20 reveal-on-scroll">
+                        <h2 class="inline-block px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.3em] uppercase mb-6 backdrop-blur-md">
+                            {product.marketing.headline}
+                        </h2>
+                        <h3 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                            {product.marketing.subheadline}
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {product.marketing.benefits.map((benefit, i) => (
+                            <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group reveal-on-scroll" style={`transition-delay: ${i * 100}ms`}>
+                                <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
+                                    <span class="text-3xl filter grayscale group-hover:grayscale-0 transition-all">
+                                        {benefit.icon === 'chart' && '📈'}
+                                        {benefit.icon === 'shop' && '🏪'}
+                                        {benefit.icon === 'gift' && '🎁'}
+                                        {benefit.icon === 'money' && '💰'}
+                                    </span>
+                                </div>
+                                <h4 class="text-2xl font-bold text-white mb-4 group-hover:text-[#D4AF37] transition-colors">{benefit.title}</h4>
+                                <p class="text-white/50 font-light leading-relaxed">{benefit.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {hasSpecs && (
+            <div class="py-32 max-w-[900px] mx-auto px-6" id="specs">
+                <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
+                    <h3 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
+                        Technical <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F9E79F]">Specifications</span>
+                    </h3>
+                    <div class="hidden md:block text-[#D4AF37] font-mono text-xs opacity-50">/// HARDWARE_ID: {product.id.toUpperCase()}</div>
+                </div>
+                
+                <div class="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden relative">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] to-transparent opacity-50"></div>
+                    
+                    {product.techSpecs.map((spec, i) => (
+                        <div class={`flex flex-col md:flex-row md:justify-between md:items-center p-6 ${i !== product.techSpecs.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/5 transition-colors group`}>
+                            <span class="text-white/40 font-bold uppercase text-xs tracking-[0.2em] mb-2 md:mb-0 group-hover:text-[#D4AF37] transition-colors">{spec.label}</span>
+                            <span class="text-white font-medium text-sm md:text-right">{spec.value}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
     </main>
     <Footer />
 </Layout>
@@ -267,153 +233,204 @@ const { product } = Astro.props;
     import { cartStore } from '../../scripts/cartStore.js';
 
     function initProductPage() {
-        const mainImage = document.getElementById('main-image');
-        const priceDisplay = document.getElementById('price-display');
-        const variantBtns = document.querySelectorAll('.variant-btn');
-        const addonCheckboxes = document.querySelectorAll('.addon-checkbox');
+        const container = document.getElementById('product-page-container');
+        if (!container) return;
+
+        // 1. อ่านข้อมูล Product
+        const productData = JSON.parse(container.dataset.productJson || '{}');
         
-        let currentVariant = variantBtns.length > 0 ? {
-            name: variantBtns[0].getAttribute('data-name'),
-            price: parseFloat(variantBtns[0].getAttribute('data-price') || '0'),
-            image: variantBtns[0].getAttribute('data-image')
-        } : null;
-
-        let selectedAddons = [];
-
-        const updateTotalPrice = () => {
-            let total = 0;
-            if (currentVariant) {
-                total += currentVariant.price;
-            } else {
-                const btn = document.getElementById('add-to-cart-btn');
-                // @ts-ignore
-                total += parseFloat(btn?.dataset.basePrice || '0');
-            }
-            // @ts-ignore
-            const addonTotal = selectedAddons.reduce((sum, item) => sum + item.price, 0);
-            total += addonTotal;
-
-            if (priceDisplay) {
-                priceDisplay.innerText = total.toLocaleString();
-                priceDisplay.style.opacity = '0.5';
-                setTimeout(() => priceDisplay.style.opacity = '1', 100);
-            }
-            return total;
+        // 2. ตั้งค่า State เริ่มต้น
+        const firstVariant = productData.config?.variants?.[0];
+        const state = {
+            currentImage: firstVariant?.image || productData.media?.mainImage,
+            selectedVariantName: firstVariant?.name || 'Standard'
         };
 
-        variantBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                variantBtns.forEach(b => {
+        // 3. Helper: Clone Element to remove listeners
+        const getCleanElement = (id) => {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            const newEl = el.cloneNode(true);
+            if(el.parentNode) el.parentNode.replaceChild(newEl, el);
+            return newEl;
+        };
+
+        // --- Elements ---
+        const mainImage = document.getElementById('main-image');
+        const qtyInput = document.getElementById('qty-input');
+        const minusBtn = getCleanElement('qty-minus');
+        const plusBtn = getCleanElement('qty-plus');
+        const addBtn = getCleanElement('add-to-cart-btn');
+        
+        // Select Buttons
+        const variantBtns = document.querySelectorAll('.variant-btn');
+        const thumbBtns = document.querySelectorAll('.thumbnail-btn'); // <--- เพิ่มตัวนี้
+
+        // --- Logic: เปลี่ยนรูป ---
+        const changeImage = (src) => {
+            if (!mainImage || !src) return;
+            // Animation เล็กน้อย
+            mainImage.style.opacity = '0';
+            mainImage.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                // @ts-ignore
+                mainImage.src = src;
+                mainImage.style.opacity = '1';
+                mainImage.style.transform = 'scale(1)';
+                state.currentImage = src;
+            }, 200);
+        };
+
+        // ==========================================
+        // [NEW] Logic: Gallery Thumbnails (รูปด้านล่าง)
+        // ==========================================
+        thumbBtns.forEach((btn) => {
+            // Clone เพื่อล้าง Event เก่า (เหมือน Variant)
+            const newBtn = btn.cloneNode(true);
+            if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', (e) => {
+                // @ts-ignore
+                const target = e.currentTarget;
+                const src = target.dataset.src;
+
+                // 1. เปลี่ยนรูปหลัก
+                changeImage(src);
+
+                // 2. (Optional) Highlight กรอบรูปที่เลือก
+                document.querySelectorAll('.thumbnail-btn').forEach(b => {
+                    b.classList.remove('border-[#D4AF37]', 'opacity-100');
+                    b.classList.add('border-white/10');
+                    // @ts-ignore
+                    b.querySelector('img').classList.add('opacity-60');
+                    // @ts-ignore
+                    b.querySelector('img').classList.remove('opacity-100');
+                });
+                
+                target.classList.remove('border-white/10');
+                target.classList.add('border-[#D4AF37]');
+                target.querySelector('img').classList.remove('opacity-60');
+                target.querySelector('img').classList.add('opacity-100');
+            });
+        });
+
+        // --- Logic: เลือกสี/รุ่น (Variants) ---
+        variantBtns.forEach((btn, index) => {
+            const newBtn = btn.cloneNode(true);
+            if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            // Set Initial Active State
+            if (index === 0) {
+                if(newBtn.classList.contains('rounded-full')) {
+                    // @ts-ignore
+                    newBtn.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
+                    // @ts-ignore
+                    newBtn.classList.remove('border-transparent');
+                } else {
+                    // @ts-ignore
+                    newBtn.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
+                    // @ts-ignore
+                    newBtn.classList.remove('border-white/10', 'text-white/60');
+                }
+            }
+
+            newBtn.addEventListener('click', (e) => {
+                // @ts-ignore
+                const target = e.currentTarget;
+                const name = target.dataset.name;
+                const img = target.dataset.image;
+
+                // Update State
+                state.selectedVariantName = name;
+                if (img) changeImage(img);
+
+                // Update UI Visuals
+                document.querySelectorAll('.variant-btn').forEach(b => {
                     if (b.classList.contains('rounded-full')) {
                         b.classList.remove('border-[#D4AF37]', 'scale-110', 'active-variant');
                         b.classList.add('border-transparent');
                     } else {
                         b.classList.remove('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
-                        b.classList.add('bg-white/5', 'text-white/60', 'border-white/10');
+                        b.classList.add('border-white/10', 'text-white/60');
                     }
                 });
 
-                // @ts-ignore
-                const target = e.currentTarget;
-                target.classList.add('active-variant');
+                // Set Active Class
                 if (target.classList.contains('rounded-full')) {
                     target.classList.remove('border-transparent');
-                    target.classList.add('border-[#D4AF37]', 'scale-110');
+                    target.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
                 } else {
-                    target.classList.remove('bg-white/5', 'text-white/60', 'border-white/10');
-                    target.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]');
+                    target.classList.remove('border-white/10', 'text-white/60');
+                    target.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
                 }
-
-                currentVariant = {
-                    name: target.getAttribute('data-name'),
-                    price: parseFloat(target.getAttribute('data-price') || '0'),
-                    image: target.getAttribute('data-image')
-                };
-
-                if (mainImage && currentVariant.image) {
-                    mainImage.style.opacity = '0';
-                    setTimeout(() => {
-                        mainImage.setAttribute('src', currentVariant.image);
-                        mainImage.style.opacity = '1';
-                    }, 200);
-                }
-                updateTotalPrice();
             });
         });
 
-        addonCheckboxes.forEach(chk => {
-            chk.addEventListener('change', (e) => {
-                // @ts-ignore
-                const target = e.target;
-                const name = target.getAttribute('data-name');
-                const price = parseFloat(target.getAttribute('data-price') || '0');
-
-                if (target.checked) {
-                    // @ts-ignore
-                    selectedAddons.push({ name, price });
-                } else {
-                    // @ts-ignore
-                    selectedAddons = selectedAddons.filter(a => a.name !== name);
-                }
-                updateTotalPrice();
-            });
+        // --- Logic: Quantity ---
+        minusBtn?.addEventListener('click', () => {
+            // @ts-ignore
+            let val = parseInt(qtyInput.value);
+            // @ts-ignore
+            if (val > 1) qtyInput.value = (val - 1).toString();
         });
 
-        const addToCartBtn = document.getElementById('add-to-cart-btn');
-        const mobileAddToCartBtn = document.getElementById('add-to-cart-mobile');
-        
-        const handleAddToCart = (e, btn) => {
-            e.preventDefault();
-            const baseId = btn.dataset.baseId;
-            const baseTitle = btn.dataset.baseTitle;
-            const baseImage = btn.dataset.image;
-            const finalPrice = updateTotalPrice();
+        plusBtn?.addEventListener('click', () => {
+            // @ts-ignore
+            let val = parseInt(qtyInput.value);
+            // @ts-ignore
+            qtyInput.value = (val + 1).toString();
+        });
 
-            let finalTitle = baseTitle;
-            let finalId = baseId;
-
-            if (currentVariant) {
-                finalTitle = `${currentVariant.name}`; 
-                finalId += `-${currentVariant.name.replace(/\s+/g, '-').toLowerCase()}`;
-            }
-
-            if (selectedAddons.length > 0) {
-                const addonNames = selectedAddons.map(a => a.name).join(' + ');
-                finalTitle += ` (+ ${addonNames})`;
-                finalId += `-addon`;
-            }
-
-            const productToAdd = {
-                id: finalId,
-                title: finalTitle,
-                price: finalPrice,
-                image: currentVariant ? currentVariant.image : baseImage
-            };
-
-            const qtyInput = document.getElementById('qty-input');
+        // --- Logic: Add to Cart ---
+        addBtn?.addEventListener('click', () => {
             // @ts-ignore
             const qty = parseInt(qtyInput?.value || '1');
+            const variantSlug = state.selectedVariantName.replace(/\s+/g, '-').toLowerCase();
+            const itemId = `${productData.id}-${variantSlug}`;
+
+            const item = {
+                id: itemId,
+                title: `${productData.meta.title} (${state.selectedVariantName})`,
+                price: productData.pricing.basePrice,
+                image: state.currentImage
+            };
             
-            for(let i=0; i < qty; i++) {
-                cartStore.add(productToAdd);
-            }
-
-            btn.style.transform = 'scale(0.95)';
-            setTimeout(() => btn.style.transform = 'scale(1)', 150);
-        };
-
-        if(addToCartBtn) addToCartBtn.addEventListener('click', (e) => handleAddToCart(e, addToCartBtn));
-        if(mobileAddToCartBtn) mobileAddToCartBtn.addEventListener('click', (e) => handleAddToCart(e, mobileAddToCartBtn));
-
-        const qtyInput = document.getElementById('qty-input');
-        let currentQty = 1;
-        document.getElementById('qty-minus')?.addEventListener('click', () => {
-             if (currentQty > 1) { currentQty--; if(qtyInput) qtyInput.value = currentQty.toString(); }
-        });
-        document.getElementById('qty-plus')?.addEventListener('click', () => {
-             currentQty++; if(qtyInput) qtyInput.value = currentQty.toString();
+            for(let i=0; i < qty; i++) cartStore.add(item);
+            
+            // @ts-ignore
+            const originalText = addBtn.innerHTML;
+            // @ts-ignore
+            addBtn.innerHTML = `<span class="flex items-center gap-2">Added!</span>`;
+            // @ts-ignore
+            addBtn.classList.add('bg-white', 'text-black');
+            
+            setTimeout(() => {
+                // @ts-ignore
+                addBtn.innerHTML = originalText;
+                // @ts-ignore
+                addBtn.classList.remove('bg-white', 'text-black');
+            }, 1000);
         });
     }
 
     document.addEventListener('astro:page-load', initProductPage);
+    initProductPage();
 </script>
+
+<style>
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
