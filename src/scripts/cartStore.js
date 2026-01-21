@@ -1,72 +1,82 @@
 // src/scripts/cartStore.js
+import { persistentAtom } from '@nanostores/persistent';
 
-// กุญแจสำหรับไข LocalStorage
-const CART_KEY = 'cashless_cart_v1';
+export const cartItems = persistentAtom('cart-items', [], {
+  encode: JSON.stringify,
+  decode: JSON.parse,
+});
+
+export const isCartOpen = persistentAtom('is-cart-open', 'false');
 
 export const cartStore = {
-  // ดึงข้อมูลตะกร้า
-  get() {
-    if (typeof window === 'undefined') return [];
-    const stored = localStorage.getItem(CART_KEY);
-    return stored ? JSON.parse(stored) : [];
-  },
+  get: () => cartItems.get(),
 
-  // เพิ่มสินค้า
-  add(product) {
-    const cart = this.get();
-    const existing = cart.find(item => item.id === product.id);
+  add: (product) => {
+    const currentItems = cartItems.get();
+    const existingItem = currentItems.find((item) => item.id === product.id);
 
-    if (existing) {
-      existing.quantity += 1;
+    if (existingItem) {
+      cartItems.set(
+        currentItems.map((item) =>
+          item.id === product.id ? { ...item, quantity: (item.quantity || 1) + 1 } : item
+        )
+      );
     } else {
-      cart.push({ ...product, quantity: 1 });
+      cartItems.set([...currentItems, { ...product, quantity: 1 }]);
     }
-
-    this.save(cart);
-    this.notify('เพิ่มสินค้าเรียบร้อย');
-  },
-
-  // ลบสินค้า
-  remove(id) {
-    const cart = this.get().filter(item => item.id !== id);
-    this.save(cart);
-  },
-
-  // ปรับจำนวน (+/-)
-  updateQty(id, change) {
-    const cart = this.get();
-    const item = cart.find(i => i.id === id);
     
-    if (item) {
-      item.quantity += change;
-      if (item.quantity <= 0) {
-        this.remove(id);
-        return;
-      }
+    // [แก้ไขจุดสำคัญ] เปลี่ยน document -> window และเพิ่ม bubbles: true
+    isCartOpen.set('true');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
+      window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
     }
-    this.save(cart);
   },
 
-  // บันทึกและแจ้งเตือนระบบ
-  save(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    // ส่งสัญญาณบอกทุกส่วนของเว็บว่าตะกร้าเปลี่ยนแล้ว
-    window.dispatchEvent(new CustomEvent('cart-updated', { detail: cart }));
+  remove: (id) => {
+    const currentItems = cartItems.get();
+    cartItems.set(currentItems.filter(item => item.id !== id));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
+    }
   },
 
-  // คำนวณยอดรวม
-  totals() {
-    const cart = this.get();
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const sats = Math.floor(total / 3); // สมมติเรท 1 THB = 0.33 SATS (แก้ได้ตามจริง)
-    return { total, sats, count: cart.reduce((c, i) => c + i.quantity, 0) };
+  updateQty: (id, change) => {
+    const currentItems = cartItems.get();
+    const newItems = currentItems.map(item => {
+      if (item.id === id) {
+        const newQty = (item.quantity || 0) + change;
+        return newQty > 0 ? { ...item, quantity: newQty } : item;
+      }
+      return item;
+    });
+    cartItems.set(newItems);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
+    }
   },
 
-  // แจ้งเตือนเล็กๆ (Toast)
-  notify(message) {
-    // (Optional) คุณสามารถเพิ่ม Toast Library ตรงนี้ได้
-    console.log(message); 
-    // เปิดตะกร้าอัตโนมัติ
-    document.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true } }));
+  totals: () => {
+    const items = cartItems.get();
+    const total = items.reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
+    const sats = Math.floor(total / 3);
+    const count = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    return { total, sats, count };
+  },
+
+  open: () => {
+    isCartOpen.set('true');
+    // [แก้ไข] document -> window
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
+    }
+  },
+  
+  close: () => {
+    isCartOpen.set('false');
+    // [แก้ไข] document -> window
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: false }, bubbles: true }));
+    }
   }
 };

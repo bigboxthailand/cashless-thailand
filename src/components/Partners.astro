@@ -1,0 +1,30 @@
+---
+// src/components/Partners.astro
+const partners = [
+    { name: "Umbrel", logo: "/images/partners/umbrel.webp" },
+    { name: "Start9", logo: "/images/partners/start9.webp" },
+    { name: "Foundation", logo: "/images/partners/foundation.webp" },
+    { name: "Mempool", logo: "/images/partners/mempool.webp" },
+    { name: "Siam Bitcoin", logo: "/images/partners/siam-bitcoin.webp" }
+];
+---
+
+<section class="py-20 border-t border-white/5 bg-[#050505]">
+    <div class="max-w-[1200px] mx-auto px-6 text-center">
+        <p class="eng text-white/20 text-xs font-bold uppercase tracking-[0.2em] mb-12">Trusted by Industry Leaders</p>
+        
+        <div class="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-50">
+            {partners.map(p => (
+                <div class="group relative">
+                    <img 
+                        src={p.logo} 
+                        alt={p.name} 
+                        class="h-8 md:h-10 object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                    />
+                    <span class="hidden text-white font-bold text-xl hover:text-[#D4AF37] cursor-default transition-colors">{p.name}</span>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>

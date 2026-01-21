@@ -1,110 +1,137 @@
 ---
-import TopBar from './TopBar.astro';
+// src/components/Navbar.astro
 ---
 
-<header class="fixed top-0 left-0 w-full z-[100] transition-all duration-300" id="main-header">
-
-    <TopBar />
-
-    <nav class="bg-black/90 backdrop-blur-xl border-b border-white/10 relative z-40">
-        <div class="max-w-[1800px] mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-
-            <a href="/" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 bg-gradient-to-tr from-[#996515] via-[#D4AF37] to-[#F9E79F] rounded-lg rotate-45 group-hover:rotate-[225deg] transition-transform duration-700"></div>
-                <span class="eng text-2xl font-black text-white tracking-tighter">CASHLESS<span class="text-[#D4AF37]">.</span>TH</span>
-            </a>
-
-            <ul class="hidden xl:flex items-center gap-8 eng text-sm font-bold uppercase tracking-widest text-white/60">
-
-                <li class="group relative h-20 flex items-center">
-                    <a href="/shop" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1">
-                        Shop <svg class="w-3 h-3 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                    </a>
-
-                    <div class="absolute top-full left-0 w-[500px] bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-4 group-hover:translate-y-0 transition-all duration-300 p-6 grid grid-cols-2 gap-8">
-                        <div class="space-y-4">
-                            <span class="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] border-b border-[#D4AF37]/30 pb-2 block">By Brand</span>
-                            <div class="flex flex-col gap-2">
-                                {['Trezor', 'OneKey', 'Blockstream', 'Foundation', 'Coinkite', 'Bitcast'].map(brand => (
-                                <a href={`/shop?brand=${brand.toLowerCase()}`} class="text-white/70 hover:text-white hover:translate-x-1 transition-all text-xs">{brand}</a>
-                                ))}
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <span class="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] border-b border-[#D4AF37]/30 pb-2 block">By Category</span>
-                            <div class="flex flex-col gap-2">
-                                <a href="/shop?category=hardware" class="text-white/70 hover:text-white hover:translate-x-1 transition-all text-xs">Hardware Wallets</a>
-                                <a href="/shop?category=backup" class="text-white/70 hover:text-white hover:translate-x-1 transition-all text-xs">Seed Backup</a>
-                                <a href="/shop?category=accessory" class="text-white/70 hover:text-white hover:translate-x-1 transition-all text-xs">Accessories</a>
-                                <a href="/shop?category=course" class="text-white/70 hover:text-white hover:translate-x-1 transition-all text-xs">Online Courses</a>
-                                <a href="/shop" class="text-[#D4AF37] hover:text-white hover:translate-x-1 transition-all text-xs font-bold mt-2">View All Products →</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-
-                <li><a href="/course" class="hover:text-[#D4AF37] transition-colors">Courses</a></li>
-                
-                <li><a href="/blog" class="hover:text-[#D4AF37] transition-colors">Blog</a></li>
-                
-                <li>
-                    <a href="https://linktr.ee/CryptoClock" target="_blank" class="hover:text-[#D4AF37] transition-colors flex items-center gap-1">
-                        Contact Us
-                        <svg class="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                    </a>
-                </li>
-            </ul>
-
-            <div class="flex items-center gap-6 text-white">
-                <button class="hover:text-[#D4AF37] transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></button>
-                <button id="cart-trigger" class="relative hover:text-[#D4AF37] transition-colors group">
-                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                    <span class="absolute -top-2 -right-2 bg-[#D4AF37] text-black text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold cart-count">0</span>
-                </button>
-                <button id="mobile-menu-toggle" class="xl:hidden hover:text-[#D4AF37] transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                </button>
+<nav class="fixed top-0 left-0 w-full z-[100] transition-all duration-300 border-b border-transparent" id="main-nav">
+    <div class="absolute inset-0 bg-[#050505]/80 backdrop-blur-md opacity-0 transition-opacity duration-300" id="nav-bg"></div>
+    
+    <div class="max-w-[1800px] mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative z-10">
+        
+        <a href="/" class="group relative flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#D4AF37] rounded-lg flex items-center justify-center transform group-hover:rotate-45 transition-transform duration-500">
+                <span class="eng font-black text-black text-xl">C</span>
             </div>
-        </div>
-    </nav>
+            <div class="flex flex-col">
+                <span class="eng font-black text-white text-lg tracking-tighter leading-none group-hover:text-[#D4AF37] transition-colors">CASHLESS</span>
+                <span class="eng text-[10px] text-white/40 font-bold tracking-[0.3em] uppercase group-hover:tracking-[0.4em] transition-all">Thailand</span>
+            </div>
+        </a>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[90] translate-x-full transition-transform duration-500 pt-32 px-6 flex flex-col gap-6">
-        <div class="flex flex-col gap-6 text-2xl font-black uppercase eng text-white">
-            <div class="space-y-4">
-                <div class="text-[#D4AF37] text-xs tracking-widest border-b border-white/10 pb-2">Shop By Brand</div>
-                <div class="grid grid-cols-2 gap-3 text-sm font-medium text-white/60 pl-2">
-                    {['Trezor', 'OneKey', 'Blockstream', 'Foundation'].map(b => (
-                    <a href={`/shop?brand=${b.toLowerCase()}`} class="hover:text-white">{b}</a>
-                    ))}
+        <div class="hidden lg:flex items-center gap-10">
+            <a href="/" class="nav-link eng text-xs font-bold uppercase tracking-widest text-white/60 hover:text-[#D4AF37] transition-colors">Home</a>
+
+            <div class="relative group h-24 flex items-center">
+                <a href="/shop" class="nav-link eng text-xs font-bold uppercase tracking-widest text-white/60 group-hover:text-[#D4AF37] transition-colors flex items-center gap-1">
+                    Shop
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-180 transition-transform duration-300"><path d="m6 9 6 6 6-6"/></svg>
+                </a>
+
+                <div class="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-4">
+                    <div class="bg-[#0a0a0a] border border-[#D4AF37]/20 rounded-2xl p-2 min-w-[240px] shadow-[0_0_50px_rgba(0,0,0,0.9)] backdrop-blur-xl flex flex-col relative overflow-hidden">
+                        
+                        <div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#0a0a0a] border-t border-l border-[#D4AF37]/20 transform rotate-45"></div>
+                        
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-50"></div>
+
+                        <a href="/shop" class="px-4 py-3 rounded-xl hover:bg-white/5 flex items-center justify-between group/item mb-1 transition-colors">
+                            <span class="text-white text-xs font-black uppercase tracking-widest">All Products</span>
+                            <svg class="w-4 h-4 text-[#D4AF37] -translate-x-2 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+
+                        <div class="h-[1px] bg-white/5 mx-2 mb-2"></div>
+
+                        <a href="/shop#clock" class="px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 group/item">
+                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            CryptoClock
+                        </a>
+                        <a href="/shop#kiosk" class="px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 group/item">
+                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            BiTTerm
+                        </a>
+                        <a href="/shop#pos" class="px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 group/item">
+                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                            BiTPos
+                        </a>
+                        <a href="/shop#node" class="px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 group/item">
+                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
+                            BiTNode
+                        </a>
+                    </div>
                 </div>
             </div>
-            <a href="/shop" class="hover:text-[#D4AF37]">All Products</a>
-            <a href="/course" class="hover:text-[#D4AF37]">Courses</a>
-            <a href="/blog" class="hover:text-[#D4AF37]">Blog</a>
-            
-            <a href="https://linktr.ee/CryptoClock" target="_blank" class="hover:text-[#D4AF37] flex items-center gap-2">
-                Contact Us
-                <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-            </a>
+
+            <a href="/course" class="nav-link eng text-xs font-bold uppercase tracking-widest text-white/60 hover:text-[#D4AF37] transition-colors">Courses</a>
+            <a href="/blog" class="nav-link eng text-xs font-bold uppercase tracking-widest text-white/60 hover:text-[#D4AF37] transition-colors">Knowledge</a>
         </div>
-        <button id="mobile-menu-close" class="absolute top-8 right-6 text-white bg-[#D4AF37] p-2 rounded-full text-black">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+
+        <div class="flex items-center gap-6">
+            <a href="https://line.me/ti/p/@cashlessthailand" target="_blank" class="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:border-[#D4AF37] transition-all group">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="eng text-[10px] font-bold uppercase tracking-widest text-white group-hover:text-[#D4AF37]">Support</span>
+            </a>
+
+            <button id="cart-trigger" class="relative group p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white group-hover:text-[#D4AF37] transition-colors"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span class="cart-count absolute -top-1 -right-1 w-5 h-5 bg-[#D4AF37] text-black text-[10px] font-black flex items-center justify-center rounded-full transform scale-0 transition-transform duration-300">0</span>
+            </button>
+
+            <button class="lg:hidden text-white hover:text-[#D4AF37]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            </button>
+        </div>
     </div>
-</header>
+</nav>
+
+<style>
+    .nav-link.active { color: #D4AF37; }
+</style>
 
 <script>
-    const cartBtn = document.getElementById('cart-trigger');
-    cartBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true } }));
+    import { cartStore } from '../scripts/cartStore.js';
+
+    document.addEventListener('astro:page-load', () => {
+        // 1. ผูกปุ่มกดตะกร้าใหม่
+        const cartBtn = document.getElementById('cart-trigger');
+        if (cartBtn) {
+            const newBtn = cartBtn.cloneNode(true);
+            cartBtn.parentNode.replaceChild(newBtn, cartBtn);
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                cartStore.open();
+            });
+        }
+
+        // 2. ฟังก์ชันอัปเดตตัวเลข
+        const updateBadgeNavbar = () => {
+            try {
+                const { count } = cartStore.totals();
+                const badges = document.querySelectorAll('.cart-count');
+                badges.forEach(el => {
+                    el.textContent = count.toString();
+                    if (count > 0) {
+                        el.classList.remove('scale-0');
+                    } else {
+                        el.classList.add('scale-0');
+                    }
+                });
+            } catch (err) { }
+        };
+
+        // 3. เรียกใช้ทันที และรอฟังการเปลี่ยนแปลง
+        updateBadgeNavbar();
+        window.addEventListener('cart-updated', updateBadgeNavbar);
+
+        // 4. Scroll Effect
+        const nav = document.getElementById('main-nav');
+        const navBg = document.getElementById('nav-bg');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav?.classList.add('py-0');
+                navBg?.classList.remove('opacity-0');
+            } else {
+                nav?.classList.remove('py-0');
+                navBg?.classList.add('opacity-0');
+            }
+        });
     });
-
-    const mobileToggle = document.getElementById('mobile-menu-toggle');
-    const mobileClose = document.getElementById('mobile-menu-close');
-    const mobileMenu = document.getElementById('mobile-menu');
-
-    function toggleMenu() { mobileMenu?.classList.toggle('translate-x-full'); }
-    mobileToggle?.addEventListener('click', toggleMenu);
-    mobileClose?.addEventListener('click', toggleMenu);
 </script>

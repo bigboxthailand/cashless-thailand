@@ -1,133 +1,167 @@
-<div id="cart-drawer-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[10001] opacity-0 pointer-events-none transition-opacity duration-500"></div>
+---
+// src/components/CartDrawer.astro
+---
 
-<aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-[#D4AF37]/20 z-[10002] transform translate-x-full transition-transform duration-500 shadow-2xl flex flex-col">
+<div id="cart-drawer" class="fixed inset-0 z-[200] pointer-events-none invisible transition-all duration-300">
+    <div id="cart-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
     
-    <div class="px-8 py-6 border-b border-white/10 flex justify-between items-center bg-black/50">
-        <h2 class="eng text-xl font-black uppercase tracking-widest flex items-center gap-3 text-white">
-            <span class="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse"></span>
-            Your Vault
-        </h2>
-        <button id="close-cart" class="text-white/40 hover:text-[#D4AF37] transition-colors p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-    </div>
-
-    <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
+    <div id="cart-panel" class="absolute top-0 right-0 h-full w-full max-w-md bg-[#0a0a0a] border-l border-[#D4AF37]/20 transform translate-x-full transition-transform duration-300 flex flex-col pointer-events-auto z-10">
+        
+        <div class="p-6 border-b border-white/10 flex items-center justify-between bg-black/50 backdrop-blur-md">
+            <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
+                Your Cart
+                <span id="cart-total-count" class="text-xs bg-[#D4AF37] text-black px-2 py-0.5 rounded-full">0</span>
+            </h2>
+            <button id="close-cart-btn" class="text-white/50 hover:text-red-500 transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
         </div>
 
-    <div id="cart-empty" class="hidden absolute inset-0 flex flex-col items-center justify-center text-white/30 gap-4 pointer-events-none">
-        <svg class="w-16 h-16 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span class="eng text-sm uppercase tracking-widest font-bold">Your vault is empty</span>
-    </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide" id="cart-items-container">
+            </div>
 
-    <div class="p-8 border-t border-white/10 bg-black/80 backdrop-blur-2xl space-y-4">
-        <div class="space-y-2">
-            <div class="flex justify-between text-sm text-white/60">
-                <span>Subtotal</span>
-                <span id="cart-total" class="eng font-bold text-white">0.00 ฿</span>
-            </div>
-            <div class="flex justify-between text-sm text-white/60">
-                <span>Est. Bitcoin</span>
-                <span id="cart-sats" class="eng font-bold text-[#F7931A]">0 Sats</span>
-            </div>
+        <div id="cart-empty-state" class="hidden flex-1 flex flex-col items-center justify-center text-white/30 p-8">
+            <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <p class="eng text-sm uppercase tracking-widest font-bold">Your cart is empty</p>
         </div>
 
-        <a href="/checkout" id="checkout-btn" class="flex items-center justify-center w-full group relative px-8 py-4 bg-[#D4AF37] rounded-xl overflow-hidden transition-all hover:scale-[1.02]">
-            <span class="eng font-black uppercase tracking-wider text-black text-sm z-10">Secure Checkout</span>
-            <div class="absolute inset-0 bg-white/30 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 skew-x-12"></div>
-        </a>
+        <div class="p-6 border-t border-white/10 bg-black/50 backdrop-blur-md space-y-4">
+            <div class="flex justify-between items-end">
+                <span class="text-white/50 text-sm font-medium uppercase tracking-widest">Total</span>
+                <div class="text-right">
+                    <div id="cart-total-price" class="text-2xl font-black text-[#D4AF37] eng">0 THB</div>
+                    <div id="cart-total-sats" class="text-xs text-white/40 eng">≈ 0 Sats</div>
+                </div>
+            </div>
+            
+            <a href="/checkout" class="block w-full bg-[#D4AF37] text-black font-black uppercase tracking-widest py-4 rounded-xl text-center hover:bg-[#b8962e] transition-all shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+                Checkout Now
+            </a>
+        </div>
     </div>
-</aside>
+</div>
 
 <script>
     import { cartStore } from '../scripts/cartStore.js';
 
-    const drawer = document.getElementById('cart-drawer');
-    const backdrop = document.getElementById('cart-drawer-backdrop');
-    const itemsContainer = document.getElementById('cart-items');
-    const emptyState = document.getElementById('cart-empty');
-    const totalEl = document.getElementById('cart-total');
-    const satsEl = document.getElementById('cart-sats');
+    document.addEventListener('astro:page-load', () => {
+        const drawer = document.getElementById('cart-drawer');
+        const panel = document.getElementById('cart-panel');
+        const backdrop = document.getElementById('cart-backdrop');
+        const closeBtn = document.getElementById('close-cart-btn');
+        const itemsContainer = document.getElementById('cart-items-container');
+        const emptyState = document.getElementById('cart-empty-state');
+        const totalEl = document.getElementById('cart-total-price');
+        const satsEl = document.getElementById('cart-total-sats');
+        const countEl = document.getElementById('cart-total-count');
 
-    // Render ตะกร้า
-    function renderCart() {
-        const cart = cartStore.get();
-        const { total, sats } = cartStore.totals();
+        if (!drawer || !panel || !backdrop) return;
 
-        // อัปเดตตัวเลข
-        if(totalEl) totalEl.innerText = total.toLocaleString() + ' THB';
-        if(satsEl) satsEl.innerText = '≈ ' + sats.toLocaleString() + ' Sats';
+        // ฟังก์ชันเปิด/ปิด UI (ใช้ Class Toggle เพื่อความชัวร์ 100%)
+        const toggleDrawer = (open) => {
+            if (open) {
+                // 1. เปิด Container หลัก
+                drawer.classList.remove('invisible', 'pointer-events-none');
+                
+                // 2. แสดงฉากหลัง (Fade In)
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    // 3. เลื่อนตะกร้าออกมา (Slide In)
+                    panel.classList.remove('translate-x-full'); 
+                }, 10); // หน่วงนิดนึงเพื่อให้ Transition ทำงานสวยๆ
 
-        // จัดการหน้าว่าง
-        if (cart.length === 0) {
-            itemsContainer.innerHTML = '';
-            emptyState.classList.remove('hidden');
-            return;
-        }
-        emptyState.classList.add('hidden');
+                renderCart();
+            } else {
+                // 1. เลื่อนตะกร้าเก็บ (Slide Out)
+                panel.classList.add('translate-x-full');
+                // 2. ซ่อนฉากหลัง (Fade Out)
+                backdrop.classList.add('opacity-0');
+                
+                // 3. รอให้ Animation จบแล้วค่อยซ่อน Container
+                setTimeout(() => {
+                    drawer.classList.add('invisible', 'pointer-events-none');
+                }, 300);
+            }
+        };
 
-        // สร้าง HTML สินค้า
-        itemsContainer.innerHTML = cart.map(item => `
-            <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 relative group">
-                <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
-                    <img src="${item.image}" class="w-full h-full object-cover" />
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="eng text-sm font-bold text-white truncate pr-6">${item.title}</h3>
-                    <p class="eng text-[#D4AF37] text-xs font-bold mt-1">${item.price.toLocaleString()} ฿</p>
-                    
-                    <div class="flex items-center gap-3 mt-2">
-                        <button class="qty-btn w-6 h-6 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded text-white text-xs" data-action="minus" data-id="${item.id}">-</button>
-                        <span class="text-xs font-bold text-white w-4 text-center">${item.quantity}</span>
-                        <button class="qty-btn w-6 h-6 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded text-white text-xs" data-action="plus" data-id="${item.id}">+</button>
-                    </div>
-                </div>
-                <button class="remove-btn absolute top-3 right-3 text-white/20 hover:text-red-400 transition-colors" data-id="${item.id}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        `).join('');
+        const renderCart = () => {
+            try {
+                const cart = cartStore.get();
+                const { total, sats, count } = cartStore.totals();
 
-        // ผูก Event ปุ่มบวกลบ
-        document.querySelectorAll('.qty-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = (e.target as HTMLElement).dataset.id;
-                const action = (e.target as HTMLElement).dataset.action;
-                cartStore.updateQty(id, action === 'plus' ? 1 : -1);
+                if(totalEl) totalEl.innerText = total.toLocaleString() + ' THB';
+                if(satsEl) satsEl.innerText = '≈ ' + sats.toLocaleString() + ' Sats';
+                if(countEl) countEl.innerText = count.toString();
+
+                if (cart.length === 0) {
+                    if(itemsContainer) itemsContainer.innerHTML = '';
+                    emptyState?.classList.remove('hidden');
+                } else {
+                    emptyState?.classList.add('hidden');
+                    if(itemsContainer) {
+                        itemsContainer.innerHTML = cart.map(item => `
+                            <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 relative group mb-3">
+                                <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
+                                    <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=No+Image'"/>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="eng text-sm font-bold text-white truncate pr-6">${item.title}</h3>
+                                    <div class="flex items-center justify-between mt-2">
+                                        <p class="eng text-[#D4AF37] text-xs font-bold">${Number(item.price).toLocaleString()} ฿</p>
+                                        <div class="flex items-center gap-2 bg-black/40 rounded-lg p-1">
+                                            <button class="qty-btn w-6 h-6 flex items-center justify-center text-white/50 hover:text-white transition-colors" data-action="minus" data-id="${item.id}">-</button>
+                                            <span class="text-xs font-bold text-white w-4 text-center">${item.quantity}</span>
+                                            <button class="qty-btn w-6 h-6 flex items-center justify-center text-white/50 hover:text-white transition-colors" data-action="plus" data-id="${item.id}">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="remove-btn absolute top-2 right-2 text-white/20 hover:text-red-400 transition-colors p-1" data-id="${item.id}">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `).join('');
+                        attachItemListeners();
+                    }
+                }
+            } catch (err) {
+                console.error("Render Cart Error:", err);
+            }
+        };
+
+        const attachItemListeners = () => {
+            if(!itemsContainer) return;
+            
+            itemsContainer.querySelectorAll('.qty-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // @ts-ignore
+                    const id = e.currentTarget.dataset.id;
+                    // @ts-ignore
+                    const action = e.currentTarget.dataset.action;
+                    if(id) cartStore.updateQty(id, action === 'plus' ? 1 : -1);
+                    // ไม่ต้องเรียก renderCart() ตรงนี้ เพราะเดี๋ยว Store จะ dispatch event กลับมาเอง
+                });
             });
+
+            itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // @ts-ignore
+                    const id = e.currentTarget.dataset.id;
+                    if(id) cartStore.remove(id);
+                });
+            });
+        };
+
+        // --- Event Listeners ---
+        window.addEventListener('toggle-cart', (e) => {
+            // @ts-ignore
+            toggleDrawer(e.detail.open);
         });
 
-        // ผูก Event ปุ่มลบ
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // @ts-ignore
-                const id = e.currentTarget.dataset.id;
-                cartStore.remove(id);
-            });
+        window.addEventListener('cart-updated', () => {
+            renderCart();
         });
-    }
 
-    // เปิด-ปิด Drawer
-    function toggleDrawer(open) {
-        if (open) {
-            drawer?.classList.remove('translate-x-full');
-            backdrop?.classList.remove('opacity-0', 'pointer-events-none');
-            renderCart(); // Render ทุกครั้งที่เปิด
-        } else {
-            drawer?.classList.add('translate-x-full');
-            backdrop?.classList.add('opacity-0', 'pointer-events-none');
-        }
-    }
-
-    // Listeners
-    document.addEventListener('toggle-cart', (e: any) => {
-        const isOpen = !drawer?.classList.contains('translate-x-full');
-        toggleDrawer(e.detail?.open ?? !isOpen);
+        closeBtn?.addEventListener('click', () => toggleDrawer(false));
+        backdrop?.addEventListener('click', () => toggleDrawer(false));
     });
-
-    document.getElementById('close-cart')?.addEventListener('click', () => toggleDrawer(false));
-    backdrop?.addEventListener('click', () => toggleDrawer(false));
-    
-    // อัปเดตหน้าตาเมื่อข้อมูลเปลี่ยน
-    window.addEventListener('cart-updated', renderCart);
 </script>

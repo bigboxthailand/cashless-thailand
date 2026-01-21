@@ -12,111 +12,130 @@ import FAQ from '../components/FAQ.astro';
 import Footer from '../components/Footer.astro';
 import CartDrawer from '../components/CartDrawer.astro';
 
-const pageTitle = "Cashless Thailand | The Gold Standard of Digital Finance";
-const pageDesc = "สถาบันสอนและจัดจำหน่าย Hardware Wallet อันดับ 1 ของไทย ตัวแทนจำหน่ายอย่างเป็นทางการ Trezor, OneKey, Blockstream";
+// --- Import Components ใหม่ ---
+import ProductGallery from '../components/ProductGallery.astro';
+import CommunityEvents from '../components/CommunityEvents.astro';
+import Partners from '../components/Partners.astro';
+
+const pageTitle = "Cashless Thailand | Bitcoin & Crypto Innovation Devices";
+const pageDesc = "สถาบันสอนและจัดจำหน่าย ศูนย์รวมนวัตกรรม Bitcoin: CryptoClock, ตู้ BiTTerm, เครื่อง BiTPos และ BiTNode อุปกรณ์รันโหนดส่วนตัว ฝีมือคนไทย";
 ---
 
 <Layout title={pageTitle} description={pageDesc}>
-	
-	<div id="loader" class="fixed inset-0 bg-[#050505] z-[100000] flex items-center justify-center transition-opacity duration-500">
-		<div class="relative flex flex-col items-center gap-6">
-			<div class="w-20 h-20 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin"></div>
-			<div class="flex flex-col items-center">
-				<span class="eng text-white font-black text-2xl tracking-tighter">CASHLESS<span class="text-[#D4AF37]">.</span>TH</span>
-				<span class="eng text-[#D4AF37] text-[10px] font-bold tracking-[0.5em] animate-pulse mt-2">INITIALIZING</span>
-			</div>
-		</div>
-	</div>
+    
+    <div id="loader" class="fixed inset-0 bg-[#050505] z-[100000] flex items-center justify-center transition-opacity duration-500">
+        <div class="relative flex flex-col items-center gap-6">
+            <div class="w-20 h-20 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin"></div>
+            <div class="flex flex-col items-center">
+                <span class="eng text-white font-black text-2xl tracking-tighter">CASHLESS<span class="text-[#D4AF37]">.</span>TH</span>
+                <span class="eng text-[#D4AF37] text-[10px] font-bold tracking-[0.5em] animate-pulse mt-2">INITIALIZING</span>
+            </div>
+        </div>
+    </div>
 
-	<CartDrawer />
-	<Navbar />
+    <CartDrawer />
+    <Navbar />
 
-	<main class="relative z-10 bg-[#050505] overflow-hidden">
-		
-		<div id="home" class="relative z-10">
-			<Hero />
-		</div>
+    <main class="relative z-10 bg-[#050505] overflow-hidden">
+        
+        <div id="home" class="relative z-10">
+            <Hero />
+        </div>
 
-		<div class="relative z-20 -mt-8 md:-mt-10 transform -rotate-1 origin-center pointer-events-none">
-			<div class="shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-sm">
-				<Marquee />
-			</div>
-		</div>
+        <div class="relative z-20 -mt-8 md:-mt-10 transform -rotate-1 origin-center pointer-events-none">
+            <div class="shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-sm">
+                <Marquee />
+            </div>
+        </div>
 
-		<div id="shop" class="relative pt-32 pb-20 z-10">
-			<div class="absolute top-0 right-0 w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[180px] rounded-full pointer-events-none"></div>
-			<FeaturedGrid />
-		</div>
+        <div id="shop" class="relative pt-32 pb-10 z-10">
+            <div class="absolute top-0 right-0 w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[180px] rounded-full pointer-events-none"></div>
+            <FeaturedGrid />
+        </div>
 
-		<div id="features" class="relative z-10 bg-gradient-to-b from-[#050505] via-[#0a0a0a] to-[#050505]">
-			<Features />
-		</div>
+        <div class="relative z-10 border-t border-white/5">
+            <ProductGallery />
+        </div>
 
-		<div id="articles" class="relative z-10 border-t border-[#D4AF37]/10">
-			<div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent opacity-50"></div>
-			<BlogSection />
-		</div>
+        <div id="features" class="relative z-10 bg-gradient-to-b from-[#050505] via-[#0a0a0a] to-[#050505]">
+            <Features />
+        </div>
 
-		<div class="relative z-10">
-			<Testimonials />
-		</div>
+        <div id="community" class="relative z-10 border-t border-[#D4AF37]/10">
+            <CommunityEvents />
+        </div>
 
-		<div class="relative z-10 border-b border-[#D4AF37]/10 bg-[#050505]">
-			<FAQ />
-		</div>
+        <div id="articles" class="relative z-10 border-t border-[#D4AF37]/10">
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent opacity-50"></div>
+            <BlogSection />
+        </div>
 
-	</main>
+        <div class="relative z-10">
+            <Testimonials />
+        </div>
 
-	<Footer />
+        <div class="relative z-10">
+            <Partners />
+        </div>
+
+        <div class="relative z-10 border-b border-[#D4AF37]/10 bg-[#050505]">
+            <FAQ />
+        </div>
+
+    </main>
+
+    <Footer />
 
 </Layout>
 
 <script>
-	// [IMPORTANT FIX] ใช้ astro:page-load แทน load เพื่อให้ทำงานทุกครั้งที่เปลี่ยนหน้ากลับมา
-	document.addEventListener('astro:page-load', () => {
-		const loader = document.getElementById('loader');
-		
-		if (loader) {
-			// ให้เวลา Loader โชว์ตัวแป๊บนึง (500ms) แล้วค่อยเฟดหายไป
-			setTimeout(() => {
-				loader.classList.add('opacity-0');
-				// รอ Animation จบ (500ms) แล้วซ่อนถาวรไม่ให้บังปุ่ม
-				setTimeout(() => {
-					loader.style.display = 'none'; 
-				}, 500);
-			}, 500);
-		}
-	});
+    // Loader Logic
+    document.addEventListener('astro:page-load', () => {
+        const loader = document.getElementById('loader');
+        
+        if (loader) {
+            setTimeout(() => {
+                loader.classList.add('opacity-0');
+                setTimeout(() => {
+                    loader.style.display = 'none'; 
+                }, 500);
+            }, 500);
+        }
+    });
 
-	// Smooth Scroll สำหรับลิงก์ภายในหน้า (Anchor Links)
-	document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-		anchor.addEventListener('click', function (e) {
-			e.preventDefault();
-			const targetId = this.getAttribute('href')?.substring(1);
-			if(!targetId) return;
-			
-			const targetElement = document.getElementById(targetId);
-			if (targetElement) {
-				targetElement.scrollIntoView({
-					behavior: 'smooth'
-				});
-			}
-		});
-	});
+    // Smooth Scroll Logic
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            // @ts-ignore
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            
+            e.preventDefault();
+            const targetId = href?.substring(1);
+            if(!targetId) return;
+            
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
 </script>
 
 <style>
-	html::-webkit-scrollbar {
-		width: 8px;
-	}
-	html::-webkit-scrollbar-track {
-		background: #050505;
-	}
-	html::-webkit-scrollbar-thumb {
-		background: #333;
-		border-radius: 4px;
-	}
-	html::-webkit-scrollbar-thumb:hover {
-		background: #D4AF37;
-	}
+    html::-webkit-scrollbar {
+        width: 8px;
+    }
+    html::-webkit-scrollbar-track {
+        background: #050505;
+    }
+    html::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+    }
+    html::-webkit-scrollbar-thumb:hover {
+        background: #D4AF37;
+    }
 </style>

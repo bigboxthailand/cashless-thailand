@@ -41,14 +41,11 @@ const {
 		</div>
 
 		<script>
-            // Import สมองของตะกร้าสินค้า
             import { cartStore } from '../scripts/cartStore.js';
 
 			document.addEventListener('astro:page-load', () => {
 				
-                // -------------------------------------------------------
-                // 1. CUSTOM CURSOR LOGIC (เมาส์วงแหวน)
-                // -------------------------------------------------------
+                // 1. CUSTOM CURSOR LOGIC
 				const cursor = document.getElementById('cursor');
 				const dot = document.getElementById('cursor-dot');
 				let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
@@ -60,7 +57,6 @@ const {
 					cursor?.classList.remove('scale-0');
 				});
 
-                // Smooth Lerp Animation
 				const animateCursor = () => {
 					cursorX += (mouseX - cursorX) * 0.15;
 					cursorY += (mouseY - cursorY) * 0.15;
@@ -71,17 +67,13 @@ const {
 				};
 				animateCursor();
 
-                // -------------------------------------------------------
-                // 2. MAGNETIC BUTTONS (ปุ่มดูดเมาส์)
-                // -------------------------------------------------------
+                // 2. MAGNETIC BUTTONS
                 const magneticButtons = document.querySelectorAll('button, .magnet-link, a.button');
                 magneticButtons.forEach((btn) => {
                     btn.addEventListener('mousemove', (e: any) => {
                         const rect = (btn as HTMLElement).getBoundingClientRect();
                         const x = e.clientX - rect.left - rect.width / 2;
                         const y = e.clientY - rect.top - rect.height / 2;
-                        
-                        // แรงดึงดูด (ปรับเลข 5 = หนืดมาก, 10 = หนืดน้อย)
                         (btn as HTMLElement).style.transform = `translate(${x/5}px, ${y/5}px)`;
                         cursor?.classList.add('scale-[2.5]', 'bg-[#D4AF37]/10', 'border-transparent');
                     });
@@ -92,76 +84,31 @@ const {
                     });
                 });
 
-                // -------------------------------------------------------
-                // 3. CART LOGIC (ระบบตะกร้าสินค้า)
-                // -------------------------------------------------------
-                
-                // อัปเดตตัวเลขบน Badge เมื่อโหลดหน้า
+                // 3. CART LOGIC (ใส่ Try-Catch ป้องกันเว็บพัง)
                 const updateBadge = () => {
-                    const { count } = cartStore.totals();
-                    const badges = document.querySelectorAll('.cart-count, #cart-trigger span');
-                    badges.forEach(el => {
-                        el.textContent = count.toString();
-                        el.classList.toggle('hidden', count === 0);
-                        // Animation เด้งดึ๋งเมื่อเลขเปลี่ยน
-                        el.classList.add('scale-125');
-                        setTimeout(() => el.classList.remove('scale-125'), 200);
-                    });
-                };
-                updateBadge(); // เรียกทันที 1 ครั้ง
-                window.addEventListener('cart-updated', updateBadge); // รอฟัง event จาก cartStore
-
-                // ดักจับการกดปุ่ม "Add to Cart" ทั่วเว็บ (ไม่ต้องเขียน JS แยกแต่ละหน้า)
-                document.body.addEventListener('click', (e) => {
-                    const target = e.target as HTMLElement;
-                    // หาปุ่มที่มีคำว่า Add to Cart หรืออยู่ใน class product-card
-                    const btn = target.closest('button'); 
-                    
-                    if (btn && btn.innerText.toLowerCase().includes('add to cart')) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // พยายามดึงข้อมูลสินค้าจาก HTML
-                        // 1. จากหน้า Product Detail (Main)
-                        const mainTitle = document.querySelector('h1')?.innerText;
-                        const mainPriceStr = document.querySelector('.price__regular, .text-3xl.text-\\[\\#D4AF37\\]')?.innerText;
+                    try {
+                        const totals = cartStore.totals();
+                        // ถ้าไม่มี count ให้ใช้ 0 แทน (กัน Error)
+                        const count = totals.count || 0; 
                         
-                        // 2. จาก Product Card (Grid)
-                        const card = btn.closest('.product-card, .product-item');
-                        
-                        let product = { id: '', title: '', price: 0, image: '' };
-
-                        if (card) {
-                            // กรณีคลิกจากหน้า Grid
-                            product.id = card.getAttribute('href')?.split('/').pop() || '';
-                            product.title = card.querySelector('h3')?.innerText || '';
-                            const priceText = card.querySelector('span.eng')?.innerText || '0';
-                            product.price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-                            product.image = card.querySelector('img')?.src || '';
-                        } else {
-                            // กรณีคลิกจากหน้า Detail
-                            product.id = window.location.pathname.split('/').pop() || '';
-                            product.title = mainTitle || '';
-                            product.price = parseFloat(mainPriceStr?.replace(/[^0-9.]/g, '') || '0');
-                            product.image = (document.getElementById('main-image') as HTMLImageElement)?.src || '';
-                        }
-
-                        if (product.id && product.title) {
-                            cartStore.add(product); // ส่งเข้า Store
-                            
-                            // Effect ปุ่มยุบตัว
-                            btn.classList.add('scale-95');
-                            setTimeout(() => btn.classList.remove('scale-95'), 150);
-                            
-                            // เปิดตะกร้าโชว์
-                            document.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true } }));
-                        }
+                        const badges = document.querySelectorAll('.cart-count, #cart-trigger span');
+                        badges.forEach(el => {
+                            el.textContent = count.toString();
+                            el.classList.toggle('hidden', count === 0);
+                            el.classList.add('scale-125');
+                            setTimeout(() => el.classList.remove('scale-125'), 200);
+                        });
+                    } catch (err) {
+                        console.warn('Cart Badge Update Failed:', err);
                     }
-                });
+                };
 
-                // -------------------------------------------------------
-                // 4. TEXT REVEAL (ตัวหนังสือไหลขึ้น)
-                // -------------------------------------------------------
+                updateBadge();
+                window.addEventListener('cart-updated', updateBadge);
+
+                // [หมายเหตุ] ลบ Global Click Listener ออกแล้ว เพราะเราใช้ Listener ในหน้า Product แยกต่างหากเพื่อความชัวร์
+
+                // 4. TEXT REVEAL
                 const splitElements = document.querySelectorAll('.split-text');
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
@@ -170,9 +117,7 @@ const {
                         }
                     });
                 }, { threshold: 0.1 });
-
                 splitElements.forEach(el => observer.observe(el));
-
 			});
 		</script>
 	</body>

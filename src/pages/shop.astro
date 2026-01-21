@@ -1,206 +1,199 @@
 ---
+// src/pages/shop.astro
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import CartDrawer from '../components/CartDrawer.astro';
-import ProductCard from '../components/ProductCard.astro';
 
-// Mock Data (เพิ่ม field 'brand' เข้าไป)
+// 1. ข้อมูลสินค้า (อัปเดตให้ตรงกับหน้า Product ที่แก้ไป)
 const allProducts = [
+  // --- CryptoClock Series ---
   {
-    id: "trezor-safe-3-gold",
-    title: "Trezor Safe 3 (Bitcoin Only) - Gold Edition",
-    category: "hardware",
-    brand: "trezor", // เพิ่ม Brand
-    price: 7500,
-    image: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=800",
-    hoverImage: "https://images.unsplash.com/photo-1642104704074-907c0698cbd9?auto=format&fit=crop&q=80&w=800",
-    tag: "LIMITED"
+    id: "cryptoclock-basic",
+    title: "CryptoClock Basic",
+    category: "clock",
+    price: 1500,
+    image: "/images/Basic_White_Center.webp", // ใช้รูปใหม่
+    tag: "BEST SELLER",
+    desc: "WiFi Connected, LED Matrix"
   },
   {
-    id: "onekey-classic-1s",
-    title: "OneKey Classic 1S (EAL6+)",
-    category: "hardware",
-    brand: "onekey",
-    price: 3790,
-    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800",
-    tag: "BEST SELLER"
+    id: "cryptoclock-pro",
+    title: "CryptoClock Pro",
+    category: "clock",
+    price: 2500,
+    image: "/images/cryptoclock-pro.webp",
+    tag: "POPULAR",
+    desc: "IPS Screen, Candlestick Chart"
   },
   {
-    id: "blockstream-jade",
-    title: "Blockstream Jade - Transparent",
-    category: "hardware",
-    brand: "blockstream",
-    price: 2490,
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800",
-    tag: "AIR-GAPPED"
+    id: "cryptoclock-saving",
+    title: "CryptoClock Saving",
+    category: "clock",
+    price: 990,
+    image: "/images/cryptoclock-saving.webp",
+    tag: "BUDGET",
+    desc: "7-Segment, Low Power"
   },
   {
-    id: "bitcast-cardnest",
-    title: "Bitcast Cardnest - Leather Case",
-    category: "accessory",
-    brand: "bitcast",
-    price: 395,
-    image: "https://images.unsplash.com/photo-1628191013620-3023246eb767?auto=format&fit=crop&q=80&w=800",
-    tag: "NEW"
+    id: "cryptoclock-epaper", // รวมรุ่น ePaper เป็น ID เดียว
+    title: "CryptoClock ePaper",
+    category: "clock",
+    price: 4500,
+    image: "/images/cryptoclock-epaper-47.webp",
+    tag: "E-INK",
+    desc: "Paper-like, Always On"
+  },
+
+  // --- Other Devices ---
+  {
+    id: "bitterm-series", // รวมรุ่น BiTTerm เป็น ID เดียว
+    title: "BiTTerm Series",
+    category: "kiosk",
+    price: 15000,
+    image: "/images/bitterm-mini.webp",
+    tag: "BUSINESS",
+    desc: "Bitcoin ATM Kiosk Solutions"
   },
   {
-    id: "metal-seed-plate",
-    title: "Trezor Keep Metal - 24 Words",
-    category: "backup",
-    brand: "trezor",
-    price: 4550,
-    image: "https://images.unsplash.com/photo-1536566482680-fca31930a0bd?auto=format&fit=crop&q=80&w=800",
-    tag: "ESSENTIAL"
+    id: "bitpos-terminal",
+    title: "BiTPos Terminal",
+    category: "pos",
+    price: 8900,
+    image: "/images/bitpos-terminal.webp",
+    desc: "Lightning POS System"
   },
   {
-    id: "bitcoin-course",
-    title: "Bitcoin Mastery Course 2026",
-    category: "course",
-    brand: "bitcast",
-    price: 4900,
-    image: "https://images.unsplash.com/photo-1640340434855-6084b1f4901c?auto=format&fit=crop&q=80&w=800",
-    tag: "POPULAR"
+    id: "bitnode-personal",
+    title: "BiTNode Personal",
+    category: "node",
+    price: 5500,
+    image: "/images/bitnode-personal.webp",
+    tag: "PRIVACY",
+    desc: "Plug & Play Full Node"
   }
+];
+
+// 2. หมวดหมู่สินค้า
+const categories = [
+  { id: 'clock', title: 'CryptoClock Series', desc: 'นาฬิกาคริปโตสำหรับทุกไลฟ์สไตล์' },
+  { id: 'kiosk', title: 'BiTTerm Solutions', desc: 'ตู้แลกเหรียญและเติมเงินอัตโนมัติ' },
+  { id: 'pos', title: 'Point of Sale (POS)', desc: 'ระบบรับชำระเงินสำหรับร้านค้ายุคใหม่' },
+  { id: 'node', title: 'Infrastructure', desc: 'อุปกรณ์รันโหนดเพื่อความเป็นส่วนตัว' },
 ];
 ---
 
-<Layout title="The Armory | Shop - Cashless Thailand">
+<Layout title="Shop | Cashless Thailand">
     <Navbar />
     <CartDrawer />
 
-    <main class="relative z-10 bg-[#050505] min-h-screen pt-28 pb-20">
+    <main class="bg-[#050505] min-h-screen pb-32">
         
-        <div class="max-w-[1800px] mx-auto px-6 md:px-12 mb-10">
-            <nav class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/40 mb-6">
-                <a href="/" class="hover:text-[#D4AF37]">Home</a>
-                <span>/</span>
-                <span class="text-[#D4AF37]">Shop</span>
-            </nav>
-
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/10 pb-8">
-                <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter">
-                    Digital <span class="text-[#D4AF37]">Armory</span>
-                </h1>
-                
-                <div id="active-filter-label" class="hidden px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37] rounded-lg text-[#D4AF37] text-xs font-bold uppercase tracking-widest">
-                    Showing: <span id="filter-name">All</span>
-                </div>
-            </div>
+        <div class="relative pt-40 pb-20 px-6 text-center overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/10 rounded-full blur-[120px] pointer-events-none"></div>
+            
+            <h1 class="text-6xl md:text-8xl font-[900] text-white uppercase tracking-tighter mb-6 relative z-10 animate-fade-in-up">
+                Store <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F4E08F] to-[#D4AF37]">Catalog</span>
+            </h1>
+            <p class="text-white/60 font-light text-lg max-w-2xl mx-auto relative z-10 animate-fade-in-up delay-100">
+                นวัตกรรม Bitcoin Hardware ฝีมือคนไทย ที่ผสมผสานเทคโนโลยีเข้ากับไลฟ์สไตล์ของคุณ
+            </p>
         </div>
 
-        <div class="max-w-[1800px] mx-auto px-6 md:px-12 flex gap-12 relative">
+        <div class="max-w-[1400px] mx-auto px-6 md:px-12 space-y-32">
             
-            <aside id="filter-sidebar" class="hidden lg:block w-64 shrink-0 space-y-8 sticky top-32 h-fit">
-                <div class="space-y-4">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-widest">Category</h3>
-                    <div class="flex flex-col gap-2">
-                        <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors active" data-type="category" data-val="all">All Products</button>
-                        <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors" data-type="category" data-val="hardware">Hardware Wallets</button>
-                        <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors" data-type="category" data-val="backup">Backup</button>
-                        <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors" data-type="category" data-val="accessory">Accessories</button>
-                        <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors" data-type="category" data-val="course">Courses</button>
-                    </div>
-                </div>
+            {categories.map((cat, index) => {
+                const categoryProducts = allProducts.filter(p => p.category === cat.id);
+                if (categoryProducts.length === 0) return null;
 
-                <div class="space-y-4">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-widest">Brand</h3>
-                    <div class="flex flex-col gap-2">
-                        {['Trezor', 'OneKey', 'Blockstream', 'Foundation', 'Bitcast'].map(b => (
-                            <button class="filter-btn text-left text-white/60 hover:text-white text-sm transition-colors" data-type="brand" data-val={b.toLowerCase()}>{b}</button>
-                        ))}
-                    </div>
-                </div>
-            </aside>
-
-            <div class="flex-1">
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-                    {allProducts.map((product) => (
-                        <div class="product-item" data-category={product.category} data-brand={product.brand}>
-                             <ProductCard {...product} />
+                return (
+                    <section id={cat.id} class="scroll-mt-32">
+                        <div class="flex items-center gap-6 mb-12 group cursor-default">
+                            <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#D4AF37]/50"></div>
+                            <h2 class="text-3xl md:text-4xl font-[900] text-white uppercase tracking-tight text-center">
+                                <span class="text-[#D4AF37] block text-sm tracking-[0.3em] mb-2 font-medium">0{index + 1} Collection</span>
+                                {cat.title}
+                            </h2>
+                            <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#D4AF37]/50"></div>
                         </div>
-                    ))}
-                </div>
-                <div id="empty-state" class="hidden py-32 text-center w-full">
-                    <p class="text-white/30 text-lg uppercase tracking-widest">No products found</p>
-                    <a href="/shop" class="text-[#D4AF37] underline mt-2 inline-block">Clear Filters</a>
-                </div>
-            </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            {categoryProducts.map((item, i) => (
+                                <a href={`/products/${item.id}`} class="group relative block bg-[#111] rounded-[20px] overflow-hidden border border-white/5 hover:border-[#D4AF37]/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(212,175,55,0.2)] product-card-anim" style={`animation-delay: ${i * 100}ms`}>
+                                    
+                                    <div class="aspect-[4/5] relative overflow-hidden bg-[#0a0a0a]">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.title} 
+                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            loading="lazy"
+                                            onerror="this.src='https://placehold.co/600x800/1a1a1a/FFF?text=No+Image'"
+                                        />
+                                        
+                                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60"></div>
+                                        
+                                        {item.tag && (
+                                            <div class="absolute top-3 left-3 px-3 py-1 bg-[#D4AF37] text-black text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10">
+                                                {item.tag}
+                                            </div>
+                                        )}
+
+                                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
+                                            <span class="px-6 py-3 bg-white text-black font-bold uppercase tracking-wider rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl hover:bg-[#D4AF37] hover:scale-105">
+                                                View Details
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-6 relative bg-[#111]">
+                                        <div class="absolute -top-10 left-0 w-full h-10 bg-gradient-to-t from-[#111] to-transparent"></div>
+                                        
+                                        <h3 class="text-lg font-bold text-white mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-1">{item.title}</h3>
+                                        <p class="text-xs text-white/40 mb-4 font-light line-clamp-1">{item.desc || "Innovative Bitcoin Hardware"}</p>
+                                        
+                                        <div class="flex items-center justify-between pt-4 border-t border-white/5">
+                                            <div class="flex flex-col">
+                                                <span class="text-[10px] text-white/40 uppercase tracking-widest">Starts at</span>
+                                                <span class="text-xl font-black text-[#D4AF37] eng">{item.price.toLocaleString()} <span class="text-xs font-medium text-white/50">THB</span></span>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#D4AF37] group-hover:text-black transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </section>
+                );
+            })}
 
         </div>
     </main>
-    
     <Footer />
 </Layout>
 
-<script>
-    document.addEventListener('astro:page-load', () => {
-        const items = document.querySelectorAll('.product-item');
-        const btns = document.querySelectorAll('.filter-btn');
-        const filterName = document.getElementById('filter-name');
-        const activeLabel = document.getElementById('active-filter-label');
-        const emptyState = document.getElementById('empty-state');
+<style>
+    /* Animation Classes */
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    .delay-100 { animation-delay: 0.1s; }
 
-        // ฟังก์ชันกรองสินค้า
-        function filter(type, value) {
-            let count = 0;
-            items.forEach(item => {
-                const itemCat = item.getAttribute('data-category');
-                const itemBrand = item.getAttribute('data-brand');
-                
-                let match = false;
-                if (value === 'all') match = true;
-                else if (type === 'category' && itemCat === value) match = true;
-                else if (type === 'brand' && itemBrand === value) match = true;
+    .product-card-anim {
+        animation: cardReveal 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
 
-                if (match) {
-                    item.style.display = 'block';
-                    count++;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-            // อัปเดต UI
-            if(filterName) filterName.innerText = value.charAt(0).toUpperCase() + value.slice(1);
-            if(activeLabel) activeLabel.classList.remove('hidden');
-            if(emptyState) emptyState.style.display = count === 0 ? 'block' : 'none';
-
-            // อัปเดตปุ่ม Active
-            btns.forEach(btn => {
-                btn.classList.remove('text-[#D4AF37]', 'font-bold');
-                btn.classList.add('text-white/60');
-                if(btn.getAttribute('data-val') === value) {
-                    btn.classList.add('text-[#D4AF37]', 'font-bold');
-                    btn.classList.remove('text-white/60');
-                }
-            });
-        }
-
-        // 1. ตรวจสอบ URL Query Param เมื่อโหลดหน้า (เช่น ?brand=trezor)
-        const params = new URLSearchParams(window.location.search);
-        const brandParam = params.get('brand');
-        const catParam = params.get('category');
-
-        if (brandParam) filter('brand', brandParam);
-        else if (catParam) filter('category', catParam);
-        else filter('category', 'all');
-
-        // 2. คลิกปุ่ม Filter ใน Sidebar
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const type = btn.getAttribute('data-type');
-                const val = btn.getAttribute('data-val');
-                
-                // อัปเดต URL โดยไม่รีเฟรชหน้า (เปลี่ยน URL ให้สวย)
-                const newUrl = new URL(window.location);
-                newUrl.searchParams.delete('brand');
-                newUrl.searchParams.delete('category');
-                if (val !== 'all') newUrl.searchParams.set(type, val);
-                window.history.pushState({}, '', newUrl);
-
-                filter(type, val);
-            });
-        });
-    });
-</script>
+    @keyframes cardReveal {
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
