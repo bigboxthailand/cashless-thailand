@@ -4,29 +4,80 @@
 const faqCategories = [
   {
     id: 'basics',
-    label: 'Bitcoin Basics',
+    label: 'Bitcoin & Self-Custody',
     questions: [
-        { q: "Hardware Wallet ต่างจากกระเป๋าในเว็บเทรดอย่างไร?", a: "Hardware Wallet เก็บ Private Key ของคุณไว้ในอุปกรณ์ออฟไลน์ (Cold Storage) ทำให้แฮ็กเกอร์ไม่สามารถเจาะระบบผ่านอินเทอร์เน็ตได้ ต่างจากเว็บเทรดที่กุญแจอยู่ที่ผู้ให้บริการ หากเว็บปิดตัวหรือถูกแฮ็ก เหรียญคุณอาจสูญหายได้" },
-        { q: "ถ้าเครื่องหาย หรือพัง เหรียญจะหายไหม?", a: "ไม่หายครับ! ตราบใดที่คุณจด Seed Phrase (คำศัพท์ 12-24 คำ) เอาไว้ในกระดาษหรือแผ่นเหล็ก คุณสามารถซื้อเครื่องใหม่รุ่นไหนก็ได้เพื่อ 'กู้คืน' เหรียญกลับมาได้ครบทุกบาททุกสตางค์" },
-        { q: "มือใหม่ควรเริ่มจากรุ่นไหนดี?", a: "สำหรับมือใหม่ แนะนำรุ่นที่ใช้งานง่ายและมีหน้าจอสัมผัส เช่น OneKey Classic 1S หรือ Trezor Safe 3 ที่สมดุลทั้งความปลอดภัยและราคาครับ" }
+        { 
+            q: "ทำไมต้องรัน Bitcoin Node เอง (BiTNode)?", 
+            a: "การรัน Node เองคือวิธีเดียวที่คุณจะตรวจสอบความถูกต้องของธุรกรรมได้ 100% โดยไม่ต้องเชื่อใจใคร (Don't Trust, Verify) และช่วยรักษาความเป็นส่วนตัวของข้อมูลการเงินไม่ให้รั่วไหลไปสู่ Public Server ของคนอื่นครับ" 
+        },
+        { 
+            q: "Lightning Network คืออะไร เกี่ยวกับ BiTTerm ยังไง?", 
+            a: "Lightning Network คือระบบชำระเงิน Bitcoin ที่เร็วระดับวินาทีและค่าธรรมเนียมต่ำมาก (หลักสตางค์) ซึ่ง BiTTerm และ BiTPos ใช้ระบบนี้เพื่อให้ลูกค้าของคุณแลกเปลี่ยนหรือจ่ายเงินได้ทันทีโดยไม่ต้องรอ Confirm นาน" 
+        },
+        { 
+            q: "Hardware Wallet ต่างจากแอปในมือถือยังไง?", 
+            a: "Hardware Wallet เก็บ Private Key แบบออฟไลน์ (Cold Storage) แฮ็กเกอร์เจาะไม่ได้แม้คอมติดไวรัส ส่วนแอปมือถือ (Hot Wallet) สะดวกแต่เสี่ยงกว่า เหมาะสำหรับเก็บเงินจำนวนน้อยๆ ไว้ใช้จ่ายเท่านั้น" 
+        },
+        { 
+            q: "Not your keys, not your coins หมายความว่าไง?", 
+            a: "หมายถึงถ้าคุณฝาก Bitcoin ไว้บนเว็บเทรด (Exchange) คุณไม่ได้เป็นเจ้าของจริงๆ หากเว็บปิดตัวหรือระงับถอน คุณจะเสียเงินทั้งหมด การเก็บเองใน Hardware Wallet หรือ Node ส่วนตัวจึงปลอดภัยที่สุดครับ" 
+        },
+        { 
+            q: "ถ้าไฟดับหรือเน็ตหลุด Bitcoin ใน Node จะหายไหม?", 
+            a: "ไม่หายครับ! ข้อมูล Blockchain ถูกบันทึกลงใน SSD (Harddisk) เมื่อไฟมาหรือเน็ตติด เครื่องจะทำการ Sync ข้อมูลส่วนที่ขาดหายไปต่อให้เองโดยอัตโนมัติครับ" 
+        }
     ]
   },
   {
     id: 'products',
-    label: 'Products & Usage',
+    label: 'Product Usage',
     questions: [
-        { q: "CryptoClock ต้องต่อคอมพิวเตอร์ตลอดเวลาไหม?", a: "ไม่ต้องครับ CryptoClock ทำงานแยกอิสระ เพียงแค่เสียบปลั๊กไฟ (USB-C) และเชื่อมต่อ WiFi ครั้งแรกผ่านมือถือ ก็พร้อมแสดงราคาได้ตลอด 24 ชม." },
-        { q: "BiTNode กินไฟเยอะไหม?", a: "น้อยมากครับ! BiTNode ใช้บอร์ด Raspberry Pi หรือเทียบเท่า กินไฟเฉลี่ยเพียง 5-10W (ค่าไฟประมาณ 30-50 บาทต่อเดือน) สามารถเปิดทิ้งไว้ได้ตลอดปีโดยไม่ต้องกังวล" },
-        { q: "ตู้ BiTTerm รองรับเหรียญอะไรบ้าง?", a: "BiTTerm ออกแบบมาเพื่อ Bitcoin (BTC) บนเครือข่าย Lightning Network โดยเฉพาะ เพื่อความรวดเร็วและค่าธรรมเนียมที่ถูกที่สุดครับ" }
+        { 
+            q: "BiTTerm (ตู้ ATM) สร้างรายได้ยังไง?", 
+            a: "เจ้าของตู้สามารถกำหนด 'ค่าธรรมเนียม' (Fee) ในการแลกเปลี่ยนได้เอง (เช่น 1-5%) เมื่อมีคนมาใช้ตู้ ระบบจะหักส่วนต่างนั้นเป็นกำไรเข้า Wallet ของคุณทันที ถือเป็น Passive Income ครับ" 
+        },
+        { 
+            q: "CryptoClock ต้องเชื่อมต่อคอมพิวเตอร์ตลอดไหม?", 
+            a: "ไม่ต้องครับ! CryptoClock ทำงานแยกอิสระ มีชิป WiFi ในตัว แค่เสียบปลั๊ก USB-C และตั้งค่าผ่านมือถือครั้งแรกครั้งเดียว ก็จะดึงราคามาแสดงผลได้ตลอด 24 ชม." 
+        },
+        { 
+            q: "BiTNode กินไฟเยอะไหม เปิดทิ้งไว้ได้ไหม?", 
+            a: "กินไฟน้อยมากครับ (ประมาณ 5-15W) หรือเดือนละประมาณ 30-60 บาท ถูกกว่าเปิดพัดลมเบอร์ 1 เสียอีก ออกแบบมาให้เปิดทิ้งไว้ได้ 24/7 ตลอดทั้งปีครับ" 
+        },
+        { 
+            q: "BiTPos ต้องเสียรายเดือนไหม?", 
+            a: "ไม่มีค่ารายเดือนครับ! คุณซื้อเครื่องขาดครั้งเดียวจบ ซอฟต์แวร์ข้างในเป็น Open Source (LNBits/BtcPay) ที่ไม่มีการเก็บค่าบริการแอบแฝง" 
+        },
+        { 
+            q: "CryptoClock ePaper จอจะเสื่อมไหม?", 
+            a: "จอ E-Ink มีความทนทานสูงมากและประหยัดพลังงาน เพราะไฟจะเลี้ยงเฉพาะตอนเปลี่ยนตัวเลขเท่านั้น ไม่มีการ Burn-in เหมือนจอ OLED อายุการใช้งานยาวนานหลายปีครับ" 
+        }
     ]
   },
   {
     id: 'service',
-    label: 'Warranty & Shipping',
+    label: 'Support & Warranty',
     questions: [
-        { q: "สินค้ามีการรับประกันไหม?", a: "สินค้าทุกชิ้นจาก Cashless Thailand เป็นของแท้ 100% นำเข้าอย่างถูกต้อง และมีการรับประกันศูนย์ไทย 1 ปีเต็ม หากเครื่องมีปัญหาจากการผลิต เราเปลี่ยนเครื่องใหม่ให้ทันทีครับ" },
-        { q: "จัดส่งสินค้านานไหม?", a: "สินค้าพร้อมส่ง (In Stock) จะจัดส่งภายใน 1-2 วันทำการ หากเป็นสินค้า Pre-order จะใช้เวลาประมาณ 14-20 วันครับ โดยเราแพ็คกันกระแทกอย่างแน่นหนาทุกกล่อง" },
-        { q: "มีทีมงานสอนใช้งานไหม?", a: "มีครับ! เรามีคู่มือภาษาไทยให้ และมีทีม Support คนไทยคอยดูแลผ่าน Line OA ตลอดการใช้งาน ไม่ต้องกังวลว่าจะทำไม่เป็นครับ" }
+        { 
+            q: "สินค้ามีการรับประกันกี่ปี?", 
+            a: "สินค้ากลุ่ม Hardware (BiTNode, BiTTerm, BiTPos, CryptoClock) รับประกันศูนย์ไทย 1 ปีเต็ม หากมีปัญหาจากการผลิต เราเปลี่ยนอะไหล่หรือเครื่องใหม่ให้ฟรีครับ" 
+        },
+        { 
+            q: "ถ้าซื้อ Node ไปแล้วทำไม่เป็น มีสอนไหม?", 
+            a: "มีครับ! เรามีคู่มือภาษาไทยแบบละเอียด (Video & Text) และมีกลุ่ม Line Square สำหรับลูกค้า เพื่อสอบถามปัญหาการใช้งานและเทคนิคต่างๆ จากทีมงานและเพื่อนสมาชิกครับ" 
+        },
+        { 
+            q: "สั่งซื้อแล้วรอนานไหม?", 
+            a: "สินค้าที่มีสถานะ 'In Stock' จัดส่งภายใน 1-2 วันทำการ ส่วนสินค้า 'Pre-order' หรือสินค้าสั่งประกอบ (Custom Node) จะใช้เวลาประมาณ 7-14 วันครับ" 
+        },
+        { 
+            q: "เครื่องเสียส่งซ่อมที่ไหน?", 
+            a: "ส่งกลับมาที่ศูนย์บริการของเราในไทยได้เลยครับ ไม่ต้องส่งไปเคลมต่างประเทศเอง เรามีช่างเทคนิคดูแลและมีอะไหล่สำรองพร้อมซ่อม" 
+        },
+        { 
+            q: "มีบริการติดตั้งนอกสถานที่ไหม?", 
+            a: "สำหรับ BiTTerm (ตู้ ATM) เรามีบริการไปติดตั้งและ Setup ให้ถึงที่ (ในเขต กทม. และปริมณฑล) พร้อมสอนการใช้งานหน้างานครับ ส่วนต่างจังหวัดสามารถ Video Call สอนติดตั้งได้ครับ" 
+        }
     ]
   }
 ];
@@ -34,13 +85,13 @@ const faqCategories = [
 
 <section class="max-w-[1000px] mx-auto px-6 md:px-12 py-32" id="faq-section">
     <div class="text-center mb-16 reveal">
-        <h2 class="eng text-[#D4AF37] text-xs font-black tracking-[0.5em] uppercase mb-4">Support</h2>
+        <h2 class="eng text-[#D4AF37] text-xs font-black tracking-[0.5em] uppercase mb-4">Common Questions</h2>
         <h2 class="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-8">FAQ</h2>
         
         <div class="inline-flex flex-wrap justify-center gap-2 p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
             {faqCategories.map((cat, index) => (
                 <button 
-                    class={`tab-btn px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${index === 0 ? 'bg-[#D4AF37] text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+                    class={`tab-btn px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${index === 0 ? 'bg-[#D4AF37] text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] active-tab' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
                     data-target={cat.id}
                 >
                     {cat.label}
@@ -49,11 +100,10 @@ const faqCategories = [
         </div>
     </div>
 
-    <div class="relative min-h-[400px]">
-        {faqCategories.map((cat, index) => (
+    <div class="relative min-h-[600px]"> {faqCategories.map((cat, index) => (
             <div 
                 id={cat.id} 
-                class={`faq-panel space-y-4 transition-all duration-500 absolute top-0 left-0 w-full ${index === 0 ? 'opacity-100 z-10 translate-y-0' : 'opacity-0 z-0 translate-y-4 pointer-events-none'}`}
+                class={`faq-panel space-y-4 transition-all duration-500 absolute top-0 left-0 w-full ${index === 0 ? 'opacity-100 z-10 translate-y-0 active-panel' : 'opacity-0 z-0 translate-y-4 pointer-events-none'}`}
             >
                 {cat.questions.map((item, i) => (
                     <details class="group bg-[#0a0a0a] rounded-2xl border border-white/5 open:border-[#D4AF37]/50 transition-all duration-300">
@@ -74,39 +124,53 @@ const faqCategories = [
 </section>
 
 <script>
-    // Tab Switching Logic
-    const btns = document.querySelectorAll('.tab-btn');
-    const panels = document.querySelectorAll('.faq-panel');
+    function initFAQ() {
+        const btns = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.faq-panel');
 
-    btns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // 1. Update Buttons State
-            btns.forEach(b => {
-                b.classList.remove('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]');
-                b.classList.add('text-white/60', 'hover:text-white', 'hover:bg-white/5');
-            });
-            btn.classList.remove('text-white/60', 'hover:text-white', 'hover:bg-white/5');
-            btn.classList.add('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]');
+        if (!btns.length || !panels.length) return;
 
-            // 2. Update Panels State
-            // @ts-ignore
-            const targetId = btn.dataset.target;
-            
-            panels.forEach(panel => {
-                if(panel.id === targetId) {
-                    // Show
-                    panel.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
-                    panel.classList.add('opacity-100', 'translate-y-0', 'z-10');
-                } else {
-                    // Hide
-                    panel.classList.remove('opacity-100', 'translate-y-0', 'z-10');
-                    panel.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
-                    // Optional: Close details when switching tabs
-                    panel.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
-                }
+        btns.forEach(btn => {
+            // Clone to remove old listeners
+            const newBtn = btn.cloneNode(true);
+            if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', (e) => {
+                // @ts-ignore
+                const targetBtn = e.target;
+                const targetId = targetBtn.dataset.target;
+
+                // 1. Update Buttons Visual
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]', 'active-tab');
+                    b.classList.add('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+                });
+                
+                targetBtn.classList.remove('text-white/60', 'hover:text-white', 'hover:bg-white/5');
+                targetBtn.classList.add('bg-[#D4AF37]', 'text-black', 'shadow-[0_0_20px_rgba(212,175,55,0.4)]', 'active-tab');
+
+                // 2. Update Panels
+                panels.forEach(panel => {
+                    if(panel.id === targetId) {
+                        panel.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
+                        panel.classList.add('opacity-100', 'translate-y-0', 'z-10', 'active-panel');
+                    } else {
+                        panel.classList.remove('opacity-100', 'translate-y-0', 'z-10', 'active-panel');
+                        panel.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none', 'z-0');
+                        
+                        // Optional: Close details when switching
+                        panel.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
+                    }
+                });
             });
         });
-    });
+    }
+
+    // Run on Initial Load
+    initFAQ();
+
+    // Run on Astro Page Swap
+    document.addEventListener('astro:page-load', initFAQ);
 </script>
 
 <style>
