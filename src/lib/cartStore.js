@@ -1,4 +1,4 @@
-// src/scripts/cartStore.js
+// src/lib/cartStore.js
 import { persistentAtom } from '@nanostores/persistent';
 
 export const cartItems = persistentAtom('cart-items', [], {
@@ -25,7 +25,6 @@ export const cartStore = {
       cartItems.set([...currentItems, { ...product, quantity: 1 }]);
     }
     
-    // [แก้ไขจุดสำคัญ] เปลี่ยน document -> window และเพิ่ม bubbles: true
     isCartOpen.set('true');
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
@@ -66,7 +65,6 @@ export const cartStore = {
 
   open: () => {
     isCartOpen.set('true');
-    // [แก้ไข] document -> window
     if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
     }
@@ -74,9 +72,18 @@ export const cartStore = {
   
   close: () => {
     isCartOpen.set('false');
-    // [แก้ไข] document -> window
     if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: false }, bubbles: true }));
+    }
+  },
+
+  clear: () => {
+    // [แก้ไขล่าสุด] สั่ง Nano Stores ให้เคลียร์ค่าเป็น Array ว่าง (มันจะไปลบใน LocalStorage ให้เองอัตโนมัติ)
+    cartItems.set([]); 
+    
+    // อัปเดตหน้าจอ
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
     }
   }
 };

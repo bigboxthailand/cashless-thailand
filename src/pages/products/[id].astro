@@ -5,7 +5,6 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import CartDrawer from '../../components/CartDrawer.astro';
 
-// 1. ดึงข้อมูล
 import productsData from '../../data/products.json';
 
 export async function getStaticPaths() {
@@ -17,14 +16,18 @@ export async function getStaticPaths() {
 
 const { product } = Astro.props;
 
-// Helper variables
-const hasMarketing = product.marketing && product.marketing.benefits?.length > 0;
+const hasMarketing = product.marketing && product.marketing.benefits && product.marketing.benefits.length > 0;
 const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
 const hasGallery = product.media.gallery && product.media.gallery.length > 1;
-const price = product.pricing.basePrice.toLocaleString();
+
+let initialPrice = product.pricing.basePrice;
+if (product.config && product.config.variants && product.config.variants.length > 0 && product.config.variants[0].price) {
+  initialPrice = product.config.variants[0].price;
+}
+
+const formattedPrice = initialPrice.toLocaleString();
 const currency = product.pricing.currency;
 
-// [สำคัญ] แปลงข้อมูล Product เป็น JSON String เพื่อส่งให้ Script
 const productJson = JSON.stringify(product);
 ---
 
@@ -34,22 +37,29 @@ const productJson = JSON.stringify(product);
 
     <main 
         id="product-page-container" 
-        class="bg-[#050505] min-h-screen pt-32 pb-20 overflow-x-hidden"
+        class="bg-[#050505] min-h-screen pt-32 pb-48 md:pb-20 overflow-x-hidden"
         data-product-json={productJson}
     >
         
         <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32 animate-fade-in">
             
             <div class="space-y-6">
-                <div class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl">
+                <div id="image-container" class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl touch-pan-y select-none cursor-grab active:cursor-grabbing">
                     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <img 
                         id="main-image" 
                         src={product.media.mainImage} 
                         alt={product.meta.title} 
-                        class="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 group-hover:rotate-1" 
+                        class="w-full h-full object-contain transition-all duration-300 pointer-events-none" 
                         loading="eager"
                     />
+                    
+                    {hasGallery && (
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 md:hidden flex gap-1 items-center">
+                            <span class="text-[10px] text-white/50 uppercase tracking-widest font-bold">Swipe</span>
+                            <svg class="w-3 h-3 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </div>
+                    )}
                 </div>
 
                 {hasGallery && (
@@ -87,64 +97,70 @@ const productJson = JSON.stringify(product);
                 <p class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg">{product.meta.description}</p>
                 
                 <div class="flex items-baseline gap-3 mb-10">
-                    <span class="text-5xl text-white font-black eng tracking-tighter">{price}</span>
+                    <span id="price-display" class="text-5xl text-white font-black eng tracking-tighter">{formattedPrice}</span>
                     <span class="text-xl text-[#D4AF37] font-bold eng">{currency}</span>
                 </div>
 
-                {product.config && product.config.variants && (
-                    <div class="mb-10 p-6 bg-[#111] rounded-3xl border border-white/5">
-                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] block mb-4">
-                            Select {product.config.variantType === 'color' ? 'Color' : 'Model'}
-                        </span>
-                        
-                        <div class="flex gap-4 flex-wrap" id="variant-selector">
-                            {product.config.variants.map((variant, index) => (
-                                product.config.variantType === 'color' ? (
-                                    <button 
-                                        class={`variant-btn w-12 h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-transparent hover:scale-110'}`}
-                                        style={`background-color: ${variant.value}`}
-                                        data-image={variant.image}
-                                        data-name={variant.name}
-                                        aria-label={variant.name}
-                                    >
-                                        <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10">
-                                            {variant.name}
-                                        </span>
-                                    </button>
-                                ) : (
-                                    <button 
-                                        class={`variant-btn px-6 py-3 rounded-xl border-2 text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? 'border-[#D4AF37] bg-[#D4AF37] text-black active-variant' : 'border-white/10 text-white/60 hover:border-white hover:text-white'}`}
-                                        data-image={variant.image}
-                                        data-name={variant.name}
-                                    >
-                                        {variant.name}
-                                    </button>
-                                )
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                <div class="flex gap-4 h-14 mb-10">
-                    <div class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-32 justify-between">
-                        <button id="qty-minus" class="text-white/30 hover:text-white w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">-</button>
-                        <input id="qty-input" type="number" value="1" min="1" class="w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono" readonly />
-                        <button id="qty-plus" class="text-white/30 hover:text-white w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">+</button>
-                    </div>
+                <div class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/90 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-4 md:p-0 z-50 flex flex-col gap-4 animate-slide-up md:animate-none">
                     
-                    <button 
-                        id="add-to-cart-btn"
-                        class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
-                    >
-                        <span class="relative z-10 flex items-center justify-center gap-2">
-                            Add to Cart
-                            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        </span>
-                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                    </button>
+                    {product.config && product.config.variants && (
+                        <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5">
+                            <span class="hidden md:block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+                                Select {product.config.variantType === 'color' ? 'Color' : 'Model'}
+                            </span>
+                            
+                            <div class="flex gap-3 md:gap-4 flex-wrap" id="variant-selector">
+                                {product.config.variants.map((variant, index) => (
+                                    product.config.variantType === 'color' ? (
+                                        // [อัปเดต] เปลี่ยน border-transparent เป็น border-white/20 เพื่อให้เห็นขอบ
+                                        <button 
+                                            class={`variant-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-white/20 hover:scale-110'}`}
+                                            style={`background-color: ${variant.value}`}
+                                            data-image={variant.image}
+                                            data-name={variant.name}
+                                            data-price={variant.price}
+                                            aria-label={variant.name}
+                                        >
+                                            <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10 hidden md:block">
+                                                {variant.name}
+                                            </span>
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            class={`variant-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? 'border-[#D4AF37] bg-[#D4AF37] text-black active-variant' : 'border-white/10 text-white/60 hover:border-white hover:text-white'}`}
+                                            data-image={variant.image}
+                                            data-name={variant.name}
+                                            data-price={variant.price}
+                                        >
+                                            {variant.name}
+                                        </button>
+                                    )
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div class="flex gap-3 md:gap-4 h-14">
+                        <div class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-28 md:w-32 justify-between shrink-0">
+                            <button id="qty-minus" class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">-</button>
+                            <input id="qty-input" type="number" value="1" min="1" class="w-8 md:w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono" readonly />
+                            <button id="qty-plus" class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">+</button>
+                        </div>
+                        
+                        <button 
+                            id="add-to-cart-btn"
+                            class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
+                        >
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                Add to Cart
+                                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            </span>
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5">
+                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0">
                     {product.manualLink && (
                         <a href={product.manualLink} class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
                             <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
@@ -175,7 +191,7 @@ const productJson = JSON.stringify(product);
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>
 
                 <div class="max-w-[1200px] mx-auto px-6 relative z-10">
-                    <div class="text-center mb-20 reveal-on-scroll">
+                    <div class="text-center mb-20">
                         <h2 class="inline-block px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.3em] uppercase mb-6 backdrop-blur-md">
                             {product.marketing.headline}
                         </h2>
@@ -185,8 +201,8 @@ const productJson = JSON.stringify(product);
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {product.marketing.benefits.map((benefit, i) => (
-                            <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group reveal-on-scroll" style={`transition-delay: ${i * 100}ms`}>
+                        {product.marketing.benefits.map((benefit) => (
+                            <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group">
                                 <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
                                     <span class="text-3xl filter grayscale group-hover:grayscale-0 transition-all">
                                         {benefit.icon === 'chart' && '📈'}
@@ -230,23 +246,31 @@ const productJson = JSON.stringify(product);
 </Layout>
 
 <script>
-    import { cartStore } from '../../scripts/cartStore.js';
+    import { cartStore } from '../../lib/cartStore.js';
 
     function initProductPage() {
         const container = document.getElementById('product-page-container');
         if (!container) return;
 
-        // 1. อ่านข้อมูล Product
         const productData = JSON.parse(container.dataset.productJson || '{}');
+        const galleryImgs = productData.media?.gallery || [productData.media?.mainImage];
         
-        // 2. ตั้งค่า State เริ่มต้น
-        const firstVariant = productData.config?.variants?.[0];
+        let initialVariantName = 'Standard';
+        let initialImage = galleryImgs[0];
+        let initialPrice = productData.pricing?.basePrice;
+
+        if (productData.config && productData.config.variants && productData.config.variants.length > 0) {
+            initialVariantName = productData.config.variants[0].name;
+            initialImage = productData.config.variants[0].image || initialImage;
+            initialPrice = productData.config.variants[0].price || initialPrice;
+        }
+
         const state = {
-            currentImage: firstVariant?.image || productData.media?.mainImage,
-            selectedVariantName: firstVariant?.name || 'Standard'
+            currentImage: initialImage,
+            selectedVariantName: initialVariantName,
+            currentPrice: initialPrice
         };
 
-        // 3. Helper: Clone Element to remove listeners
         const getCleanElement = (id) => {
             const el = document.getElementById(id);
             if (!el) return null;
@@ -255,110 +279,126 @@ const productJson = JSON.stringify(product);
             return newEl;
         };
 
-        // --- Elements ---
+        const imageContainer = document.getElementById('image-container');
         const mainImage = document.getElementById('main-image');
+        const priceDisplay = document.getElementById('price-display');
         const qtyInput = document.getElementById('qty-input');
         const minusBtn = getCleanElement('qty-minus');
         const plusBtn = getCleanElement('qty-plus');
         const addBtn = getCleanElement('add-to-cart-btn');
         
-        // Select Buttons
         const variantBtns = document.querySelectorAll('.variant-btn');
-        const thumbBtns = document.querySelectorAll('.thumbnail-btn'); // <--- เพิ่มตัวนี้
+        const thumbBtns = document.querySelectorAll('.thumbnail-btn');
 
-        // --- Logic: เปลี่ยนรูป ---
+        // --- Logic: เปลี่ยนรูปพร้อม Animation ---
         const changeImage = (src) => {
-            if (!mainImage || !src) return;
-            // Animation เล็กน้อย
+            if (!mainImage || !src || state.currentImage === src) return;
             mainImage.style.opacity = '0';
             mainImage.style.transform = 'scale(0.95)';
             
             setTimeout(() => {
-                // @ts-ignore
                 mainImage.src = src;
                 mainImage.style.opacity = '1';
                 mainImage.style.transform = 'scale(1)';
                 state.currentImage = src;
+                updateThumbnails(src);
             }, 200);
         };
 
-        // ==========================================
-        // [NEW] Logic: Gallery Thumbnails (รูปด้านล่าง)
-        // ==========================================
+        const updateThumbnails = (activeSrc) => {
+            document.querySelectorAll('.thumbnail-btn').forEach(b => {
+                const isActive = b.dataset.src === activeSrc;
+                if (isActive) {
+                    b.classList.remove('border-white/10');
+                    b.classList.add('border-[#D4AF37]');
+                    b.querySelector('img').classList.remove('opacity-60');
+                    b.querySelector('img').classList.add('opacity-100');
+                } else {
+                    b.classList.remove('border-[#D4AF37]');
+                    b.classList.add('border-white/10');
+                    b.querySelector('img').classList.add('opacity-60');
+                    b.querySelector('img').classList.remove('opacity-100');
+                }
+            });
+        };
+
+        // --- Logic: ปัดนิ้ว (Swipe) บนมือถือ ---
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        const handleSwipe = () => {
+            if (galleryImgs.length <= 1) return;
+            const currentIndex = galleryImgs.indexOf(state.currentImage);
+            
+            if (touchendX < touchstartX - 50) { // ปัดซ้าย = รูปถัดไป
+                const nextIndex = (currentIndex + 1) % galleryImgs.length;
+                changeImage(galleryImgs[nextIndex]);
+            }
+            if (touchendX > touchstartX + 50) { // ปัดขวา = รูปก่อนหน้า
+                const prevIndex = (currentIndex - 1 + galleryImgs.length) % galleryImgs.length;
+                changeImage(galleryImgs[prevIndex]);
+            }
+        };
+
+        imageContainer?.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        imageContainer?.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+
+        // --- Event Listeners อื่นๆ (กดรูปเล็ก, เลือกสี, เพิ่มจำนวน) ---
         thumbBtns.forEach((btn) => {
-            // Clone เพื่อล้าง Event เก่า (เหมือน Variant)
             const newBtn = btn.cloneNode(true);
             if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
-
-            newBtn.addEventListener('click', (e) => {
-                // @ts-ignore
-                const target = e.currentTarget;
-                const src = target.dataset.src;
-
-                // 1. เปลี่ยนรูปหลัก
-                changeImage(src);
-
-                // 2. (Optional) Highlight กรอบรูปที่เลือก
-                document.querySelectorAll('.thumbnail-btn').forEach(b => {
-                    b.classList.remove('border-[#D4AF37]', 'opacity-100');
-                    b.classList.add('border-white/10');
-                    // @ts-ignore
-                    b.querySelector('img').classList.add('opacity-60');
-                    // @ts-ignore
-                    b.querySelector('img').classList.remove('opacity-100');
-                });
-                
-                target.classList.remove('border-white/10');
-                target.classList.add('border-[#D4AF37]');
-                target.querySelector('img').classList.remove('opacity-60');
-                target.querySelector('img').classList.add('opacity-100');
-            });
+            newBtn.addEventListener('click', (e) => changeImage(e.currentTarget.dataset.src));
         });
 
-        // --- Logic: เลือกสี/รุ่น (Variants) ---
         variantBtns.forEach((btn, index) => {
             const newBtn = btn.cloneNode(true);
             if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
-            // Set Initial Active State
             if (index === 0) {
                 if(newBtn.classList.contains('rounded-full')) {
-                    // @ts-ignore
                     newBtn.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
-                    // @ts-ignore
-                    newBtn.classList.remove('border-transparent');
+                    newBtn.classList.remove('border-white/20'); // [อัปเดต] เอาขอบขาวออกเมื่อถูกเลือก
                 } else {
-                    // @ts-ignore
                     newBtn.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
-                    // @ts-ignore
                     newBtn.classList.remove('border-white/10', 'text-white/60');
                 }
             }
 
             newBtn.addEventListener('click', (e) => {
-                // @ts-ignore
                 const target = e.currentTarget;
                 const name = target.dataset.name;
                 const img = target.dataset.image;
+                const price = parseInt(target.dataset.price);
 
-                // Update State
                 state.selectedVariantName = name;
+                state.currentPrice = price;
                 if (img) changeImage(img);
 
-                // Update UI Visuals
+                if (priceDisplay && !isNaN(price)) {
+                    priceDisplay.innerText = price.toLocaleString();
+                    priceDisplay.classList.add('scale-110', 'text-[#D4AF37]');
+                    setTimeout(() => priceDisplay.classList.remove('scale-110', 'text-[#D4AF37]'), 150);
+                }
+
                 document.querySelectorAll('.variant-btn').forEach(b => {
                     if (b.classList.contains('rounded-full')) {
                         b.classList.remove('border-[#D4AF37]', 'scale-110', 'active-variant');
-                        b.classList.add('border-transparent');
+                        b.classList.add('border-white/20'); // [อัปเดต] กลับเป็นขอบขาวจางๆ เมื่อไม่ได้เลือก
                     } else {
                         b.classList.remove('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
                         b.classList.add('border-white/10', 'text-white/60');
                     }
                 });
 
-                // Set Active Class
                 if (target.classList.contains('rounded-full')) {
-                    target.classList.remove('border-transparent');
+                    target.classList.remove('border-white/20');
                     target.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
                 } else {
                     target.classList.remove('border-white/10', 'text-white/60');
@@ -367,24 +407,17 @@ const productJson = JSON.stringify(product);
             });
         });
 
-        // --- Logic: Quantity ---
         minusBtn?.addEventListener('click', () => {
-            // @ts-ignore
             let val = parseInt(qtyInput.value);
-            // @ts-ignore
             if (val > 1) qtyInput.value = (val - 1).toString();
         });
 
         plusBtn?.addEventListener('click', () => {
-            // @ts-ignore
             let val = parseInt(qtyInput.value);
-            // @ts-ignore
             qtyInput.value = (val + 1).toString();
         });
 
-        // --- Logic: Add to Cart ---
         addBtn?.addEventListener('click', () => {
-            // @ts-ignore
             const qty = parseInt(qtyInput?.value || '1');
             const variantSlug = state.selectedVariantName.replace(/\s+/g, '-').toLowerCase();
             const itemId = `${productData.id}-${variantSlug}`;
@@ -392,23 +425,18 @@ const productJson = JSON.stringify(product);
             const item = {
                 id: itemId,
                 title: `${productData.meta.title} (${state.selectedVariantName})`,
-                price: productData.pricing.basePrice,
+                price: state.currentPrice,
                 image: state.currentImage
             };
             
             for(let i=0; i < qty; i++) cartStore.add(item);
             
-            // @ts-ignore
             const originalText = addBtn.innerHTML;
-            // @ts-ignore
             addBtn.innerHTML = `<span class="flex items-center gap-2">Added!</span>`;
-            // @ts-ignore
             addBtn.classList.add('bg-white', 'text-black');
             
             setTimeout(() => {
-                // @ts-ignore
                 addBtn.innerHTML = originalText;
-                // @ts-ignore
                 addBtn.classList.remove('bg-white', 'text-black');
             }, 1000);
         });
@@ -432,5 +460,15 @@ const productJson = JSON.stringify(product);
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up {
+        animation: slideUp 0.5s ease-out forwards;
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(100%); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    #price-display {
+        transition: all 0.15s ease-out;
     }
 </style>

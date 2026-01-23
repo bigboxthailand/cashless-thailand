@@ -7,7 +7,7 @@
       "tags": ["BEST SELLER", "STARTER"]
     },
     "pricing": {
-      "basePrice": 1500,
+      "basePrice": 980,
       "currency": "THB"
     },
     "media": {
@@ -21,9 +21,9 @@
     "config": {
       "variantType": "color",
       "variants": [
-        { "name": "White", "value": "#F0F0F0", "image": "/images/products/cryptoclock-basic/Basic_White_Center.webp" },
-        { "name": "Black", "value": "#111111", "image": "/images/products/cryptoclock-basic/Basic_Black_Center.webp" },
-        { "name": "Transparent", "value": "#E5E5E5", "image": "/images/products/cryptoclock-basic/Basic_Tran_Center.webp" }
+        { "name": "White", "price": 980, "value": "#F0F0F0", "image": "/images/products/cryptoclock-basic/Basic_White_Center.webp" },
+        { "name": "Black", "price": 980, "value": "#111111", "image": "/images/products/cryptoclock-basic/Basic_Black_Center.webp" },
+        { "name": "Transparent", "price": 980, "value": "#E5E5E5", "image": "/images/products/cryptoclock-basic/Basic_Tran_Center.webp" }
       ]
     },
     "marketing": {
@@ -36,7 +36,6 @@
       ]
     },
     "techSpecs": [
-
       { "label": "CPU", "value": "Dual-core 32-bit (240MHz)" },
       { "label": "RAM/Flash", "value": "520KB SRAM / 32Mbit Flash" },
       { "label": "Display", "value": "LED Matrix (Adjustable Brightness)" },
@@ -54,16 +53,14 @@
       "tags": ["POPULAR", "TRADER", "CHART"]
     },
     "pricing": {
-      "basePrice": 2500,
+      "basePrice": 1490,
       "currency": "THB"
     },
     "media": {
-      "mainImage": "/images/products/cryptoclock-pro/main-chart.webp",
+      "mainImage": "/images/cryptoclock-pro/cryptoclock-pro.webp",
       "gallery": [
-        "/images/products/cryptoclock-pro/main-chart.webp",
-        "/images/products/cryptoclock-pro/side-nfc.webp",
-        "/images/products/cryptoclock-pro/portfolio-view.webp",
-        "/images/products/cryptoclock-pro/lifestyle-desk.webp"
+        "/images/cryptoclock-pro/cryptoclock-pro.webp",
+        "/images/cryptoclock-pro/cryptoclock-pro-nfc.webp"
       ]
     },
     "config": {
@@ -71,10 +68,12 @@
       "variants": [
         { 
           "name": "Standard Edition", 
+          "price": 1490,
           "image": "/images/products/cryptoclock-pro/main-chart.webp" 
         },
         { 
-          "name": "NFC Edition (+500)", 
+          "name": "NFC Edition", 
+          "price": 1990,
           "image": "/images/products/cryptoclock-pro/side-nfc.webp" 
         }
       ]
@@ -83,26 +82,10 @@
       "headline": "Visualize Trends",
       "subheadline": "เห็นเทรนด์ก่อนใคร ตัดสินใจแม่นยำกว่า",
       "benefits": [
-        { 
-          "title": "Candlestick Chart", 
-          "desc": "แสดงกราฟแท่งเทียน Timeframe 15m, 1H, 4H, 1D วิเคราะห์เทรนด์ได้ทันทีโดยไม่ต้องเปิดคอม", 
-          "icon": "chart" 
-        },
-        { 
-          "title": "Portfolio Tracker", 
-          "desc": "เชื่อมต่อ API (Read-only) เพื่อแสดงมูลค่าพอร์ตของคุณรวมทุก Exchange", 
-          "icon": "money" 
-        },
-        { 
-          "title": "IPS Full Color", 
-          "desc": "หน้าจอสีสันสดใส ความละเอียดสูง มองเห็นชัดเจนรอบทิศทาง 178 องศา", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "Touch & Tap", 
-          "desc": "รองรับปุ่มสัมผัส (Capacitive Touch) เพื่อเปลี่ยนเหรียญหรือเปลี่ยนโหมดการแสดงผล", 
-          "icon": "gift" 
-        }
+        { "title": "Candlestick Chart", "desc": "แสดงกราฟแท่งเทียน Timeframe 15m, 1H, 4H, 1D วิเคราะห์เทรนด์ได้ทันทีโดยไม่ต้องเปิดคอม", "icon": "chart" },
+        { "title": "Portfolio Tracker", "desc": "เชื่อมต่อ API (Read-only) เพื่อแสดงมูลค่าพอร์ตของคุณรวมทุก Exchange", "icon": "money" },
+        { "title": "IPS Full Color", "desc": "หน้าจอสีสันสดใส ความละเอียดสูง มองเห็นชัดเจนรอบทิศทาง 178 องศา", "icon": "shop" },
+        { "title": "Touch & Tap", "desc": "รองรับปุ่มสัมผัส (Capacitive Touch) เพื่อเปลี่ยนเหรียญหรือเปลี่ยนโหมดการแสดงผล", "icon": "gift" }
       ]
     },
     "techSpecs": [
@@ -124,7 +107,7 @@
       "tags": ["E-INK", "PREMIUM", "ECO", "ZEN"]
     },
     "pricing": {
-      "basePrice": 4500,
+      "basePrice": 3990,
       "currency": "THB"
     },
     "media": {
@@ -141,10 +124,12 @@
       "variants": [
         { 
           "name": "4.7 Inch (Desk Size)", 
+          "price": 3990,
           "image": "/images/products/cryptoclock-epaper/4.7-front.webp" 
         },
         { 
-          "name": "7.5 Inch (Wall Size) (+2000)", 
+          "name": "7.5 Inch (Wall Size)", 
+          "price": 5990,
           "image": "/images/products/cryptoclock-epaper/7.5-front.webp" 
         }
       ]
@@ -153,26 +138,10 @@
       "headline": "Digital Zen",
       "subheadline": "สงบ เรียบง่าย แต่ทรงพลัง",
       "benefits": [
-        { 
-          "title": "Zero Blue Light", 
-          "desc": "ไม่มีแสง Backlight รบกวนสายตา เหมาะสำหรับวางในห้องนอนหรือห้องทำงานสไตล์ Zen", 
-          "icon": "gift" 
-        },
-        { 
-          "title": "Paper Texture", 
-          "desc": "เทคโนโลยี E-Ink ให้ความคมชัดสูงเหมือนหมึกพิมพ์บนกระดาษจริง มองเห็นชัดแม้แดดจ้า", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "Always On", 
-          "desc": "หน้าจอแสดงผลค้างไว้ได้ตลอดเวลาแม้ไม่มีไฟเลี้ยง (Bi-stable display)", 
-          "icon": "chart" 
-        },
-        { 
-          "title": "Battery Life", 
-          "desc": "แบตเตอรี่ในตัวชาร์จ 1 ครั้งอยู่ได้นาน 30-60 วัน (ขึ้นอยู่กับความถี่ในการอัปเดต)", 
-          "icon": "money" 
-        }
+        { "title": "Zero Blue Light", "desc": "ไม่มีแสง Backlight รบกวนสายตา เหมาะสำหรับวางในห้องนอนหรือห้องทำงานสไตล์ Zen", "icon": "gift" },
+        { "title": "Paper Texture", "desc": "เทคโนโลยี E-Ink ให้ความคมชัดสูงเหมือนหมึกพิมพ์บนกระดาษจริง มองเห็นชัดแม้แดดจ้า", "icon": "shop" },
+        { "title": "Always On", "desc": "หน้าจอแสดงผลค้างไว้ได้ตลอดเวลาแม้ไม่มีไฟเลี้ยง (Bi-stable display)", "icon": "chart" },
+        { "title": "Battery Life", "desc": "แบตเตอรี่ในตัวชาร์จ 1 ครั้งอยู่ได้นาน 30-60 วัน (ขึ้นอยู่กับความถี่ในการอัปเดต)", "icon": "money" }
       ]
     },
     "techSpecs": [
@@ -194,7 +163,7 @@
       "tags": ["BUDGET", "RETRO", "ECO", "GIFT"]
     },
     "pricing": {
-      "basePrice": 990,
+      "basePrice": 980,
       "currency": "THB"
     },
     "media": {
@@ -211,16 +180,19 @@
       "variants": [
         { 
           "name": "Classic White", 
+          "price": 980,
           "value": "#F0F0F0", 
           "image": "/images/products/cryptoclock-saving/white-body.webp" 
         },
         { 
           "name": "Matte Black", 
+          "price": 980,
           "value": "#111111", 
           "image": "/images/products/cryptoclock-saving/black-body.webp" 
         },
         { 
-          "name": "Neon Orange (+100)", 
+          "name": "Neon Orange", 
+          "price": 1080,
           "value": "#FF6B00", 
           "image": "/images/products/cryptoclock-saving/orange-body.webp" 
         }
@@ -230,26 +202,10 @@
       "headline": "Less is More",
       "subheadline": "เรียบง่าย คลาสสิก ประหยัดไฟ",
       "benefits": [
-        { 
-          "title": "Eco Friendly", 
-          "desc": "กินไฟน้อยกว่า 1W เปิดทิ้งไว้ทั้งปี ค่าไฟไม่ถึง 20 บาท", 
-          "icon": "gift" 
-        },
-        { 
-          "title": "Retro Aesthetic", 
-          "desc": "ดีไซน์ตัวเลข 7-Segment สีแดงสด ให้ความรู้สึกเหมือนตลาดหุ้นยุค 90s", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "Distraction Free", 
-          "desc": "ไม่มีแสงสีรบกวนสายตา แสดงแค่ข้อมูลราคาที่คุณต้องการรู้จริงๆ", 
-          "icon": "chart" 
-        },
-        { 
-          "title": "Perfect Gift", 
-          "desc": "ราคาย่อมเยา เหมาะสำหรับซื้อแจกเพื่อน หรือของขวัญจับฉลาก", 
-          "icon": "money" 
-        }
+        { "title": "Eco Friendly", "desc": "กินไฟน้อยกว่า 1W เปิดทิ้งไว้ทั้งปี ค่าไฟไม่ถึง 20 บาท", "icon": "gift" },
+        { "title": "Retro Aesthetic", "desc": "ดีไซน์ตัวเลข 7-Segment สีแดงสด ให้ความรู้สึกเหมือนตลาดหุ้นยุค 90s", "icon": "shop" },
+        { "title": "Distraction Free", "desc": "ไม่มีแสงสีรบกวนสายตา แสดงแค่ข้อมูลราคาที่คุณต้องการรู้จริงๆ", "icon": "chart" },
+        { "title": "Perfect Gift", "desc": "ราคาย่อมเยา เหมาะสำหรับซื้อแจกเพื่อน หรือของขวัญจับฉลาก", "icon": "money" }
       ]
     },
     "techSpecs": [
@@ -271,7 +227,7 @@
       "tags": ["BUSINESS", "PASSIVE INCOME", "B2B", "ATM"]
     },
     "pricing": {
-      "basePrice": 15000,
+      "basePrice": 8500,
       "currency": "THB"
     },
     "media": {
@@ -288,10 +244,12 @@
       "variants": [
         { 
           "name": "Desktop Mini (200 Bills)", 
+          "price": 8500,
           "image": "/images/products/bitterm-series/mini-front.webp" 
         },
         { 
-          "name": "Kiosk Pro (1000 Bills) (+12000)", 
+          "name": "Kiosk Pro (1000 Bills)", 
+          "price": 20500,
           "image": "/images/products/bitterm-series/pro-standing.webp" 
         }
       ]
@@ -300,26 +258,10 @@
       "headline": "Turn Cash to Crypto",
       "subheadline": "เปลี่ยนพื้นที่ว่าง ให้ทำเงิน 24 ชม.",
       "benefits": [
-        { 
-          "title": "Earn Fees", 
-          "desc": "กำหนดค่าธรรมเนียมตู้ได้เอง (เช่น 1-5%) สร้างรายได้ทันทีที่มีคนใช้งาน", 
-          "icon": "money" 
-        },
-        { 
-          "title": "Attract Customers", 
-          "desc": "ดึงดูดกลุ่มลูกค้า Crypto & Tech Savvy ให้เดินทางมาที่ร้านของคุณ (Bitcoin Tourism)", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "Industrial Grade", 
-          "desc": "ตัวรับธนบัตร ICT เกรดเดียวกับตู้บุญเติม คัดแยกแบงค์ปลอมแม่นยำ 99.9%", 
-          "icon": "chart" 
-        },
-        { 
-          "title": "Lightning Speed", 
-          "desc": "ลูกค้าได้รับ Bitcoin ทันทีผ่าน Lightning Network ไม่ต้องยืนรอนาน", 
-          "icon": "gift" 
-        }
+        { "title": "Earn Fees", "desc": "กำหนดค่าธรรมเนียมตู้ได้เอง (เช่น 1-5%) สร้างรายได้ทันทีที่มีคนใช้งาน", "icon": "money" },
+        { "title": "Attract Customers", "desc": "ดึงดูดกลุ่มลูกค้า Crypto & Tech Savvy ให้เดินทางมาที่ร้านของคุณ (Bitcoin Tourism)", "icon": "shop" },
+        { "title": "Industrial Grade", "desc": "ตัวรับธนบัตร ICT เกรดเดียวกับตู้บุญเติม คัดแยกแบงค์ปลอมแม่นยำ 99.9%", "icon": "chart" },
+        { "title": "Lightning Speed", "desc": "ลูกค้าได้รับ Bitcoin ทันทีผ่าน Lightning Network ไม่ต้องยืนรอนาน", "icon": "gift" }
       ]
     },
     "techSpecs": [
@@ -359,10 +301,12 @@
        "variants": [
          { 
            "name": "Wi-Fi Model", 
+           "price": 8900,
            "image": "/images/products/bitpos-terminal/main.webp" 
          },
          { 
-           "name": "4G LTE Model (+2000)", 
+           "name": "4G LTE Model", 
+           "price": 10900,
            "image": "/images/products/bitpos-terminal/side.webp" 
          }
        ]
@@ -371,26 +315,10 @@
       "headline": "Future Payment",
       "subheadline": "รับเงินล้าน ผ่าน Lightning",
       "benefits": [
-        { 
-          "title": "Instant Settlement", 
-          "desc": "เงินเข้ากระเป๋าทันที ไม่ต้องรอเคลียร์ยอดข้ามวันเหมือนบัตรเครดิต", 
-          "icon": "money" 
-        },
-        { 
-          "title": "Zero Chargeback", 
-          "desc": "หมดปัญหาลูกค้าปฏิเสธการจ่ายเงิน ธุรกรรมสำเร็จแล้วย้อนกลับไม่ได้", 
-          "icon": "chart" 
-        },
-        { 
-          "title": "Built-in Printer", 
-          "desc": "พิมพ์ใบเสร็จ QR Code ได้ทันทีในตัว ไม่ต้องต่อเครื่องแยก", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "NFC Ready", 
-          "desc": "รองรับการแตะจ่ายด้วย Bolt Card และแหวน NFC สะดวกรวดเร็ว", 
-          "icon": "gift" 
-        }
+        { "title": "Instant Settlement", "desc": "เงินเข้ากระเป๋าทันที ไม่ต้องรอเคลียร์ยอดข้ามวันเหมือนบัตรเครดิต", "icon": "money" },
+        { "title": "Zero Chargeback", "desc": "หมดปัญหาลูกค้าปฏิเสธการจ่ายเงิน ธุรกรรมสำเร็จแล้วย้อนกลับไม่ได้", "icon": "chart" },
+        { "title": "Built-in Printer", "desc": "พิมพ์ใบเสร็จ QR Code ได้ทันทีในตัว ไม่ต้องต่อเครื่องแยก", "icon": "shop" },
+        { "title": "NFC Ready", "desc": "รองรับการแตะจ่ายด้วย Bolt Card และแหวน NFC สะดวกรวดเร็ว", "icon": "gift" }
       ]
     },
     "techSpecs": [
@@ -430,14 +358,17 @@
        "variants": [
          { 
            "name": "Starter Kit (No SSD)", 
+           "price": 5500,
            "image": "/images/products/bitnode-personal/main-case.webp" 
          },
          { 
-           "name": "Ready to Run (1TB NVMe) (+3000)", 
+           "name": "Ready to Run (1TB NVMe)", 
+           "price": 8500,
            "image": "/images/products/bitnode-personal/dashboard-ui.webp" 
          },
          { 
-           "name": "Pro Archive (2TB NVMe) (+5000)", 
+           "name": "Pro Archive (2TB NVMe)", 
+           "price": 10500,
            "image": "/images/products/bitnode-personal/internals-nvme.webp" 
          }
        ]
@@ -446,26 +377,10 @@
       "headline": "Don't Trust, Verify",
       "subheadline": "ธนาคารส่วนตัวที่คุณเป็นเจ้าของ 100%",
       "benefits": [
-        { 
-          "title": "Ultimate Privacy", 
-          "desc": "ตรวจสอบธุรกรรมด้วยตัวเอง ไม่ต้องพึ่งพา Server ของคนอื่น (No Leaked XPUB)", 
-          "icon": "gift" 
-        },
-        { 
-          "title": "Lightning Ready", 
-          "desc": "เปิด Payment Channel และรับค่าธรรมเนียม Routing ได้ทันที", 
-          "icon": "money" 
-        },
-        { 
-          "title": "App Store", 
-          "desc": "มาพร้อม App Store ในตัว: Nextcloud, Pi-hole, Plex, Home Assistant ติดตั้งง่ายในคลิกเดียว", 
-          "icon": "shop" 
-        },
-        { 
-          "title": "Silent & Cool", 
-          "desc": "เคสอลูมิเนียมระบายความร้อนทั้งตัว (Passive Cooling) เงียบสนิท ไม่มีเสียงพัดลมรบกวน", 
-          "icon": "chart" 
-        }
+        { "title": "Ultimate Privacy", "desc": "ตรวจสอบธุรกรรมด้วยตัวเอง ไม่ต้องพึ่งพา Server ของคนอื่น (No Leaked XPUB)", "icon": "gift" },
+        { "title": "Lightning Ready", "desc": "เปิด Payment Channel และรับค่าธรรมเนียม Routing ได้ทันที", "icon": "money" },
+        { "title": "App Store", "desc": "มาพร้อม App Store ในตัว: Nextcloud, Pi-hole, Plex, Home Assistant ติดตั้งง่ายในคลิกเดียว", "icon": "shop" },
+        { "title": "Silent & Cool", "desc": "เคสอลูมิเนียมระบายความร้อนทั้งตัว (Passive Cooling) เงียบสนิท ไม่มีเสียงพัดลมรบกวน", "icon": "chart" }
       ]
     },
     "techSpecs": [
