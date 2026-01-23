@@ -59,9 +59,9 @@
       "currency": "THB"
     },
     "media": {
-      "mainImage": "/images/cryptoclock-pro/cryptoclock-pro.webp",
+      "mainImage": "/images/products/cryptoclock-pro/cryptoclock-pro.webp",
       "gallery": [
-        "/images/cryptoclock-pro/cryptoclock-pro.webp",
+        "/images/products/cryptoclock-pro/cryptoclock-pro.webp",
         "/images/cryptoclock-pro/cryptoclock-pro-nfc.webp"
       ]
     },
@@ -71,12 +71,12 @@
         { 
           "name": "Standard Edition", 
           "price": 1490,
-          "image": "/images/products/cryptoclock-pro/main-chart.webp" 
+          "image": "/images/products/cryptoclock-pro/cryptoclock-pro.webp" 
         },
         { 
           "name": "NFC Edition", 
           "price": 1990,
-          "image": "/images/products/cryptoclock-pro/side-nfc.webp" 
+          "image": "/images/products/cryptoclock-pro/cryptoclock-pro-nfc.webp" 
         }
       ]
     },
@@ -117,9 +117,8 @@
       "mainImage": "/images/products/cryptoclock-epaper/4.7-front.webp",
       "gallery": [
         "/images/products/cryptoclock-epaper/4.7-front.webp",
-        "/images/products/cryptoclock-epaper/7.5-front.webp",
-        "/images/products/cryptoclock-epaper/lifestyle-wood.webp",
-        "/images/products/cryptoclock-epaper/closeup-ink.webp"
+        "/images/products/cryptoclock-epaper/7.5-front.webp"
+        
       ]
     },
     "config": {
@@ -171,12 +170,11 @@
       "currency": "THB"
     },
     "media": {
-      "mainImage": "/images/products/cryptoclock-saving/white-body.webp",
+      "mainImage": "/images/products/cryptoclock-saving/white.webp",
       "gallery": [
-        "/images/products/cryptoclock-saving/white-body.webp",
-        "/images/products/cryptoclock-saving/black-body.webp",
-        "/images/products/cryptoclock-saving/retro-night.webp",
-        "/images/products/cryptoclock-saving/lifestyle-desk.webp"
+        "/images/products/cryptoclock-saving/white.webp",
+        "/images/products/cryptoclock-saving/black.webp",
+        "/images/products/cryptoclock-saving/orange.webp"
       ]
     },
     "config": {
@@ -186,19 +184,19 @@
           "name": "Classic White", 
           "price": 980,
           "value": "#F0F0F0", 
-          "image": "/images/products/cryptoclock-saving/white-body.webp" 
+          "image": "/images/products/cryptoclock-saving/white.webp" 
         },
         { 
           "name": "Matte Black", 
           "price": 980,
           "value": "#111111", 
-          "image": "/images/products/cryptoclock-saving/black-body.webp" 
+          "image": "/images/products/cryptoclock-saving/black.webp" 
         },
         { 
           "name": "Neon Orange", 
-          "price": 1080,
+          "price": 980,
           "value": "#FF6B00", 
-          "image": "/images/products/cryptoclock-saving/orange-body.webp" 
+          "image": "/images/products/cryptoclock-saving/orange.webp" 
         }
       ]
     },
@@ -352,7 +350,7 @@
       "currency": "THB"
     },
     "media": {
-      "mainImage": "/images/products/bitnode-personal/main-case.webp",
+      "mainImage": "/images/products/bitnode-personal/rpi.webp",
       "gallery": [
         "/images/products/bitnode-personal/main-case.webp",
         "/images/products/bitnode-personal/dashboard-ui.webp",
