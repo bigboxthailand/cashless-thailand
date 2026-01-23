@@ -5,76 +5,10 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import CartDrawer from '../components/CartDrawer.astro';
 
-// 1. ข้อมูลสินค้า (อัปเดตให้ตรงกับหน้า Product ที่แก้ไป)
-const allProducts = [
-  // --- CryptoClock Series ---
-  {
-    id: "cryptoclock-basic",
-    title: "CryptoClock Basic",
-    category: "clock",
-    price: 1500,
-    image: "/images/products/cryptoclock-basic/Basic_White_Center.webp", // ใช้รูปใหม่
-    tag: "BEST SELLER",
-    desc: "WiFi Connected, LED Matrix"
-  },
-  {
-    id: "cryptoclock-pro",
-    title: "CryptoClock Pro",
-    category: "clock",
-    price: 2500,
-    image: "/images/cryptoclock-pro/cryptoclock-pro.webp",
-    tag: "POPULAR",
-    desc: "IPS Screen, Candlestick Chart"
-  },
-  {
-    id: "cryptoclock-saving",
-    title: "CryptoClock Saving",
-    category: "clock",
-    price: 990,
-    image: "/images/cryptoclock-saving/cryptoclock-saving.webp",
-    tag: "BUDGET",
-    desc: "7-Segment, Low Power"
-  },
-  {
-    id: "cryptoclock-epaper", // รวมรุ่น ePaper เป็น ID เดียว
-    title: "CryptoClock ePaper",
-    category: "clock",
-    price: 4500,
-    image: "/images/cryptoclock-epaper-47.webp",
-    tag: "E-INK",
-    desc: "Paper-like, Always On"
-  },
+// 1. ดึงข้อมูลสินค้าจากไฟล์ JSON โดยตรง
+import allProducts from '../data/products.json';
 
-  // --- Other Devices ---
-  {
-    id: "bitterm-series", // รวมรุ่น BiTTerm เป็น ID เดียว
-    title: "BiTTerm Series",
-    category: "kiosk",
-    price: 15000,
-    image: "/images/products/bitterm-series/mini-front.webp",
-    tag: "BUSINESS",
-    desc: "Bitcoin ATM Kiosk Solutions"
-  },
-  {
-    id: "bitpos-terminal",
-    title: "BiTPos Terminal",
-    category: "pos",
-    price: 8900,
-    image: "/images/products/bitpos-terminal/main.webp",
-    desc: "Lightning POS System"
-  },
-  {
-    id: "bitnode-personal",
-    title: "BiTNode Personal",
-    category: "node",
-    price: 5500,
-    image: "/images/products/bitnode-personal/rpi.webp",
-    tag: "PRIVACY",
-    desc: "Plug & Play Full Node"
-  }
-];
-
-// 2. หมวดหมู่สินค้า
+// 2. หมวดหมู่สินค้า (ส่วนนี้ยังคงไว้เป็นโครงสร้างของหน้าเว็บ)
 const categories = [
   { id: 'clock', title: 'CryptoClock Series', desc: 'นาฬิกาคริปโตสำหรับทุกไลฟ์สไตล์' },
   { id: 'kiosk', title: 'BiTTerm Solutions', desc: 'ตู้แลกเหรียญและเติมเงินอัตโนมัติ' },
@@ -103,6 +37,7 @@ const categories = [
         <div class="max-w-[1400px] mx-auto px-6 md:px-12 space-y-32">
             
             {categories.map((cat, index) => {
+                // กรองสินค้าตามหมวดหมู่ (ดึงจาก field category ใน JSON)
                 const categoryProducts = allProducts.filter(p => p.category === cat.id);
                 if (categoryProducts.length === 0) return null;
 
@@ -123,8 +58,8 @@ const categories = [
                                     
                                     <div class="aspect-[4/5] relative overflow-hidden bg-[#0a0a0a]">
                                         <img 
-                                            src={item.image} 
-                                            alt={item.title} 
+                                            src={item.media.mainImage} 
+                                            alt={item.meta.title} 
                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             loading="lazy"
                                             onerror="this.src='https://placehold.co/600x800/1a1a1a/FFF?text=No+Image'"
@@ -132,9 +67,10 @@ const categories = [
                                         
                                         <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60"></div>
                                         
-                                        {item.tag && (
+                                        {/* ดึง Tag ตัวแรกจาก Array มาแสดง */}
+                                        {item.meta.tags && item.meta.tags.length > 0 && (
                                             <div class="absolute top-3 left-3 px-3 py-1 bg-[#D4AF37] text-black text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg z-10">
-                                                {item.tag}
+                                                {item.meta.tags[0]}
                                             </div>
                                         )}
 
@@ -148,13 +84,17 @@ const categories = [
                                     <div class="p-6 relative bg-[#111]">
                                         <div class="absolute -top-10 left-0 w-full h-10 bg-gradient-to-t from-[#111] to-transparent"></div>
                                         
-                                        <h3 class="text-lg font-bold text-white mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-1">{item.title}</h3>
-                                        <p class="text-xs text-white/40 mb-4 font-light line-clamp-1">{item.desc || "Innovative Bitcoin Hardware"}</p>
+                                        <h3 class="text-lg font-bold text-white mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-1">
+                                            {item.meta.title}
+                                        </h3>
+                                        <p class="text-xs text-white/40 mb-4 font-light line-clamp-1">
+                                            {item.meta.description}
+                                        </p>
                                         
                                         <div class="flex items-center justify-between pt-4 border-t border-white/5">
                                             <div class="flex flex-col">
                                                 <span class="text-[10px] text-white/40 uppercase tracking-widest">Starts at</span>
-                                                <span class="text-xl font-black text-[#D4AF37] eng">{item.price.toLocaleString()} <span class="text-xs font-medium text-white/50">THB</span></span>
+                                                <span class="text-xl font-black text-[#D4AF37] eng">{item.pricing.basePrice.toLocaleString()} <span class="text-xs font-medium text-white/50">{item.pricing.currency}</span></span>
                                             </div>
                                             <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#D4AF37] group-hover:text-black transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
@@ -174,7 +114,7 @@ const categories = [
 </Layout>
 
 <style>
-    /* Animation Classes */
+    /* ... Style เดิมที่คุณมีอยู่ ... */
     .animate-fade-in-up {
         animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         opacity: 0;

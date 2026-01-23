@@ -37,13 +37,13 @@ const productJson = JSON.stringify(product);
 
     <main 
         id="product-page-container" 
-        class="bg-[#050505] min-h-screen pt-32 pb-48 md:pb-20 overflow-x-hidden"
+        class="bg-[#050505] min-h-screen pt-32 pb-10 overflow-x-hidden"
         data-product-json={productJson}
     >
         
-        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32 animate-fade-in">
+        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32">
             
-            <div class="space-y-6">
+            <div class="space-y-6 animate-fade-in">
                 <div id="image-container" class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl touch-pan-y select-none cursor-grab active:cursor-grabbing">
                     <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <img 
@@ -77,31 +77,33 @@ const productJson = JSON.stringify(product);
                 )}
             </div>
 
-            <div class="flex flex-col justify-center relative">
+            <div class="flex flex-col justify-center relative pb-40 md:pb-0">
                 
-                <div class="flex items-center gap-4 mb-6">
-                    <a href="/shop" class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors">Shop</a>
-                    <span class="text-white/20">/</span>
-                    <span class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest">{product.meta.title}</span>
-                </div>
-
-                {product.meta.tags && (
-                    <div class="flex gap-2 mb-6">
-                        {product.meta.tags.map(tag => (
-                            <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">{tag}</span>
-                        ))}
+                <div class="animate-fade-in">
+                    <div class="flex items-center gap-4 mb-6">
+                        <a href="/shop" class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors">Shop</a>
+                        <span class="text-white/20">/</span>
+                        <span class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest">{product.meta.title}</span>
                     </div>
-                )}
-                
-                <h1 class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight">{product.meta.title}</h1>
-                <p class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg">{product.meta.description}</p>
-                
-                <div class="flex items-baseline gap-3 mb-10">
-                    <span id="price-display" class="text-5xl text-white font-black eng tracking-tighter">{formattedPrice}</span>
-                    <span class="text-xl text-[#D4AF37] font-bold eng">{currency}</span>
+
+                    {product.meta.tags && (
+                        <div class="flex gap-2 mb-6">
+                            {product.meta.tags.map(tag => (
+                                <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">{tag}</span>
+                            ))}
+                        </div>
+                    )}
+                    
+                    <h1 class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight">{product.meta.title}</h1>
+                    <p class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg">{product.meta.description}</p>
+                    
+                    <div class="flex items-baseline gap-3 mb-10">
+                        <span id="price-display" class="text-5xl text-white font-black eng tracking-tighter">{formattedPrice}</span>
+                        <span class="text-xl text-[#D4AF37] font-bold eng">{currency}</span>
+                    </div>
                 </div>
 
-                <div class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/90 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-4 md:p-0 z-50 flex flex-col gap-4 animate-slide-up md:animate-none">
+                <div class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-5 md:p-0 z-[100] flex flex-col gap-4">
                     
                     {product.config && product.config.variants && (
                         <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5">
@@ -112,7 +114,6 @@ const productJson = JSON.stringify(product);
                             <div class="flex gap-3 md:gap-4 flex-wrap" id="variant-selector">
                                 {product.config.variants.map((variant, index) => (
                                     product.config.variantType === 'color' ? (
-                                        // [อัปเดต] เปลี่ยน border-transparent เป็น border-white/20 เพื่อให้เห็นขอบ
                                         <button 
                                             class={`variant-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-white/20 hover:scale-110'}`}
                                             style={`background-color: ${variant.value}`}
@@ -160,7 +161,7 @@ const productJson = JSON.stringify(product);
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0">
+                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0 animate-fade-in">
                     {product.manualLink && (
                         <a href={product.manualLink} class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
                             <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
@@ -290,7 +291,6 @@ const productJson = JSON.stringify(product);
         const variantBtns = document.querySelectorAll('.variant-btn');
         const thumbBtns = document.querySelectorAll('.thumbnail-btn');
 
-        // --- Logic: เปลี่ยนรูปพร้อม Animation ---
         const changeImage = (src) => {
             if (!mainImage || !src || state.currentImage === src) return;
             mainImage.style.opacity = '0';
@@ -322,7 +322,7 @@ const productJson = JSON.stringify(product);
             });
         };
 
-        // --- Logic: ปัดนิ้ว (Swipe) บนมือถือ ---
+        // --- Swipe Logic ---
         let touchstartX = 0;
         let touchendX = 0;
 
@@ -330,11 +330,11 @@ const productJson = JSON.stringify(product);
             if (galleryImgs.length <= 1) return;
             const currentIndex = galleryImgs.indexOf(state.currentImage);
             
-            if (touchendX < touchstartX - 50) { // ปัดซ้าย = รูปถัดไป
+            if (touchendX < touchstartX - 50) { 
                 const nextIndex = (currentIndex + 1) % galleryImgs.length;
                 changeImage(galleryImgs[nextIndex]);
             }
-            if (touchendX > touchstartX + 50) { // ปัดขวา = รูปก่อนหน้า
+            if (touchendX > touchstartX + 50) { 
                 const prevIndex = (currentIndex - 1 + galleryImgs.length) % galleryImgs.length;
                 changeImage(galleryImgs[prevIndex]);
             }
@@ -350,7 +350,6 @@ const productJson = JSON.stringify(product);
         }, { passive: true });
 
 
-        // --- Event Listeners อื่นๆ (กดรูปเล็ก, เลือกสี, เพิ่มจำนวน) ---
         thumbBtns.forEach((btn) => {
             const newBtn = btn.cloneNode(true);
             if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
@@ -364,7 +363,7 @@ const productJson = JSON.stringify(product);
             if (index === 0) {
                 if(newBtn.classList.contains('rounded-full')) {
                     newBtn.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
-                    newBtn.classList.remove('border-white/20'); // [อัปเดต] เอาขอบขาวออกเมื่อถูกเลือก
+                    newBtn.classList.remove('border-white/20'); 
                 } else {
                     newBtn.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
                     newBtn.classList.remove('border-white/10', 'text-white/60');
@@ -390,7 +389,7 @@ const productJson = JSON.stringify(product);
                 document.querySelectorAll('.variant-btn').forEach(b => {
                     if (b.classList.contains('rounded-full')) {
                         b.classList.remove('border-[#D4AF37]', 'scale-110', 'active-variant');
-                        b.classList.add('border-white/20'); // [อัปเดต] กลับเป็นขอบขาวจางๆ เมื่อไม่ได้เลือก
+                        b.classList.add('border-white/20'); 
                     } else {
                         b.classList.remove('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
                         b.classList.add('border-white/10', 'text-white/60');
@@ -459,13 +458,6 @@ const productJson = JSON.stringify(product);
     }
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-slide-up {
-        animation: slideUp 0.5s ease-out forwards;
-    }
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(100%); }
         to { opacity: 1; transform: translateY(0); }
     }
     #price-display {

@@ -1,6 +1,7 @@
 [
   {
     "id": "cryptoclock-basic",
+    "category": "clock",
     "meta": {
       "title": "CryptoClock Basic",
       "description": "นาฬิกาคริปโตยอดนิยม รุ่นเริ่มต้น ขนาดกะทัดรัด เหมาะสำหรับตั้งโต๊ะทำงาน เชื่อมต่อ WiFi แสดงราคาได้ทั่วโลก",
@@ -47,6 +48,7 @@
   },
   {
     "id": "cryptoclock-pro",
+    "category": "clock",
     "meta": {
       "title": "CryptoClock Pro",
       "description": "ยกระดับการติดตามตลาดด้วยหน้าจอ IPS LCD Full Color ความละเอียดสูง แสดงกราฟแท่งเทียน (Candlestick) ย้อนหลังและมูลค่า Portfolio ของคุณแบบ Real-time มาพร้อมชิปประมวลผล Dual-Core เร็วแรงไม่อืด",
@@ -101,6 +103,7 @@
   },
   {
     "id": "cryptoclock-epaper",
+    "category": "clock",
     "meta": {
       "title": "CryptoClock ePaper",
       "description": "นวัตกรรมนาฬิกาคริปโตหน้าจอ E-Ink (Electronic Paper) ให้ความรู้สึกเหมือนอ่านจากกระดาษจริง ถนอมสายตา ไม่มีแสงสีฟ้ารบกวนการนอน และประหยัดพลังงานขั้นสุด",
@@ -157,6 +160,7 @@
   },
   {
     "id": "cryptoclock-saving",
+    "category": "clock",
     "meta": {
       "title": "CryptoClock Saving",
       "description": "นาฬิกาคริปโตดีไซน์ Retro รุ่นประหยัดพลังงาน แสดงผลด้วยตัวเลข 7-Segment สุดคลาสสิก ตัดสิ่งรบกวนเหลือเพียงราคาที่คุณโฟกัส เหมาะสำหรับวางหัวเตียงหรือโต๊ะทำงานมินิมอล",
@@ -221,6 +225,7 @@
   },
   {
     "id": "bitterm-series",
+    "category": "kiosk",
     "meta": {
       "title": "BiTTerm Series",
       "description": "ตู้ Bitcoin ATM (Lightning Network) สำหรับร้านค้าและพื้นที่สาธารณะ เปลี่ยนเงินสดเป็น Bitcoin ได้ใน 5 วินาที สร้างรายได้ Passive Income จากค่าธรรมเนียมธุรกรรม ดึงดูดลูกค้ากลุ่มใหม่เข้าร้าน",
@@ -278,6 +283,7 @@
   },
   {
     "id": "bitpos-terminal",
+    "category": "kiosk",
     "meta": {
       "title": "BiTPos Terminal",
       "description": "เครื่องรับชำระเงิน Bitcoin All-in-One สำหรับร้านค้า รองรับ Lightning Network, NFC Cards และพิมพ์ใบเสร็จในตัว เปลี่ยนร้านค้าธรรมดาให้เป็น Crypto-Friendly ในวินาทีเดียว",
@@ -335,6 +341,7 @@
   },
   {
     "id": "bitnode-personal",
+    "category": "kiosk",
     "meta": {
       "title": "BiTNode Personal",
       "description": "เซิร์ฟเวอร์ส่วนตัวสำหรับรัน Bitcoin Full Node และ Lightning Network มาพร้อม OS สำเร็จรูป (Umbrel/Start9) ใช้งานง่ายเหมือน Smartphone ให้คุณเป็นธนาคารด้วยตัวเองอย่างสมบูรณ์แบบ",
