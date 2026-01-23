@@ -288,16 +288,14 @@
       "tags": ["MERCHANT", "B2B", "NFC"]
     },
     "pricing": {
-      "basePrice": 8900,
+      "basePrice": 18900,
       "currency": "THB"
     },
     "media": {
       "mainImage": "/images/products/bitpos-terminal/main.webp",
       "gallery": [
-        "/images/products/bitpos-terminal/main.webp",
-        "/images/products/bitpos-terminal/side.webp",
-        "/images/products/bitpos-terminal/action-print.webp",
-        "/images/products/bitpos-terminal/lifestyle-cafe.webp"
+        "/images/products/bitpos-terminal/main.webp"
+        
       ]
     },
     "config": {
@@ -305,13 +303,8 @@
        "variants": [
          { 
            "name": "Wi-Fi Model", 
-           "price": 8900,
+           "price": 18900,
            "image": "/images/products/bitpos-terminal/main.webp" 
-         },
-         { 
-           "name": "4G LTE Model", 
-           "price": 10900,
-           "image": "/images/products/bitpos-terminal/side.webp" 
          }
        ]
     },
@@ -350,32 +343,27 @@
       "currency": "THB"
     },
     "media": {
-      "mainImage": "/images/products/bitnode-personal/rpi.webp",
+      "mainImage": "/images/products/bitnode-personal/umbrelhome.webp",
       "gallery": [
-        "/images/products/bitnode-personal/main-case.webp",
-        "/images/products/bitnode-personal/dashboard-ui.webp",
-        "/images/products/bitnode-personal/internals-nvme.webp",
-        "/images/products/bitnode-personal/setup-desk.webp"
+        "/images/products/bitnode-personal/umbrelhome.webp",
+        "/images/products/bitnode-personal/rpi.webp"
+      
       ]
     },
     "config": {
        "variantType": "text",
        "variants": [
-         { 
-           "name": "Starter Kit (No SSD)", 
-           "price": 5500,
-           "image": "/images/products/bitnode-personal/main-case.webp" 
+        { 
+           "name": "Umbrel Home", 
+           "price": 49000,
+           "image": "/images/products/bitnode-personal/umbrelhome.webp" 
          },
          { 
-           "name": "Ready to Run (1TB NVMe)", 
-           "price": 8500,
-           "image": "/images/products/bitnode-personal/dashboard-ui.webp" 
-         },
-         { 
-           "name": "Pro Archive (2TB NVMe)", 
-           "price": 10500,
-           "image": "/images/products/bitnode-personal/internals-nvme.webp" 
+           "name": "Rpi", 
+           "price": 25500,
+           "image": "/images/products/bitnode-personal/rpi.webp" 
          }
+         
        ]
     },
     "marketing": {
