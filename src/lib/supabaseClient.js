@@ -7,9 +7,10 @@ const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 // Fail gracefully if env vars are missing (e.g. during build)
 // This excludes the client from working at runtime but allows the build to pass.
 // We use a Proxy to handle ANY chained method call dynamically.
+// Fail gracefully if env vars are missing (e.g. during build)
+// This excludes the client from working at runtime but allows the build to pass.
+// We use a Proxy to handle ANY chained method call dynamically.
 const createMockClient = () => {
-    const noop = () => proxy; // Any method call returns the proxy again to allow chaining
-
     // The default response when 'await' is finally called or data is accessed
     const defaultResponse = {
         data: [],
@@ -17,16 +18,22 @@ const createMockClient = () => {
         count: 0
     };
 
-    const proxy = new Proxy(() => { }, {
+    // Helper to return a proxy that absorbs all calls
+    const createChainableProxy = () => new Proxy(() => { }, {
         get: (target, prop) => {
-            // Handle 'then' to make it compatible with await
             if (prop === 'then') {
                 return (resolve) => resolve(defaultResponse);
             }
-            // Handle properties that should return specific structural data
+            return () => createChainableProxy(); // Return function that returns proxy
+        },
+        apply: () => createChainableProxy()
+    });
+
+    return new Proxy({}, { // Target is an object, not a function
+        get: (target, prop) => {
             if (prop === 'storage') {
                 return new Proxy({}, {
-                    get: () => noop // storage.from(...).upload(...) -> returns proxy
+                    get: () => () => createChainableProxy() // storage.from(...) -> returns chainable
                 });
             }
             if (prop === 'auth') {
@@ -37,18 +44,13 @@ const createMockClient = () => {
                     signOut: () => Promise.resolve({ error: null })
                 }
             }
-            // For all other properties (select, from, eq, url, etc.), return the function that returns the proxy
-            return noop;
-        },
-        apply: (target, thisArg, argumentsList) => {
-            // If the proxy itself is called as a function (e.g. supabase.from('table')), return the proxy
-            return proxy;
+            // For from() and other root methods
+            return () => createChainableProxy();
         }
     });
-
-    return proxy;
 };
 
+/** @type {import('@supabase/supabase-js').SupabaseClient} */
 export const supabase = (supabaseUrl && supabaseAnonKey)
     ? createClient(supabaseUrl, supabaseAnonKey)
     : createMockClient();
