@@ -267,8 +267,18 @@ const { title } = Astro.props;
                 const {
                     data: { session },
                 } = await supabase.auth.getSession();
+
                 if (!session) {
                     window.location.href = "/login";
+                    return;
+                }
+
+                // Security: Restrict Admin Access
+                const allowedAdmins = ["mycryptoclock@gmail.com"];
+                const userEmail = session.user.email || "";
+                if (!allowedAdmins.includes(userEmail)) {
+                    alert("Access Denied: You are not an admin.");
+                    window.location.href = "/"; // Redirect normal users to home
                 }
             };
             // Temporarily commented out to allow testing without login during dev
