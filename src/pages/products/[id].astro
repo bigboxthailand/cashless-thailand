@@ -1,28 +1,36 @@
 ---
 // src/pages/products/[id].astro
-import Layout from '../../layouts/Layout.astro';
-import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
-import CartDrawer from '../../components/CartDrawer.astro';
-
-import productsData from '../../data/products.json';
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import CartDrawer from "../../components/CartDrawer.astro";
+import productsData from "../../data/products.json";
 
 export async function getStaticPaths() {
-  return productsData.map(product => ({
-    params: { id: product.id },
-    props: { product },
-  }));
+    return productsData.map((product) => ({
+        params: { id: product.id },
+        props: { product },
+    }));
 }
 
 const { product } = Astro.props;
 
-const hasMarketing = product.marketing && product.marketing.benefits && product.marketing.benefits.length > 0;
+// Use optional chaining and snake_case for DB columns
+const hasMarketing =
+    product.marketing &&
+    product.marketing.benefits &&
+    product.marketing.benefits.length > 0;
 const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
 const hasGallery = product.media.gallery && product.media.gallery.length > 1;
 
 let initialPrice = product.pricing.basePrice;
-if (product.config && product.config.variants && product.config.variants.length > 0 && product.config.variants[0].price) {
-  initialPrice = product.config.variants[0].price;
+if (
+    product.config &&
+    product.config.variants &&
+    product.config.variants.length > 0 &&
+    product.config.variants[0].price
+) {
+    initialPrice = product.config.variants[0].price;
 }
 
 const formattedPrice = initialPrice.toLocaleString();
@@ -31,236 +39,403 @@ const currency = product.pricing.currency;
 const productJson = JSON.stringify(product);
 ---
 
-<Layout title={`${product.meta.title} | Cashless Thailand`} description={product.meta.description}>
+<Layout
+    title={`${product.meta.title} | Cashless Thailand`}
+    description={product.meta.description}
+>
     <Navbar />
     <CartDrawer />
 
-    <main 
-        id="product-page-container" 
+    <main
+        id="product-page-container"
         class="bg-[#050505] min-h-screen pt-32 pb-10 overflow-x-hidden"
         data-product-json={productJson}
     >
-        
-        <div class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32">
-            
+        <div
+            class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32"
+        >
             <div class="space-y-6 animate-fade-in">
-                <div id="image-container" class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl touch-pan-y select-none cursor-grab active:cursor-grabbing">
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                    <img 
-                        id="main-image" 
-                        src={product.media.mainImage} 
-                        alt={product.meta.title} 
-                        class="w-full h-full object-contain transition-all duration-300 pointer-events-none" 
+                <div
+                    id="image-container"
+                    class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl touch-pan-y select-none cursor-grab active:cursor-grabbing"
+                >
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                    >
+                    </div>
+                    <img
+                        id="main-image"
+                        src={product.media.mainImage}
+                        alt={product.meta.title}
+                        class="w-full h-full object-contain transition-all duration-300 pointer-events-none"
                         loading="eager"
                     />
-                    
-                    {hasGallery && (
-                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 md:hidden flex gap-1 items-center">
-                            <span class="text-[10px] text-white/50 uppercase tracking-widest font-bold">Swipe</span>
-                            <svg class="w-3 h-3 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </div>
-                    )}
+
+                    {
+                        hasGallery && (
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 md:hidden flex gap-1 items-center">
+                                <span class="text-[10px] text-white/50 uppercase tracking-widest font-bold">
+                                    Swipe
+                                </span>
+                                <svg
+                                    class="w-3 h-3 text-white/50"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                </svg>
+                            </div>
+                        )
+                    }
                 </div>
 
-                {hasGallery && (
-                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                        {product.media.gallery.map((img, index) => (
-                            <button 
-                                class="w-20 h-20 rounded-2xl border border-white/10 bg-[#111] overflow-hidden hover:border-[#D4AF37] transition-all flex-shrink-0 snap-start focus:ring-2 focus:ring-[#D4AF37] focus:outline-none thumbnail-btn" 
-                                data-src={img}
-                                aria-label={`View image ${index + 1}`}
-                            >
-                                <img src={img} class="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
-                            </button>
-                        ))}
-                    </div>
-                )}
+                {
+                    hasGallery && (
+                        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                            {product.media.gallery.map((img, index) => (
+                                <button
+                                    class="w-20 h-20 rounded-2xl border border-white/10 bg-[#111] overflow-hidden hover:border-[#D4AF37] transition-all flex-shrink-0 snap-start focus:ring-2 focus:ring-[#D4AF37] focus:outline-none thumbnail-btn"
+                                    data-src={img}
+                                    aria-label={`View image ${index + 1}`}
+                                >
+                                    <img
+                                        src={img}
+                                        class="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity"
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )
+                }
             </div>
 
             <div class="flex flex-col justify-center relative pb-40 md:pb-0">
-                
                 <div class="animate-fade-in">
                     <div class="flex items-center gap-4 mb-6">
-                        <a href="/shop" class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors">Shop</a>
+                        <a
+                            href="/shop"
+                            class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors"
+                            >Shop</a
+                        >
                         <span class="text-white/20">/</span>
-                        <span class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest">{product.meta.title}</span>
+                        <span
+                            class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest"
+                            >{product.meta.title}</span
+                        >
                     </div>
 
-                    {product.meta.tags && (
-                        <div class="flex gap-2 mb-6">
-                            {product.meta.tags.map(tag => (
-                                <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">{tag}</span>
-                            ))}
-                        </div>
-                    )}
-                    
-                    <h1 class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight">{product.meta.title}</h1>
-                    <p class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg">{product.meta.description}</p>
-                    
+                    {
+                        product.meta.tags && (
+                            <div class="flex gap-2 mb-6">
+                                {product.meta.tags.map((tag) => (
+                                    <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )
+                    }
+
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight"
+                    >
+                        {product.meta.title}
+                    </h1>
+                    <p
+                        class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg"
+                    >
+                        {product.meta.description}
+                    </p>
+
                     <div class="flex items-baseline gap-3 mb-10">
-                        <span id="price-display" class="text-5xl text-white font-black eng tracking-tighter">{formattedPrice}</span>
-                        <span class="text-xl text-[#D4AF37] font-bold eng">{currency}</span>
+                        <span
+                            id="price-display"
+                            class="text-5xl text-white font-black eng tracking-tighter"
+                            >{formattedPrice}</span
+                        >
+                        <span class="text-xl text-[#D4AF37] font-bold eng"
+                            >{currency}</span
+                        >
                     </div>
                 </div>
 
-                <div class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-5 md:p-0 z-[100] flex flex-col gap-4">
-                    
-                    {product.config && product.config.variants && (
-                        <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5">
-                            <span class="hidden md:block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
-                                Select {product.config.variantType === 'color' ? 'Color' : 'Model'}
-                            </span>
-                            
-                            <div class="flex gap-3 md:gap-4 flex-wrap" id="variant-selector">
-                                {product.config.variants.map((variant, index) => (
-                                    product.config.variantType === 'color' ? (
-                                        <button 
-                                            class={`variant-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? 'border-[#D4AF37] scale-110 active-variant' : 'border-white/20 hover:scale-110'}`}
-                                            style={`background-color: ${variant.value}`}
-                                            data-image={variant.image}
-                                            data-name={variant.name}
-                                            data-price={variant.price}
-                                            aria-label={variant.name}
-                                        >
-                                            <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10 hidden md:block">
-                                                {variant.name}
-                                            </span>
-                                        </button>
-                                    ) : (
-                                        <button 
-                                            class={`variant-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? 'border-[#D4AF37] bg-[#D4AF37] text-black active-variant' : 'border-white/10 text-white/60 hover:border-white hover:text-white'}`}
-                                            data-image={variant.image}
-                                            data-name={variant.name}
-                                            data-price={variant.price}
-                                        >
-                                            {variant.name}
-                                        </button>
-                                    )
-                                ))}
+                <div
+                    class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-5 md:p-0 z-[100] flex flex-col gap-4"
+                >
+                    {
+                        product.config && product.config.variants && (
+                            <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5">
+                                <span class="hidden md:block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+                                    Select{" "}
+                                    {product.config.variantType === "color"
+                                        ? "Color"
+                                        : "Model"}
+                                </span>
+
+                                <div
+                                    class="flex gap-3 md:gap-4 flex-wrap"
+                                    id="variant-selector"
+                                >
+                                    {product.config.variants.map(
+                                        (variant, index) =>
+                                            product.config.variantType ===
+                                            "color" ? (
+                                                <button
+                                                    class={`variant-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? "border-[#D4AF37] scale-110 active-variant" : "border-white/20 hover:scale-110"}`}
+                                                    style={`background-color: ${variant.value}`}
+                                                    data-image={variant.image}
+                                                    data-name={variant.name}
+                                                    data-price={variant.price}
+                                                    aria-label={variant.name}
+                                                >
+                                                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10 hidden md:block">
+                                                        {variant.name}
+                                                    </span>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    class={`variant-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? "border-[#D4AF37] bg-[#D4AF37] text-black active-variant" : "border-white/10 text-white/60 hover:border-white hover:text-white"}`}
+                                                    data-image={variant.image}
+                                                    data-name={variant.name}
+                                                    data-price={variant.price}
+                                                >
+                                                    {variant.name}
+                                                </button>
+                                            ),
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )
+                    }
 
                     <div class="flex gap-3 md:gap-4 h-14">
-                        <div class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-28 md:w-32 justify-between shrink-0">
-                            <button id="qty-minus" class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">-</button>
-                            <input id="qty-input" type="number" value="1" min="1" class="w-8 md:w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono" readonly />
-                            <button id="qty-plus" class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90">+</button>
+                        <div
+                            class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-28 md:w-32 justify-between shrink-0"
+                        >
+                            <button
+                                id="qty-minus"
+                                class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90"
+                                >-</button
+                            >
+                            <input
+                                id="qty-input"
+                                type="number"
+                                value="1"
+                                min="1"
+                                class="w-8 md:w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono"
+                                readonly
+                            />
+                            <button
+                                id="qty-plus"
+                                class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90"
+                                >+</button
+                            >
                         </div>
-                        
-                        <button 
+
+                        <button
                             id="add-to-cart-btn"
                             class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
                         >
-                            <span class="relative z-10 flex items-center justify-center gap-2">
+                            <span
+                                class="relative z-10 flex items-center justify-center gap-2"
+                            >
                                 Add to Cart
-                                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                <svg
+                                    class="w-4 h-4 transition-transform group-hover:translate-x-1"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                    ></path></svg
+                                >
                             </span>
-                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <div
+                                class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                            >
+                            </div>
                         </button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0 animate-fade-in">
-                    {product.manualLink && (
-                        <a href={product.manualLink} class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
-                            <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-xs font-bold text-white uppercase tracking-wider">User Guide</span>
-                                <span class="text-[10px] text-white/40">Setup & Manual</span>
-                            </div>
-                        </a>
-                    )}
-                    <a href="#specs" class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group">
-                        <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                <div
+                    class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0 animate-fade-in"
+                >
+                    {
+                        product.manualLink && (
+                            <a
+                                href={product.manualLink}
+                                class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
+                            >
+                                <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-white uppercase tracking-wider">
+                                        User Guide
+                                    </span>
+                                    <span class="text-[10px] text-white/40">
+                                        Setup & Manual
+                                    </span>
+                                </div>
+                            </a>
+                        )
+                    }
+                    <a
+                        href="#specs"
+                        class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
+                    >
+                        <div
+                            class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors"
+                        >
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                                ></path></svg
+                            >
                         </div>
                         <div class="flex flex-col">
-                            <span class="text-xs font-bold text-white uppercase tracking-wider">Tech Specs</span>
-                            <span class="text-[10px] text-white/40">Hardware Details</span>
+                            <span
+                                class="text-xs font-bold text-white uppercase tracking-wider"
+                                >Tech Specs</span
+                            >
+                            <span class="text-[10px] text-white/40"
+                                >Hardware Details</span
+                            >
                         </div>
                     </a>
                 </div>
             </div>
         </div>
 
-        {hasMarketing && (
-            <div class="relative py-32 border-t border-white/5 overflow-hidden">
-                <div class="absolute inset-0 bg-[#0a0a0a]"></div>
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div>
+        {
+            hasMarketing && (
+                <div class="relative py-32 border-t border-white/5 overflow-hidden">
+                    <div class="absolute inset-0 bg-[#0a0a0a]" />
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none" />
 
-                <div class="max-w-[1200px] mx-auto px-6 relative z-10">
-                    <div class="text-center mb-20">
-                        <h2 class="inline-block px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.3em] uppercase mb-6 backdrop-blur-md">
-                            {product.marketing.headline}
-                        </h2>
-                        <h3 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
-                            {product.marketing.subheadline}
+                    <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+                        <div class="text-center mb-20">
+                            <h2 class="inline-block px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.3em] uppercase mb-6 backdrop-blur-md">
+                                {product.marketing.headline}
+                            </h2>
+                            <h3 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                                {product.marketing.subheadline}
+                            </h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {product.marketing.benefits.map((benefit) => (
+                                <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group">
+                                    <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
+                                        <span class="text-3xl filter grayscale group-hover:grayscale-0 transition-all">
+                                            {benefit.icon === "chart" && "📈"}
+                                            {benefit.icon === "shop" && "🏪"}
+                                            {benefit.icon === "gift" && "🎁"}
+                                            {benefit.icon === "money" && "💰"}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-2xl font-bold text-white mb-4 group-hover:text-[#D4AF37] transition-colors">
+                                        {benefit.title}
+                                    </h4>
+                                    <p class="text-white/50 font-light leading-relaxed">
+                                        {benefit.desc}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        {
+            hasSpecs && (
+                <div class="py-32 max-w-[900px] mx-auto px-6" id="specs">
+                    <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
+                        <h3 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
+                            Technical{" "}
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F9E79F]">
+                                Specifications
+                            </span>
                         </h3>
+                        <div class="hidden md:block text-[#D4AF37] font-mono text-xs opacity-50">
+                            /// HARDWARE_ID: {product.id.toUpperCase()}
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {product.marketing.benefits.map((benefit) => (
-                            <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group">
-                                <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
-                                    <span class="text-3xl filter grayscale group-hover:grayscale-0 transition-all">
-                                        {benefit.icon === 'chart' && '📈'}
-                                        {benefit.icon === 'shop' && '🏪'}
-                                        {benefit.icon === 'gift' && '🎁'}
-                                        {benefit.icon === 'money' && '💰'}
-                                    </span>
-                                </div>
-                                <h4 class="text-2xl font-bold text-white mb-4 group-hover:text-[#D4AF37] transition-colors">{benefit.title}</h4>
-                                <p class="text-white/50 font-light leading-relaxed">{benefit.desc}</p>
+                    <div class="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden relative">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] to-transparent opacity-50" />
+
+                        {product.techSpecs.map((spec, i) => (
+                            <div
+                                class={`flex flex-col md:flex-row md:justify-between md:items-center p-6 ${i !== product.techSpecs.length - 1 ? "border-b border-white/5" : ""} hover:bg-white/5 transition-colors group`}
+                            >
+                                <span class="text-white/40 font-bold uppercase text-xs tracking-[0.2em] mb-2 md:mb-0 group-hover:text-[#D4AF37] transition-colors">
+                                    {spec.label}
+                                </span>
+                                <span class="text-white font-medium text-sm md:text-right">
+                                    {spec.value}
+                                </span>
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
-        )}
-
-        {hasSpecs && (
-            <div class="py-32 max-w-[900px] mx-auto px-6" id="specs">
-                <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
-                    <h3 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
-                        Technical <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F9E79F]">Specifications</span>
-                    </h3>
-                    <div class="hidden md:block text-[#D4AF37] font-mono text-xs opacity-50">/// HARDWARE_ID: {product.id.toUpperCase()}</div>
-                </div>
-                
-                <div class="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden relative">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] to-transparent opacity-50"></div>
-                    
-                    {product.techSpecs.map((spec, i) => (
-                        <div class={`flex flex-col md:flex-row md:justify-between md:items-center p-6 ${i !== product.techSpecs.length - 1 ? 'border-b border-white/5' : ''} hover:bg-white/5 transition-colors group`}>
-                            <span class="text-white/40 font-bold uppercase text-xs tracking-[0.2em] mb-2 md:mb-0 group-hover:text-[#D4AF37] transition-colors">{spec.label}</span>
-                            <span class="text-white font-medium text-sm md:text-right">{spec.value}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        )}
+            )
+        }
     </main>
     <Footer />
 </Layout>
 
 <script>
-    import { cartStore } from '../../lib/cartStore.js';
+    import { cartStore } from "../../lib/cartStore.js";
 
     function initProductPage() {
-        const container = document.getElementById('product-page-container');
+        const container = document.getElementById("product-page-container");
         if (!container) return;
 
-        const productData = JSON.parse(container.dataset.productJson || '{}');
-        const galleryImgs = productData.media?.gallery || [productData.media?.mainImage];
-        
-        let initialVariantName = 'Standard';
+        const productData = JSON.parse(container.dataset.productJson || "{}");
+        const galleryImgs = productData.media?.gallery || [
+            productData.media?.mainImage,
+        ];
+
+        let initialVariantName = "Standard";
         let initialImage = galleryImgs[0];
         let initialPrice = productData.pricing?.basePrice;
 
-        if (productData.config && productData.config.variants && productData.config.variants.length > 0) {
+        if (
+            productData.config &&
+            productData.config.variants &&
+            productData.config.variants.length > 0
+        ) {
             initialVariantName = productData.config.variants[0].name;
             initialImage = productData.config.variants[0].image || initialImage;
             initialPrice = productData.config.variants[0].price || initialPrice;
@@ -269,55 +444,55 @@ const productJson = JSON.stringify(product);
         const state = {
             currentImage: initialImage,
             selectedVariantName: initialVariantName,
-            currentPrice: initialPrice
+            currentPrice: initialPrice,
         };
 
         const getCleanElement = (id) => {
             const el = document.getElementById(id);
             if (!el) return null;
             const newEl = el.cloneNode(true);
-            if(el.parentNode) el.parentNode.replaceChild(newEl, el);
+            if (el.parentNode) el.parentNode.replaceChild(newEl, el);
             return newEl;
         };
 
-        const imageContainer = document.getElementById('image-container');
-        const mainImage = document.getElementById('main-image');
-        const priceDisplay = document.getElementById('price-display');
-        const qtyInput = document.getElementById('qty-input');
-        const minusBtn = getCleanElement('qty-minus');
-        const plusBtn = getCleanElement('qty-plus');
-        const addBtn = getCleanElement('add-to-cart-btn');
-        
-        const variantBtns = document.querySelectorAll('.variant-btn');
-        const thumbBtns = document.querySelectorAll('.thumbnail-btn');
+        const imageContainer = document.getElementById("image-container");
+        const mainImage = document.getElementById("main-image");
+        const priceDisplay = document.getElementById("price-display");
+        const qtyInput = document.getElementById("qty-input");
+        const minusBtn = getCleanElement("qty-minus");
+        const plusBtn = getCleanElement("qty-plus");
+        const addBtn = getCleanElement("add-to-cart-btn");
+
+        const variantBtns = document.querySelectorAll(".variant-btn");
+        const thumbBtns = document.querySelectorAll(".thumbnail-btn");
 
         const changeImage = (src) => {
             if (!mainImage || !src || state.currentImage === src) return;
-            mainImage.style.opacity = '0';
-            mainImage.style.transform = 'scale(0.95)';
-            
+            mainImage.style.opacity = "0";
+            mainImage.style.transform = "scale(0.95)";
+
             setTimeout(() => {
                 mainImage.src = src;
-                mainImage.style.opacity = '1';
-                mainImage.style.transform = 'scale(1)';
+                mainImage.style.opacity = "1";
+                mainImage.style.transform = "scale(1)";
                 state.currentImage = src;
                 updateThumbnails(src);
             }, 200);
         };
 
         const updateThumbnails = (activeSrc) => {
-            document.querySelectorAll('.thumbnail-btn').forEach(b => {
+            document.querySelectorAll(".thumbnail-btn").forEach((b) => {
                 const isActive = b.dataset.src === activeSrc;
                 if (isActive) {
-                    b.classList.remove('border-white/10');
-                    b.classList.add('border-[#D4AF37]');
-                    b.querySelector('img').classList.remove('opacity-60');
-                    b.querySelector('img').classList.add('opacity-100');
+                    b.classList.remove("border-white/10");
+                    b.classList.add("border-[#D4AF37]");
+                    b.querySelector("img").classList.remove("opacity-60");
+                    b.querySelector("img").classList.add("opacity-100");
                 } else {
-                    b.classList.remove('border-[#D4AF37]');
-                    b.classList.add('border-white/10');
-                    b.querySelector('img').classList.add('opacity-60');
-                    b.querySelector('img').classList.remove('opacity-100');
+                    b.classList.remove("border-[#D4AF37]");
+                    b.classList.add("border-white/10");
+                    b.querySelector("img").classList.add("opacity-60");
+                    b.querySelector("img").classList.remove("opacity-100");
                 }
             });
         };
@@ -329,48 +504,68 @@ const productJson = JSON.stringify(product);
         const handleSwipe = () => {
             if (galleryImgs.length <= 1) return;
             const currentIndex = galleryImgs.indexOf(state.currentImage);
-            
-            if (touchendX < touchstartX - 50) { 
+
+            if (touchendX < touchstartX - 50) {
                 const nextIndex = (currentIndex + 1) % galleryImgs.length;
                 changeImage(galleryImgs[nextIndex]);
             }
-            if (touchendX > touchstartX + 50) { 
-                const prevIndex = (currentIndex - 1 + galleryImgs.length) % galleryImgs.length;
+            if (touchendX > touchstartX + 50) {
+                const prevIndex =
+                    (currentIndex - 1 + galleryImgs.length) %
+                    galleryImgs.length;
                 changeImage(galleryImgs[prevIndex]);
             }
         };
 
-        imageContainer?.addEventListener('touchstart', e => {
-            touchstartX = e.changedTouches[0].screenX;
-        }, { passive: true });
+        imageContainer?.addEventListener(
+            "touchstart",
+            (e) => {
+                touchstartX = e.changedTouches[0].screenX;
+            },
+            { passive: true },
+        );
 
-        imageContainer?.addEventListener('touchend', e => {
-            touchendX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
+        imageContainer?.addEventListener(
+            "touchend",
+            (e) => {
+                touchendX = e.changedTouches[0].screenX;
+                handleSwipe();
+            },
+            { passive: true },
+        );
 
         thumbBtns.forEach((btn) => {
             const newBtn = btn.cloneNode(true);
-            if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', (e) => changeImage(e.currentTarget.dataset.src));
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener("click", (e) =>
+                changeImage(e.currentTarget.dataset.src),
+            );
         });
 
         variantBtns.forEach((btn, index) => {
             const newBtn = btn.cloneNode(true);
-            if(btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
             if (index === 0) {
-                if(newBtn.classList.contains('rounded-full')) {
-                    newBtn.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
-                    newBtn.classList.remove('border-white/20'); 
+                if (newBtn.classList.contains("rounded-full")) {
+                    newBtn.classList.add(
+                        "border-[#D4AF37]",
+                        "scale-110",
+                        "active-variant",
+                    );
+                    newBtn.classList.remove("border-white/20");
                 } else {
-                    newBtn.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
-                    newBtn.classList.remove('border-white/10', 'text-white/60');
+                    newBtn.classList.add(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "border-[#D4AF37]",
+                        "active-variant",
+                    );
+                    newBtn.classList.remove("border-white/10", "text-white/60");
                 }
             }
 
-            newBtn.addEventListener('click', (e) => {
+            newBtn.addEventListener("click", (e) => {
                 const target = e.currentTarget;
                 const name = target.dataset.name;
                 const img = target.dataset.image;
@@ -382,66 +577,93 @@ const productJson = JSON.stringify(product);
 
                 if (priceDisplay && !isNaN(price)) {
                     priceDisplay.innerText = price.toLocaleString();
-                    priceDisplay.classList.add('scale-110', 'text-[#D4AF37]');
-                    setTimeout(() => priceDisplay.classList.remove('scale-110', 'text-[#D4AF37]'), 150);
+                    priceDisplay.classList.add("scale-110", "text-[#D4AF37]");
+                    setTimeout(
+                        () =>
+                            priceDisplay.classList.remove(
+                                "scale-110",
+                                "text-[#D4AF37]",
+                            ),
+                        150,
+                    );
                 }
 
-                document.querySelectorAll('.variant-btn').forEach(b => {
-                    if (b.classList.contains('rounded-full')) {
-                        b.classList.remove('border-[#D4AF37]', 'scale-110', 'active-variant');
-                        b.classList.add('border-white/20'); 
+                document.querySelectorAll(".variant-btn").forEach((b) => {
+                    if (b.classList.contains("rounded-full")) {
+                        b.classList.remove(
+                            "border-[#D4AF37]",
+                            "scale-110",
+                            "active-variant",
+                        );
+                        b.classList.add("border-white/20");
                     } else {
-                        b.classList.remove('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
-                        b.classList.add('border-white/10', 'text-white/60');
+                        b.classList.remove(
+                            "bg-[#D4AF37]",
+                            "text-black",
+                            "border-[#D4AF37]",
+                            "active-variant",
+                        );
+                        b.classList.add("border-white/10", "text-white/60");
                     }
                 });
 
-                if (target.classList.contains('rounded-full')) {
-                    target.classList.remove('border-white/20');
-                    target.classList.add('border-[#D4AF37]', 'scale-110', 'active-variant');
+                if (target.classList.contains("rounded-full")) {
+                    target.classList.remove("border-white/20");
+                    target.classList.add(
+                        "border-[#D4AF37]",
+                        "scale-110",
+                        "active-variant",
+                    );
                 } else {
-                    target.classList.remove('border-white/10', 'text-white/60');
-                    target.classList.add('bg-[#D4AF37]', 'text-black', 'border-[#D4AF37]', 'active-variant');
+                    target.classList.remove("border-white/10", "text-white/60");
+                    target.classList.add(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "border-[#D4AF37]",
+                        "active-variant",
+                    );
                 }
             });
         });
 
-        minusBtn?.addEventListener('click', () => {
+        minusBtn?.addEventListener("click", () => {
             let val = parseInt(qtyInput.value);
             if (val > 1) qtyInput.value = (val - 1).toString();
         });
 
-        plusBtn?.addEventListener('click', () => {
+        plusBtn?.addEventListener("click", () => {
             let val = parseInt(qtyInput.value);
             qtyInput.value = (val + 1).toString();
         });
 
-        addBtn?.addEventListener('click', () => {
-            const qty = parseInt(qtyInput?.value || '1');
-            const variantSlug = state.selectedVariantName.replace(/\s+/g, '-').toLowerCase();
+        addBtn?.addEventListener("click", () => {
+            const qty = parseInt(qtyInput?.value || "1");
+            const variantSlug = state.selectedVariantName
+                .replace(/\s+/g, "-")
+                .toLowerCase();
             const itemId = `${productData.id}-${variantSlug}`;
 
             const item = {
                 id: itemId,
                 title: `${productData.meta.title} (${state.selectedVariantName})`,
                 price: state.currentPrice,
-                image: state.currentImage
+                image: state.currentImage,
             };
-            
-            for(let i=0; i < qty; i++) cartStore.add(item);
-            
+
+            for (let i = 0; i < qty; i++) cartStore.add(item);
+
             const originalText = addBtn.innerHTML;
             addBtn.innerHTML = `<span class="flex items-center gap-2">Added!</span>`;
-            addBtn.classList.add('bg-white', 'text-black');
-            
+            addBtn.classList.add("bg-white", "text-black");
+
             setTimeout(() => {
                 addBtn.innerHTML = originalText;
-                addBtn.classList.remove('bg-white', 'text-black');
+                addBtn.classList.remove("bg-white", "text-black");
             }, 1000);
         });
     }
 
-    document.addEventListener('astro:page-load', initProductPage);
+    document.addEventListener("astro:page-load", initProductPage);
     initProductPage();
 </script>
 
@@ -457,8 +679,14 @@ const productJson = JSON.stringify(product);
         animation: fadeIn 0.8s ease-out forwards;
     }
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     #price-display {
         transition: all 0.15s ease-out;

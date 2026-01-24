@@ -1,0 +1,152 @@
+# 📋 คู่มือการตั้งค่าระบบ Cashless Thailand
+
+## ค่าที่ต้องแก้ไขก่อนใช้งานจริง
+
+| ลำดับ | หมวดหมู่ | รายการ | ค่าปัจจุบัน (Demo) | คำอธิบาย | ไฟล์ที่ต้องแก้ | บรรทัด |
+|------|---------|--------|-------------------|----------|---------------|--------|
+| 1 | **Payment - Crypto** | Merchant Wallet Address | `0x71C7656EC7ab88b098defB751B7401B5f6d8976F` | กระเป๋าเงินที่รับชำระเงิน Crypto (USDT/BNB/MATIC) | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L252) | 252, 557 |
+| 2 | **Payment - PromptPay** | QR Code Image | `https://upload.wikimedia.org/...` (Wikipedia Demo) | QR Code PromptPay จริงของบริษัท | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L176) | 176 |
+| 3 | **Payment - PromptPay** | ชื่อบริษัท | `บริษัท แคชเลส (ประเทศไทย) จำกัด` | ชื่อบริษัทที่แสดงใต้ QR Code | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L187) | 187 |
+| 4 | **Payment - PromptPay** | เบอร์โทรศัพท์ + ธนาคาร | `081-234-5678 (KBank)` | เบอร์ PromptPay และธนาคารที่ใช้ | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L189) | 189 |
+| 5 | **Integration** | Google Apps Script URL | `https://script.google.com/macros/s/AKfycbz_URL_ของคุณ_ที่นี่/exec` | URL สำหรับส่งข้อมูลออเดอร์ไป Google Sheets | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L834) | 833-834 |
+| 6 | **Database** | Supabase URL | `https://euavftppzicwjhbugiys.supabase.co` | URL ของ Supabase Project | [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env#L1) | 1 |
+| 7 | **Database** | Supabase Anon Key | `sb_publishable_poJ-NobQZpARz_G4cWG96Q_vxIPZkrE` | Public API Key ของ Supabase | [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env#L2) | 2 |
+| 8 | **Database** | Supabase Service Role Key | `sb_secret_pPB5HmRxQRJFK3k9JmrJFA_2NxQapaw` | Secret Key สำหรับ Server-side | [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env#L3) | 3 |
+| 9 | **Crypto Rates** | USDT Exchange Rate (BSC) | `0.03` (1 THB = 0.03 USDT) | อัตราแลกเปลี่ยน THB → USDT สำหรับ BSC | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L569) | 569 |
+| 10 | **Crypto Rates** | BNB Exchange Rate | `0.0001` (1 THB = 0.0001 BNB) | อัตราแลกเปลี่ยน THB → BNB | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L569) | 569 |
+| 11 | **Crypto Rates** | USDT Exchange Rate (Polygon) | `0.03` (1 THB = 0.03 USDT) | อัตราแลกเปลี่ยน THB → USDT สำหรับ Polygon | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L583) | 583 |
+| 12 | **Crypto Rates** | MATIC Exchange Rate | `0.04` (1 THB = 0.04 MATIC) | อัตราแลกเปลี่ยน THB → MATIC | [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro#L583) | 583 |
+
+---
+
+## 📝 คำแนะนำการแก้ไขแต่ละรายการ
+
+### 1-4. Payment Configuration (PromptPay & Crypto)
+
+#### PromptPay Setup
+1. **สร้าง QR Code PromptPay**:
+   - ใช้แอพธนาคารสร้าง QR Code แบบ Static
+   - บันทึกรูป QR Code
+   - อัปโหลดไปที่ `/public/images/promptpay-qr.png`
+   - แก้ไข line 176 ใน [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro):
+   ```astro
+   <img
+       src="/images/promptpay-qr.png"
+       class="w-48 h-48 mix-blend-multiply mx-auto"
+   />
+   ```
+
+2. **แก้ไขข้อมูลบริษัท** (lines 187-190):
+   ```astro
+   <p>ชื่อบริษัทของคุณ</p>
+   <p class="text-[#D4AF37] font-bold mt-1">
+       0XX-XXX-XXXX (ชื่อธนาคาร)
+   </p>
+   ```
+
+#### Crypto Wallet Address
+- แก้ไข line 252 และ 557 ใน [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro):
+```javascript
+const merchantAddress = "0xYOUR_REAL_WALLET_ADDRESS_HERE";
+```
+> ⚠️ **สำคัญ**: ใช้ wallet address ที่รองรับทั้ง BSC และ Polygon
+
+---
+
+### 5. Google Apps Script Integration
+
+#### วิธีตั้งค่า:
+1. ไปที่ [Google Apps Script](https://script.google.com)
+2. สร้าง Project ใหม่
+3. Copy โค้ดจาก implementation plan (หรือสร้างตาม tutorial)
+4. Deploy เป็น Web App
+5. Copy URL ที่ได้มาใส่ใน line 833-834:
+```javascript
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+```
+
+---
+
+### 6-8. Supabase Configuration
+
+#### วิธีตั้งค่า:
+1. สร้าง Project ใหม่ที่ [Supabase](https://supabase.com)
+2. ไปที่ Settings → API
+3. Copy ค่าต่อไปนี้มาใส่ใน [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env):
+   - `Project URL` → `PUBLIC_SUPABASE_URL`
+   - `anon public` key → `PUBLIC_SUPABASE_ANON_KEY`
+   - `service_role` key → `SUPABASE_SERVICE_ROLE_KEY`
+
+4. รัน SQL Schema:
+   - ไปที่ SQL Editor
+   - รัน [supabase_schema.sql](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/supabase_schema.sql)
+   - รัน [fix_rls_policies.sql](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/fix_rls_policies.sql)
+
+---
+
+### 9-12. Crypto Exchange Rates
+
+> ⚠️ **อัตราแลกเปลี่ยนเป็น Demo เท่านั้น!**
+
+#### วิธีอัปเดตอัตราแลกเปลี่ยนแบบ Real-time:
+
+**ตัวเลือก 1: ใช้ API (แนะนำ)**
+- ใช้ CoinGecko API หรือ Binance API
+- เรียกราคาตอน checkout แล้วคำนวณ
+
+**ตัวเลือก 2: อัปเดตด้วยมือ (ชั่วคราว)**
+- เช็คราคาจาก [CoinGecko](https://www.coingecko.com)
+- แก้ไข lines 569 และ 583 ใน [checkout.astro](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/checkout.astro):
+
+```javascript
+// BSC Network
+rate: { 
+    usdt: 1/35,      // ถ้า 1 USDT = 35 THB → 1 THB = 0.0286 USDT
+    native: 1/85000  // ถ้า 1 BNB = 85,000 THB → 1 THB = 0.0000118 BNB
+}
+
+// Polygon Network  
+rate: { 
+    usdt: 1/35,      // เหมือนกัน
+    native: 1/25     // ถ้า 1 MATIC = 25 THB → 1 THB = 0.04 MATIC
+}
+```
+
+---
+
+## ✅ Checklist ก่อน Deploy
+
+- [ ] แก้ไข Crypto Wallet Address (2 จุด)
+- [ ] อัปโหลด QR Code PromptPay จริง
+- [ ] แก้ไขชื่อบริษัทและเบอร์โทรศัพท์
+- [ ] ตั้งค่า Google Apps Script URL
+- [ ] สร้าง Supabase Project และอัปเดต [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env)
+- [ ] รัน SQL Schema ใน Supabase
+- [ ] รัน [fix_rls_policies.sql](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/fix_rls_policies.sql)
+- [ ] อัปเดตอัตราแลกเปลี่ยน Crypto (หรือใช้ API)
+- [ ] ทดสอบการชำระเงินทั้ง PromptPay และ Crypto
+- [ ] ทดสอบการบันทึกออเดอร์ใน Google Sheets
+
+---
+
+## 🔐 Security Notes
+
+1. **อย่า commit [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env) ไปใน Git**
+   - เพิ่ม [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env) ใน `.gitignore` (ควรมีอยู่แล้ว)
+
+2. **ใช้ Environment Variables ใน Production**
+   - Vercel/Netlify: ตั้งค่าใน Dashboard
+   - ไม่ใช้ไฟล์ [.env](file:///Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/.env) โดยตรง
+
+3. **Crypto Wallet Security**
+   - ใช้ Hot Wallet สำหรับรับเงิน
+   - โอนไป Cold Wallet เป็นประจำ
+
+---
+
+## 📞 Support
+
+หากมีปัญหาในการตั้งค่า สามารถตรวจสอบ:
+- [Supabase Documentation](https://supabase.com/docs)
+- [Metamask Developer Docs](https://docs.metamask.io)
+- [Google Apps Script Guide](https://developers.google.com/apps-script)

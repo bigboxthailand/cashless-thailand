@@ -2,81 +2,134 @@
 // src/components/CartDrawer.astro
 ---
 
-<div id="cart-drawer" class="fixed inset-0 z-[200] pointer-events-none invisible transition-all duration-300">
-    <div id="cart-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
-    
-    <div id="cart-panel" class="absolute top-0 right-0 h-full w-full max-w-md bg-[#0a0a0a] border-l border-[#D4AF37]/20 transform translate-x-full transition-transform duration-300 flex flex-col pointer-events-auto z-10">
-        
-        <div class="p-6 border-b border-white/10 flex items-center justify-between bg-black/50 backdrop-blur-md">
-            <div class="flex items-center gap-4">
-                <h2 class="text-xl font-black text-white uppercase tracking-wider flex items-center gap-2">
-                    Your Cart
-                    <span id="cart-total-count" class="text-xs bg-[#D4AF37] text-black px-2 py-0.5 rounded-full">0</span>
-                </h2>
-                <button id="clear-cart-btn" class="hidden group text-xs font-bold text-white/30 hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-1 mt-1">
-                    <svg class="w-3 h-3 transition-transform group-hover:-rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    <span>Clear</span>
-                </button>
-            </div>
-            <button id="close-cart-btn" class="text-white/50 hover:text-red-500 transition-colors cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+<div
+    id="cart-drawer-container"
+    class="fixed inset-0 z-[200] pointer-events-none invisible transition-all duration-300"
+>
+    <div
+        id="cart-backdrop"
+        class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto"
+    >
+    </div>
+
+    <div
+        id="cart-panel"
+        class="absolute top-0 right-0 h-full w-full md:w-[450px] bg-[#0A0A0A] border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.8)] transform translate-x-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-auto flex flex-col"
+    >
+        <div
+            class="h-20 px-6 border-b border-white/5 flex items-center justify-between bg-black/50 backdrop-blur-md"
+        >
+            <h2
+                class="text-xl font-black tracking-widest text-white uppercase flex items-center gap-3"
+            >
+                <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"
+                ></span>
+                Shopping Cart
+            </h2>
+            <button
+                id="close-cart-btn"
+                class="p-2 text-white/50 hover:text-[#D4AF37] transition-colors rounded-lg hover:bg-white/5"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M18 6 6 18"></path><path d="m6 6 12 12"
+                    ></path></svg
+                >
             </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide" id="cart-items-container">
-            </div>
-
-        <div id="cart-empty-state" class="hidden flex-1 flex flex-col items-center justify-center text-white/30 p-8">
-            <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-            <p class="eng text-sm uppercase tracking-widest font-bold">Your cart is empty</p>
+        <div
+            id="cart-items-container"
+            class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar"
+        >
         </div>
 
-        <div class="p-6 border-t border-white/10 bg-black/50 backdrop-blur-md space-y-4">
-            <div class="flex justify-between items-end">
-                <span class="text-white/50 text-sm font-medium uppercase tracking-widest">Total</span>
+        <div class="p-6 border-t border-white/5 bg-black/80 backdrop-blur-md">
+            <div class="flex justify-between items-end mb-6">
+                <span class="text-white/50 text-sm uppercase tracking-wider"
+                    >Subtotal</span
+                >
                 <div class="text-right">
-                    <div id="cart-total-price" class="text-2xl font-black text-[#D4AF37] eng">0 THB</div>
-                    <div id="cart-total-sats" class="text-xs text-white/40 eng">≈ 0 Sats</div>
+                    <div id="cart-total" class="text-2xl font-black text-white">
+                        0 THB
+                    </div>
+                    <div
+                        id="cart-sats"
+                        class="text-xs text-[#D4AF37] tracking-widest"
+                    >
+                        ≈ 0 SATS
+                    </div>
                 </div>
             </div>
-            
-            <a href="/checkout" class="block w-full bg-[#D4AF37] text-black font-black uppercase tracking-widest py-4 rounded-xl text-center hover:bg-[#b8962e] transition-all shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+
+            <button
+                id="checkout-btn"
+                class="w-full bg-[#D4AF37] hover:bg-[#B3932D] text-black font-black uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_30px_rgba(212,175,55,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+            >
                 Checkout Now
-            </a>
+            </button>
         </div>
     </div>
 </div>
 
+<style>
+    /* ปรับแต่ง Scrollbar ให้ดูหรูหราเข้ากับธีม */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.3);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(212, 175, 55, 0.5);
+    }
+</style>
 <script>
-    import { cartStore } from '../lib/cartStore.js';
+    import { cartStore } from "../lib/cartStore.js";
 
-    document.addEventListener('astro:page-load', () => {
-        const drawer = document.getElementById('cart-drawer');
-        const panel = document.getElementById('cart-panel');
-        const backdrop = document.getElementById('cart-backdrop');
-        const closeBtn = document.getElementById('close-cart-btn');
-        const clearBtn = document.getElementById('clear-cart-btn'); // [NEW] ดึงปุ่ม Clear
-        const itemsContainer = document.getElementById('cart-items-container');
-        const emptyState = document.getElementById('cart-empty-state');
-        const totalEl = document.getElementById('cart-total-price');
-        const satsEl = document.getElementById('cart-total-sats');
-        const countEl = document.getElementById('cart-total-count');
+    document.addEventListener("astro:page-load", () => {
+        const container = document.getElementById("cart-drawer-container");
+        const backdrop = document.getElementById("cart-backdrop");
+        const panel = document.getElementById("cart-panel");
+        const closeBtn = document.getElementById("close-cart-btn");
+        const itemsContainer = document.getElementById("cart-items-container");
+        const totalEl = document.getElementById("cart-total");
+        const satsEl = document.getElementById("cart-sats");
+        const checkoutBtn = document.getElementById(
+            "checkout-btn",
+        ) as HTMLButtonElement | null;
 
-        if (!drawer || !panel || !backdrop) return;
+        if (!container || !panel) {
+            console.warn("CartDrawer DOM not found");
+            return;
+        }
 
-        const toggleDrawer = (open) => {
+        const toggleDrawer = (open: boolean) => {
             if (open) {
-                drawer.classList.remove('invisible', 'pointer-events-none');
-                setTimeout(() => {
-                    backdrop.classList.remove('opacity-0');
-                    panel.classList.remove('translate-x-full'); 
-                }, 10);
+                container.classList.remove("invisible", "pointer-events-none");
+                // Render content when opening
                 renderCart();
+                requestAnimationFrame(() => {
+                    backdrop?.classList.remove("opacity-0");
+                    panel?.classList.remove("translate-x-full");
+                });
             } else {
-                panel.classList.add('translate-x-full');
-                backdrop.classList.add('opacity-0');
+                backdrop?.classList.add("opacity-0");
+                panel?.classList.add("translate-x-full");
                 setTimeout(() => {
-                    drawer.classList.add('invisible', 'pointer-events-none');
+                    container.classList.add("invisible", "pointer-events-none");
                 }, 300);
             }
         };
@@ -84,31 +137,49 @@
         const renderCart = () => {
             try {
                 const cart = cartStore.get();
-                const { total, sats, count } = cartStore.totals();
+                const { total, sats } = cartStore.totals();
 
-                if(totalEl) totalEl.innerText = total.toLocaleString() + ' THB';
-                if(satsEl) satsEl.innerText = '≈ ' + sats.toLocaleString() + ' Sats';
-                if(countEl) countEl.innerText = count.toString();
+                if (totalEl)
+                    totalEl.innerText = total.toLocaleString() + " THB";
+                if (satsEl)
+                    satsEl.innerText = "≈ " + sats.toLocaleString() + " SATS";
 
-                // [NEW] Logic ควบคุมการแสดงผลของตะกร้าและปุ่ม Clear
                 if (cart.length === 0) {
-                    if(itemsContainer) itemsContainer.innerHTML = '';
-                    emptyState?.classList.remove('hidden');
-                    clearBtn?.classList.add('hidden'); // ซ่อนปุ่ม Clear เมื่อไม่มีของ
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-48 text-white/30">
+                                <svg class="w-12 h-12 mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                                <p class="text-sm uppercase tracking-widest font-bold">Your cart is empty</p>
+                            </div>
+                        `;
+                    }
+                    if (checkoutBtn) {
+                        checkoutBtn.disabled = true;
+                        checkoutBtn.classList.add(
+                            "opacity-50",
+                            "pointer-events-none",
+                        );
+                    }
                 } else {
-                    emptyState?.classList.add('hidden');
-                    clearBtn?.classList.remove('hidden'); // แสดงปุ่ม Clear เมื่อมีของ
-                    
-                    if(itemsContainer) {
-                        itemsContainer.innerHTML = cart.map(item => `
-                            <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 relative group mb-3">
+                    if (checkoutBtn) {
+                        checkoutBtn.disabled = false;
+                        checkoutBtn.classList.remove(
+                            "opacity-50",
+                            "pointer-events-none",
+                        );
+                    }
+                    if (itemsContainer) {
+                        itemsContainer.innerHTML = cart
+                            .map(
+                                (item: any) => `
+                            <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 relative group">
                                 <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
                                     <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=No+Image'"/>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="eng text-sm font-bold text-white truncate pr-6">${item.title}</h3>
+                                    <h3 class="text-sm font-bold text-white truncate pr-6">${item.title}</h3>
                                     <div class="flex items-center justify-between mt-2">
-                                        <p class="eng text-[#D4AF37] text-xs font-bold">${Number(item.price).toLocaleString()} ฿</p>
+                                        <p class="text-[#D4AF37] text-xs font-bold">${Number(item.price).toLocaleString()} ฿</p>
                                         <div class="flex items-center gap-2 bg-black/40 rounded-lg p-1">
                                             <button class="qty-btn w-6 h-6 flex items-center justify-center text-white/50 hover:text-white transition-colors" data-action="minus" data-id="${item.id}">-</button>
                                             <span class="text-xs font-bold text-white w-4 text-center">${item.quantity}</span>
@@ -120,7 +191,9 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
-                        `).join('');
+                        `,
+                            )
+                            .join("");
                         attachItemListeners();
                     }
                 }
@@ -130,56 +203,47 @@
         };
 
         const attachItemListeners = () => {
-            if(!itemsContainer) return;
-            
-            itemsContainer.querySelectorAll('.qty-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    // @ts-ignore
-                    const id = e.currentTarget.dataset.id;
-                    // @ts-ignore
-                    const action = e.currentTarget.dataset.action;
-                    if(id) cartStore.updateQty(id, action === 'plus' ? 1 : -1);
+            if (!itemsContainer) return;
+
+            itemsContainer.querySelectorAll(".qty-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    const id = target.dataset.id;
+                    const action = target.dataset.action;
+                    if (id) cartStore.updateQty(id, action === "plus" ? 1 : -1);
                 });
             });
 
-            itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    // @ts-ignore
-                    const id = e.currentTarget.dataset.id;
-                    if(id) cartStore.remove(id);
+            itemsContainer.querySelectorAll(".remove-btn").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    const target = e.currentTarget as HTMLElement;
+                    const id = target.dataset.id;
+                    if (id) cartStore.remove(id);
                 });
             });
+
+            // Checkout button listener
+            if (checkoutBtn) {
+                checkoutBtn.onclick = () => {
+                    window.location.href = "/checkout";
+                };
+            }
         };
 
-        // --- Event Listeners ---
-        window.addEventListener('toggle-cart', (e) => {
-            // @ts-ignore
-            toggleDrawer(e.detail.open);
+        // Event Listeners
+        window.addEventListener("toggle-cart", (e: Event) => {
+            const customEvent = e as CustomEvent;
+            toggleDrawer(customEvent.detail?.open);
         });
 
-        window.addEventListener('cart-updated', () => {
+        window.addEventListener("cart-updated", () => {
             renderCart();
         });
 
-        closeBtn?.addEventListener('click', () => toggleDrawer(false));
-        backdrop?.addEventListener('click', () => toggleDrawer(false));
+        backdrop?.addEventListener("click", () => cartStore.close());
+        closeBtn?.addEventListener("click", () => cartStore.close());
 
-        // [NEW] Event Listener สำหรับปุ่ม Clear Cart
-        clearBtn?.addEventListener('click', () => {
-            cartStore.clear(); // ล้างข้อมูลใน Store
-            
-            // เพิ่ม Effect สายตาว่าเคลียร์แล้ว
-            const span = clearBtn.querySelector('span');
-            if(span) {
-                const originalText = span.innerText;
-                span.innerText = "CLEARED!";
-                clearBtn.classList.add('text-red-500');
-                
-                setTimeout(() => {
-                    span.innerText = originalText;
-                    clearBtn.classList.remove('text-red-500');
-                }, 1000);
-            }
-        });
+        // Render initially if needed
+        renderCart();
     });
 </script>

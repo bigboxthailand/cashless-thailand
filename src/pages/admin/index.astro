@@ -1,0 +1,157 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabaseClient";
+import DashboardCharts from "../../components/admin/DashboardCharts";
+import StatsPieChart from "../../components/admin/StatsPieChart";
+import ThailandOrdersMap from "../../components/admin/ThailandOrdersMap";
+
+// Server-side Data Fetching
+const { data: orders } = await supabase
+    .from("orders")
+    .select(
+        "total_price, total_sats, payment_status, created_at, payment_method, sex, age, province, buy_duration",
+    )
+    .order("created_at", { ascending: false });
+
+// KPI Calculation
+const totalRevenueTHB =
+    orders
+        ?.filter((o) => o.payment_status === "paid")
+        .reduce((acc, curr) => acc + (Number(curr.total_price) || 0), 0) || 0;
+const totalRevenueSats =
+    orders
+        ?.filter((o) => o.payment_status === "paid")
+        .reduce((acc, curr) => acc + (Number(curr.total_sats) || 0), 0) || 0;
+const pendingOrders =
+    orders?.filter((o) => o.payment_status === "pending").length || 0;
+const totalOrders = orders?.length || 0;
+
+// Format Currency
+const thbFormatter = new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
+});
+---
+
+<AdminLayout title="Dashboard">
+    <div class="space-y-8">
+        <!-- HEADER -->
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-wider">
+                Dashboard
+            </h1>
+            <p class="text-white/50 text-sm mt-1">
+                Overview of your store performance
+            </p>
+        </div>
+
+        <!-- KPI GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- REVENUE CARD -->
+            <div
+                class="bg-[#0A0A0A] border border-[#D4AF37]/20 p-6 rounded-xl relative overflow-hidden group"
+            >
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                </div>
+                <h3
+                    class="text-white/50 text-xs font-bold uppercase tracking-widest mb-4"
+                >
+                    Total Revenue
+                </h3>
+                <div class="space-y-1 relative z-10">
+                    <p class="text-3xl font-black text-white">
+                        {thbFormatter.format(totalRevenueTHB)}
+                    </p>
+                    <p
+                        class="text-sm font-bold text-[#D4AF37] flex items-center gap-2"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            ><path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.55-12h-3v1.79c-1.35.15-2.29.98-2.45 2.11h4.92c.16 1.13 1.1 1.96 2.45 2.11V18h-2.5v-2.21c-1.35-.15-2.29-.98-2.45-2.11H8.55c.16 1.13 1.1 1.96 2.45 2.11V8z"
+                            ></path></svg
+                        >
+                        {totalRevenueSats.toLocaleString()} Sats
+                    </p>
+                </div>
+            </div>
+
+            <!-- PENDING ORDERS CARD -->
+            <div
+                class="bg-[#0A0A0A] border border-white/10 p-6 rounded-xl relative overflow-hidden"
+            >
+                <h3
+                    class="text-white/50 text-xs font-bold uppercase tracking-widest mb-4"
+                >
+                    Pending Orders
+                </h3>
+                <div class="flex items-end justify-between">
+                    <p class="text-4xl font-black text-white">
+                        {pendingOrders}
+                    </p>
+                    <span class="text-xs text-white/30 mb-1"
+                        >Orders need action</span
+                    >
+                </div>
+                {
+                    pendingOrders > 0 && (
+                        <div class="absolute top-4 right-4 w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                    )
+                }
+            </div>
+
+            <!-- TOTAL ORDERS CARD -->
+            <div class="bg-[#0A0A0A] border border-white/10 p-6 rounded-xl">
+                <h3
+                    class="text-white/50 text-xs font-bold uppercase tracking-widest mb-4"
+                >
+                    Total Orders
+                </h3>
+                <p class="text-4xl font-black text-white">{totalOrders}</p>
+            </div>
+        </div>
+
+        <!-- REVENUE CHART -->
+        {/* @ts-ignore - DashboardCharts is JSX without type definitions */}
+        <DashboardCharts client:load orders={(orders || []) as any} />
+
+        <!-- RECENT ACTIVITY / LIVE CART -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- THAILAND MAP -->
+            <div class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3
+                        class="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2"
+                    >
+                        <span
+                            class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"
+                        ></span>
+                        Order Locations (Thailand)
+                    </h3>
+                </div>
+                <ThailandOrdersMap client:load orders={orders || []} />
+            </div>
+
+            <!-- ANALYTICS PIE CHART -->
+            <div
+                class="bg-[#0A0A0A] border border-white/10 rounded-xl p-6 relative"
+            >
+                <div class="flex justify-between items-center mb-6">
+                    <h3
+                        class="text-white font-bold uppercase tracking-wider text-sm flex items-center gap-2"
+                    >
+                        <span
+                            class="w-2 h-2 bg-[#D4AF37] rounded-full animate-pulse"
+                        ></span>
+                        Analytics Breakdown
+                    </h3>
+                </div>
+                <StatsPieChart client:load orders={orders || []} />
+            </div>
+        </div>
+    </div>
+</AdminLayout>

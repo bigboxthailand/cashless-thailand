@@ -1,12 +1,14 @@
 // src/lib/cartStore.js
 import { persistentAtom } from '@nanostores/persistent';
+import { atom } from 'nanostores';
 
-export const cartItems = persistentAtom('cart-items', [], {
+// 1. ใช้ Local Storage แบบมาตรฐาน (จำถาวร ปิดเว็บไม่หาย)
+export const cartItems = persistentAtom('cashless-cart', [], {
   encode: JSON.stringify,
   decode: JSON.parse,
 });
 
-export const isCartOpen = persistentAtom('is-cart-open', 'false');
+export const isCartOpen = atom(false);
 
 export const cartStore = {
   get: () => cartItems.get(),
@@ -24,8 +26,8 @@ export const cartStore = {
     } else {
       cartItems.set([...currentItems, { ...product, quantity: 1 }]);
     }
-    
-    isCartOpen.set('true');
+
+    isCartOpen.set(true); // เปลี่ยนเป็น true
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
       window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
@@ -64,24 +66,22 @@ export const cartStore = {
   },
 
   open: () => {
-    isCartOpen.set('true');
+    isCartOpen.set(true); // เปลี่ยนเป็น true
     if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
+      window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: true }, bubbles: true }));
     }
   },
-  
+
   close: () => {
-    isCartOpen.set('false');
+    isCartOpen.set(false); // เปลี่ยนเป็น false
     if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: false }, bubbles: true }));
+      window.dispatchEvent(new CustomEvent('toggle-cart', { detail: { open: false }, bubbles: true }));
     }
   },
 
   clear: () => {
-    // [แก้ไขล่าสุด] สั่ง Nano Stores ให้เคลียร์ค่าเป็น Array ว่าง (มันจะไปลบใน LocalStorage ให้เองอัตโนมัติ)
-    cartItems.set([]); 
-    
-    // อัปเดตหน้าจอ
+    cartItems.set([]);
+
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('cart-updated', { bubbles: true }));
     }

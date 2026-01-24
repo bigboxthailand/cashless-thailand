@@ -1,0 +1,669 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabaseClient";
+
+// 1. Fetch Orders
+const { data: orders } = await supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .order("created_at", { ascending: false });
+
+const thbFormatter = new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
+});
+---
+
+<AdminLayout title="Orders">
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-black text-white uppercase tracking-wider">
+                Order Management
+            </h1>
+            <div class="flex gap-2">
+                <button
+                    class="px-4 py-2 bg-white/5 rounded text-sm text-white hover:bg-white/10"
+                    >Export CSV</button
+                >
+            </div>
+        </div>
+
+        <div
+            class="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden"
+        >
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-white/70">
+                    <thead
+                        class="bg-white/5 text-white font-bold uppercase text-xs tracking-wider"
+                    >
+                        <tr>
+                            <th class="p-4">Order ID</th>
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Customer</th>
+                            <th class="p-4">Items</th>
+                            <th class="p-4 text-right">Total</th>
+                            <th class="p-4">Payment</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {
+                            orders?.map((order) => (
+                                <tr
+                                    class="hover:bg-white/2 transition-colors"
+                                    data-order-id={order.id}
+                                >
+                                    <td class="p-4 font-mono text-white/50">
+                                        <span class="text-white font-bold">
+                                            {order.id}
+                                        </span>
+                                    </td>
+                                    <td class="p-4">
+                                        {new Date(
+                                            order.created_at,
+                                        ).toLocaleDateString("th-TH", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="font-bold text-white">
+                                            {order.customer_name}
+                                        </div>
+                                        <div class="text-xs text-white/40">
+                                            {order.shipping_address}
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        {order.order_items.length} items
+                                        <div class="text-xs text-white/40 mt-1 truncate max-w-[150px]">
+                                            {order.order_items
+                                                .map((i: any) => i.title)
+                                                .join(", ")}
+                                        </div>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <div class="font-bold text-white">
+                                            {thbFormatter.format(
+                                                order.total_price,
+                                            )}
+                                        </div>
+                                        {order.total_sats > 0 && (
+                                            <div class="text-[10px] text-[#D4AF37]">
+                                                {Number(
+                                                    order.total_sats,
+                                                ).toLocaleString()}{" "}
+                                                Sats
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="text-xs font-bold">
+                                            {order.payment_method}
+                                        </span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span
+                                            class={`px-2 py-1 rounded text-xs font-bold uppercase ${
+                                                order.payment_status === "paid"
+                                                    ? "bg-green-500/10 text-green-500"
+                                                    : order.payment_status ===
+                                                        "pending"
+                                                      ? "bg-yellow-500/10 text-yellow-500"
+                                                      : order.payment_status ===
+                                                          "shipped"
+                                                        ? "bg-blue-500/10 text-blue-500"
+                                                        : "bg-red-500/10 text-red-500"
+                                            }`}
+                                        >
+                                            {order.payment_status}
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                data-action="view"
+                                                data-order-id={order.id}
+                                                class="bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-1.5 rounded font-bold transition-colors"
+                                            >
+                                                VIEW
+                                            </button>
+
+                                            {order.payment_status ===
+                                                "pending" && (
+                                                <button
+                                                    type="button"
+                                                    data-action="paid"
+                                                    data-order-id={order.id}
+                                                    class="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-1.5 rounded font-bold"
+                                                >
+                                                    Confirm Paid
+                                                </button>
+                                            )}
+
+                                            {order.payment_status ===
+                                                "paid" && (
+                                                <button
+                                                    type="button"
+                                                    data-action="ship"
+                                                    data-order-id={order.id}
+                                                    class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-bold"
+                                                >
+                                                    Ship
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                        {
+                            !orders?.length && (
+                                <tr>
+                                    <td
+                                        colspan="8"
+                                        class="p-8 text-center text-white/30"
+                                    >
+                                        No orders found.
+                                    </td>
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="order-modal"
+        class="fixed inset-0 z-50 bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+        <div
+            class="bg-[#111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col relative overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.1)]"
+        >
+            <div
+                class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1A1A1A]"
+            >
+                <div>
+                    <h2
+                        class="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3"
+                    >
+                        Order #<span id="modal-order-id" class="text-[#D4AF37]"
+                        ></span>
+                    </h2>
+                    <p class="text-white/40 text-sm mt-1" id="modal-order-date">
+                    </p>
+                </div>
+                <button
+                    id="close-modal"
+                    class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                    <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        ><path d="M18 6 6 18"></path><path d="m6 6 12 12"
+                        ></path></svg
+                    >
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        class="bg-white/5 rounded-xl p-6 border border-white/5 flex flex-col items-center text-center"
+                    >
+                        <div
+                            class="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-[#D4AF37] to-transparent mb-4"
+                        >
+                            <img
+                                id="modal-customer-img"
+                                src=""
+                                class="w-full h-full rounded-full object-cover bg-black"
+                            />
+                        </div>
+                        <h3
+                            class="text-xl font-bold text-white mb-1"
+                            id="modal-customer-name"
+                        >
+                        </h3>
+                        <p
+                            class="text-[#D4AF37] text-sm font-mono mb-4"
+                            id="modal-customer-role"
+                        >
+                            Guest Customer
+                        </p>
+
+                        <div
+                            class="w-full space-y-3 text-left bg-black/30 p-4 rounded-lg"
+                        >
+                            <div
+                                class="flex items-center gap-3 text-sm text-white/70"
+                            >
+                                <svg
+                                    class="w-4 h-4 text-[#D4AF37]"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    ><path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                                    ></path></svg
+                                >
+                                <span id="modal-customer-phone"></span>
+                            </div>
+                            <div
+                                class="flex items-center gap-3 text-sm text-white/70"
+                            >
+                                <svg
+                                    class="w-4 h-4 text-[#D4AF37]"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    ><rect
+                                        width="20"
+                                        height="16"
+                                        x="2"
+                                        y="4"
+                                        rx="2"></rect><path
+                                        d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                                    ></path></svg
+                                >
+                                <span id="modal-customer-email" class="truncate"
+                                ></span>
+                            </div>
+                            <div
+                                class="flex items-start gap-3 text-sm text-white/70"
+                            >
+                                <svg
+                                    class="w-4 h-4 text-[#D4AF37] shrink-0 mt-1"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    ><path
+                                        d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"
+                                    ></path><circle cx="12" cy="10" r="3"
+                                    ></circle></svg
+                                >
+                                <span id="modal-customer-address"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2 space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-[#D4AF37] text-black p-4 rounded-xl">
+                                <p
+                                    class="text-xs font-black uppercase tracking-widest opacity-70"
+                                >
+                                    Total Paid
+                                </p>
+                                <p
+                                    class="text-3xl font-black mt-1"
+                                    id="modal-total-price"
+                                >
+                                    ฿0
+                                </p>
+                            </div>
+                            <div
+                                class="bg-white/5 text-white p-4 rounded-xl border border-white/10"
+                            >
+                                <p
+                                    class="text-xs font-black uppercase tracking-widest opacity-50"
+                                >
+                                    Status
+                                </p>
+                                <div
+                                    class="mt-1 inline-flex px-3 py-1 rounded font-bold uppercase text-sm"
+                                    id="modal-status-badge"
+                                >
+                                    PENDING
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-white/5 rounded-xl p-6 border border-white/5"
+                        >
+                            <h4
+                                class="text-white font-bold uppercase text-sm mb-4"
+                            >
+                                Payment Proof via <span
+                                    id="modal-payment-method"
+                                    class="text-[#D4AF37]"></span>
+                            </h4>
+                            <div
+                                id="modal-proof-content"
+                                class="min-h-[150px] bg-black/50 rounded-lg flex items-center justify-center border border-dashed border-white/20"
+                            >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3
+                        class="text-xl font-bold text-white mb-6 flex items-center gap-3"
+                    >
+                        <span class="w-2 h-2 bg-[#D4AF37] rounded-full"></span>
+                        Ordered Items
+                    </h3>
+                    <div
+                        class="bg-[#0A0A0A] rounded-xl overflow-hidden border border-white/10"
+                    >
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-white/5 text-white/50 text-xs font-bold uppercase tracking-wider"
+                            >
+                                <tr>
+                                    <th class="p-4">Product</th>
+                                    <th class="p-4 text-center">Qty</th>
+                                    <th class="p-4 text-right">Price</th>
+                                    <th class="p-4 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-white/5 text-sm"
+                                id="modal-items-list"
+                            >
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="p-6 border-t border-white/10 bg-[#1A1A1A] flex justify-end gap-4"
+            >
+                <button
+                    class="px-6 py-2 rounded-lg font-bold text-white/70 hover:text-white transition-colors"
+                    onclick="document.getElementById('order-modal').classList.add('hidden')"
+                    >Close</button
+                >
+                <button
+                    id="modal-action-btn"
+                    class="px-6 py-2 rounded-lg font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
+                >
+                    Mark as Paid
+                </button>
+            </div>
+        </div>
+    </div>
+</AdminLayout>
+
+<script define:vars={{ orders }}>
+    // 1. ส่งข้อมูล orders เข้า window ทันทีที่โหลด
+    window.allOrders = orders;
+
+    // 2. ใช้ astro:page-load เพื่อรันสคริปต์ใหม่ทุกครั้งที่เปลี่ยนหน้ามา
+    document.addEventListener("astro:page-load", () => {
+        const modal = document.getElementById("order-modal");
+        const closeBtn = document.getElementById("close-modal");
+
+        // ถ้าไม่มี modal ในหน้านี้ให้หยุดทำงาน (ป้องกัน Error เวลาอยู่หน้าอื่น)
+        if (!modal) return;
+
+        // กำหนดฟังก์ชันเปิด Modal
+        window.openOrderModal = function (orderId) {
+            const order = window.allOrders.find((o) => o.id === orderId);
+            if (!order) return;
+
+            // Populate Header
+            document.getElementById("modal-order-id").innerText = order.id;
+            document.getElementById("modal-order-date").innerText = new Date(
+                order.created_at,
+            ).toLocaleString("th-TH");
+
+            // Populate Customer
+            document.getElementById("modal-customer-name").innerText =
+                order.customer_name || "Guest";
+            document.getElementById("modal-customer-email").innerText =
+                order.customer_email || "No Email";
+            document.getElementById("modal-customer-phone").innerText =
+                order.customer_phone || "-";
+            document.getElementById("modal-customer-address").innerText =
+                (order.shipping_address || "") +
+                " " +
+                (order.province || "") +
+                " " +
+                (order.zipcode || "");
+
+            // Avatar
+            const email = order.customer_email || "guest@example.com";
+            document.getElementById("modal-customer-img").src =
+                order.customer_avatar ||
+                `https://unavatar.io/${email}?fallback=https://source.boringavatars.com/marble/120/${encodeURIComponent(order.customer_name)}`;
+
+            // Populate Stats
+            const total = Number(order.total_price).toLocaleString();
+            document.getElementById("modal-total-price").innerText =
+                `฿${total}`;
+
+            const statusEl = document.getElementById("modal-status-badge");
+            statusEl.innerText = order.payment_status;
+            statusEl.className = `mt-1 inline-flex px-3 py-1 rounded font-bold uppercase text-sm ${
+                order.payment_status === "paid"
+                    ? "bg-green-500/10 text-green-500"
+                    : order.payment_status === "pending"
+                      ? "bg-yellow-500/10 text-yellow-500"
+                      : order.payment_status === "shipped"
+                        ? "bg-blue-500/10 text-blue-500"
+                        : "bg-red-500/10 text-red-500"
+            }`;
+
+            // Prepare Action Button
+            const actionBtn = document.getElementById("modal-action-btn");
+            if (order.payment_status === "pending") {
+                actionBtn.textContent = "Confirm Payment";
+                actionBtn.dataset.action = "paid";
+                actionBtn.dataset.orderId = order.id;
+                actionBtn.disabled = false;
+                actionBtn.classList.remove("hidden");
+            } else if (order.payment_status === "paid") {
+                actionBtn.textContent = "Confirm Shipping";
+                actionBtn.dataset.action = "ship";
+                actionBtn.dataset.orderId = order.id;
+                actionBtn.disabled = false;
+                actionBtn.classList.remove("hidden");
+            } else {
+                actionBtn.classList.add("hidden");
+                actionBtn.dataset.action = "";
+                actionBtn.dataset.orderId = "";
+            }
+
+            // Populate Items
+            const tbody = document.getElementById("modal-items-list");
+            tbody.innerHTML = order.order_items
+                .map(
+                    (item) => `
+                <tr class="hover:bg-white/2">
+                    <td class="p-4 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded overflow-hidden shrink-0">
+                            <img src="${item.image_url || "https://placehold.co/100"}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <div class="text-white font-bold flex items-center">
+                                ${item.title}
+                                ${item.variant_name ? `<span class="bg-[#D4AF37]/20 text-[#D4AF37] text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide border border-[#D4AF37]/30">${item.variant_name}</span>` : ""}
+                            </div>
+                            <div class="text-xs text-white/40">ID: ${item.id.slice(0, 8)}...</div>
+                        </div>
+                    </td>
+                    <td class="p-4 text-center text-white/70">${item.quantity}</td>
+                    <td class="p-4 text-right text-white/70">฿${Number(item.price).toLocaleString()}</td>
+                     <td class="p-4 text-right font-bold text-white">฿${(Number(item.price) * item.quantity).toLocaleString()}</td>
+                </tr>
+            `,
+                )
+                .join("");
+
+            // Populate Payment Proof
+            const proofDiv = document.getElementById("modal-proof-content");
+            document.getElementById("modal-payment-method").innerText =
+                order.payment_method;
+
+            if (order.slip_image?.startsWith("TX:")) {
+                const tx = order.slip_image.replace("TX:", "");
+                proofDiv.innerHTML = `
+                    <div class="text-center p-4">
+                        <p class="text-green-400 font-mono text-xs break-all mb-2">${tx}</p>
+                        <a href="https://etherscan.io/tx/${tx}" target="_blank" class="text-[#D4AF37] underline text-xs">Verify on Blockchain</a>
+                    </div>
+                `;
+            } else if (order.slip_image) {
+                let src;
+                if (
+                    order.slip_image.startsWith("http://") ||
+                    order.slip_image.startsWith("https://")
+                ) {
+                    src = order.slip_image;
+                } else if (order.slip_image.startsWith("/")) {
+                    src = order.slip_image;
+                } else if (order.slip_image.includes("data:")) {
+                    src = order.slip_image;
+                } else {
+                    src = `data:image/png;base64,${order.slip_image}`;
+                }
+                proofDiv.innerHTML = `<img src="${src}" class="max-h-[200px] object-contain rounded cursor-pointer" onclick="window.open(this.src)">`;
+            } else {
+                proofDiv.innerHTML = `<p class="text-white/30 text-sm">No proof uploaded</p>`;
+            }
+
+            modal.classList.remove("hidden");
+        };
+
+        // ผูก Event Listener กับปุ่มปิด
+        closeBtn?.addEventListener("click", () => {
+            modal.classList.add("hidden");
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest("#modal-action-btn");
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const orderId = btn.dataset.orderId;
+
+        if (!action || !orderId) return;
+
+        if (action === "paid") {
+            window.updateStatus(orderId, "paid");
+        }
+
+        if (action === "ship") {
+            window.updateStatus(orderId, "shipped");
+        }
+    });
+</script>
+
+<script>
+    import { supabase } from "../../lib/supabaseClient";
+
+    declare global {
+        interface Window {
+            updateStatus: (orderId: string, newStatus: string) => Promise<void>;
+            openOrderModal: (orderId: string) => void;
+            allOrders: any[];
+        }
+    }
+
+    window.updateStatus = async (orderId, newStatus) => {
+        const updateData =
+            newStatus === "shipped"
+                ? {
+                      shipping_status: "shipped",
+                      payment_status: "shipped",
+                  }
+                : { payment_status: newStatus };
+
+        const { error } = await supabase
+            .from("orders")
+            .update(updateData)
+            .eq("id", orderId);
+
+        if (error) {
+            alert(error.message);
+            return;
+        }
+
+        // ===============================
+        // 🔥 UPDATE TABLE UI
+        // ===============================
+        const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+        if (!row) return;
+
+        /* 1. อัปเดต badge */
+        const badge = row.querySelector("td:nth-child(7) span");
+        if (badge) {
+            badge.textContent = newStatus;
+            badge.className =
+                "px-2 py-1 rounded text-xs font-bold uppercase " +
+                (newStatus === "paid"
+                    ? "bg-green-500/10 text-green-500"
+                    : newStatus === "shipped"
+                      ? "bg-blue-500/10 text-blue-500"
+                      : "bg-yellow-500/10 text-yellow-500");
+        }
+
+        /* 2. จัดการปุ่ม Actions */
+        const actionsCell = row.querySelector("td:last-child .flex");
+        if (!actionsCell) return;
+
+        // 👉 ลบปุ่ม action เก่าทั้งหมด (paid / ship)
+        actionsCell
+            .querySelectorAll(
+                "button[data-action='paid'], button[data-action='ship']",
+            )
+            .forEach((b) => b.remove());
+
+        // 👉 ถ้าเพิ่ง paid → ใส่ปุ่ม Ship
+        if (newStatus === "paid") {
+            const shipBtn = document.createElement("button");
+            shipBtn.textContent = "Ship";
+            shipBtn.dataset.action = "ship";
+            shipBtn.dataset.orderId = orderId;
+            shipBtn.className =
+                "bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-bold";
+
+            actionsCell.appendChild(shipBtn);
+        }
+
+        // 👉 ถ้า shipped → ไม่ต้องเพิ่มอะไร (จะเหลือแค่ VIEW)
+
+        /* 3. ปิด modal */
+        document.getElementById("order-modal")?.classList.add("hidden");
+    };
+</script>
+
+<script is:inline>
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const { action, orderId } = btn.dataset;
+        if (!action || !orderId) return;
+
+        if (action === "view") {
+            window.openOrderModal(orderId);
+        }
+
+        if (action === "paid") {
+            window.updateStatus(orderId, "paid");
+        }
+
+        if (action === "ship") {
+            window.updateStatus(orderId, "shipped");
+        }
+    });
+</script>

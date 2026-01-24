@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import UserProfile from "../components/UserProfile.jsx";
+---
+
+<Layout title="My Profile | Cashless Thailand">
+    <Navbar />
+    <main class="bg-[#050505] min-h-screen pt-40 pb-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <UserProfile client:only="react" />
+        </div>
+    </main>
+
+    <Footer />
+</Layout>
+
+<script>
+    import { supabase } from "../lib/supabaseClient";
+
+    // Protect Route
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+
+    // Check for wallet session in localStorage
+    const wallet = localStorage.getItem("user_wallet");
+
+    if (!session && !wallet) {
+        window.location.href = "/login";
+    }
+</script>

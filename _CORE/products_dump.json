@@ -1,0 +1,59 @@
+[
+  {
+    "id": "cryptoclock-pro",
+    "title": "CryptoClock Pro",
+    "variants": [
+      "Standard Edition",
+      "NFC Edition"
+    ]
+  },
+  {
+    "id": "cryptoclock-epaper",
+    "title": "CryptoClock ePaper",
+    "variants": [
+      "4.7 Inch (Desk Size)",
+      "7.5 Inch (Wall Size)"
+    ]
+  },
+  {
+    "id": "cryptoclock-saving",
+    "title": "CryptoClock Saving",
+    "variants": [
+      "Classic White",
+      "Matte Black",
+      "Neon Orange"
+    ]
+  },
+  {
+    "id": "bitterm-series",
+    "title": "BiTTerm Series",
+    "variants": [
+      "Desktop Mini (200 Bills)",
+      "Kiosk Pro (1000 Bills)"
+    ]
+  },
+  {
+    "id": "bitpos-terminal",
+    "title": "BiTPos Terminal",
+    "variants": [
+      "Wi-Fi Model"
+    ]
+  },
+  {
+    "id": "bitnode-personal",
+    "title": "BiTNode Personal",
+    "variants": [
+      "Umbrel Home",
+      "Rpi"
+    ]
+  },
+  {
+    "id": "cryptoclock-basic",
+    "title": "CryptoClock Basic",
+    "variants": [
+      "White",
+      "Black",
+      "Transparent"
+    ]
+  }
+]

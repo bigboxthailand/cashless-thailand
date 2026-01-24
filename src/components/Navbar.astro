@@ -1,144 +1,406 @@
 ---
 // src/components/Navbar.astro
+import UserMenu from "./UserMenu";
 ---
 
-<nav class="fixed top-0 left-0 w-full z-[100] transition-all duration-500 border-b border-white/5 bg-[#050505]" id="main-nav">
-    
-    <div class="absolute inset-0 bg-[#050505]/80 backdrop-blur-xl transition-all duration-500 pointer-events-none overflow-hidden" id="nav-glass"></div>
+<nav
+    class="fixed top-0 left-0 w-full z-[100] transition-all duration-500 border-b border-white/5 bg-[#050505]"
+    id="main-nav"
+>
+    <div
+        class="absolute inset-0 bg-[#050505]/80 backdrop-blur-xl transition-all duration-500 pointer-events-none overflow-hidden"
+        id="nav-glass"
+    >
+    </div>
 
-    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0 mix-blend-screen">
+    <div
+        class="absolute inset-0 pointer-events-none overflow-hidden z-0 mix-blend-screen"
+    >
         <canvas id="quantum-canvas" class="w-full h-full"></canvas>
     </div>
-    
-    <div class="max-w-[1800px] mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative z-10 transition-all duration-500 pointer-events-none" id="nav-content">
-        
-        <a href="/" class="group relative flex items-center gap-3 pointer-events-auto">
-            <img 
-                src="/images/ui/logo.webp" 
-                alt="Cashless Thailand Logo" 
-                class="h-10 w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(212,175,55,0.8)]" 
+
+    <div
+        class="max-w-[1800px] mx-auto px-6 md:px-12 h-24 flex items-center justify-between relative z-10 transition-all duration-500 pointer-events-none"
+        id="nav-content"
+    >
+        <a
+            href="/"
+            class="group relative flex items-center gap-3 pointer-events-auto"
+        >
+            <img
+                src="/images/ui/logo.webp"
+                alt="Cashless Thailand Logo"
+                class="h-10 w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(212,175,55,0.8)]"
             />
         </a>
 
         <div class="hidden lg:flex items-center gap-10 pointer-events-auto">
-            <a href="/" class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90">
+            <a
+                href="/"
+                class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90"
+            >
                 <span class="relative z-10">Home</span>
             </a>
 
             <div class="relative group h-24 flex items-center">
-                <a href="/shop" class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90 flex items-center gap-1">
+                <a
+                    href="/shop"
+                    class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90 flex items-center gap-1"
+                >
                     <span class="relative z-10 flex items-center gap-1">
                         Shop
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-180 transition-transform duration-500 text-[#D4AF37]"><path d="m6 9 6 6 6-6"/></svg>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="3"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="group-hover:rotate-180 transition-transform duration-500 text-[#D4AF37]"
+                            ><path d="m6 9 6 6 6-6"></path></svg
+                        >
                     </span>
                 </a>
 
-                <div class="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-4">
-                    <div class="bg-[#0a0a0a]/90 border border-[#D4AF37]/30 rounded-2xl p-2 min-w-[240px] shadow-[0_0_30px_rgba(212,175,55,0.1)] backdrop-blur-2xl flex flex-col relative overflow-hidden">
-                        <a href="/shop" class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 flex items-center justify-between group/item mb-1 transition-colors relative overflow-hidden">
-                             <span class="text-white text-xs font-black uppercase tracking-widest relative z-10">All Products</span>
-                            <svg class="w-4 h-4 text-[#D4AF37] -translate-x-2 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                <div
+                    class="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-4"
+                >
+                    <div
+                        class="bg-[#0a0a0a]/90 border border-[#D4AF37]/30 rounded-2xl p-2 min-w-[240px] shadow-[0_0_30px_rgba(212,175,55,0.1)] backdrop-blur-2xl flex flex-col relative overflow-hidden"
+                    >
+                        <a
+                            href="/shop"
+                            class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 flex items-center justify-between group/item mb-1 transition-colors relative overflow-hidden"
+                        >
+                            <span
+                                class="text-white text-xs font-black uppercase tracking-widest relative z-10"
+                                >All Products</span
+                            >
+                            <svg
+                                class="w-4 h-4 text-[#D4AF37] -translate-x-2 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300 relative z-10"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg
+                            >
                         </a>
-                        <div class="h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent mx-2 mb-2"></div>
-                        <a href="/shop#clock" class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item">
-                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <div
+                            class="h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent mx-2 mb-2"
+                        >
+                        </div>
+                        <a
+                            href="/shop#clock"
+                            class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item"
+                        >
+                            <svg
+                                class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><circle cx="12" cy="12" r="10"
+                                ></circle><polyline points="12 6 12 12 16 14"
+                                ></polyline></svg
+                            >
                             <span class="relative z-10">CryptoClock</span>
                         </a>
-                        <a href="/shop#kiosk" class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item">
-                             <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        <a
+                            href="/shop#kiosk"
+                            class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item"
+                        >
+                            <svg
+                                class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><rect
+                                    x="2"
+                                    y="3"
+                                    width="20"
+                                    height="14"
+                                    rx="2"
+                                    ry="2"></rect><line
+                                    x1="8"
+                                    y1="21"
+                                    x2="16"
+                                    y2="21"></line><line
+                                    x1="12"
+                                    y1="17"
+                                    x2="12"
+                                    y2="21"></line></svg
+                            >
                             <span class="relative z-10">BiTTerm</span>
                         </a>
-                        <a href="/shop#pos" class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item">
-                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <a
+                            href="/shop#pos"
+                            class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item"
+                        >
+                            <svg
+                                class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><rect
+                                    x="1"
+                                    y="4"
+                                    width="22"
+                                    height="16"
+                                    rx="2"
+                                    ry="2"></rect><line
+                                    x1="1"
+                                    y1="10"
+                                    x2="23"
+                                    y2="10"></line></svg
+                            >
                             <span class="relative z-10">BiTPos</span>
                         </a>
-                        <a href="/shop#node" class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item">
-                            <svg class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
+                        <a
+                            href="/shop#node"
+                            class="px-4 py-3 rounded-xl hover:bg-[#D4AF37]/10 text-white/70 hover:text-[#D4AF37] text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-3 relative overflow-hidden group/item"
+                        >
+                            <svg
+                                class="w-4 h-4 text-white/30 group-hover/item:text-[#D4AF37] transition-colors relative z-10"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                ><path
+                                    d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"
+                                ></path><line x1="8" y1="16" x2="8.01" y2="16"
+                                ></line><line x1="8" y1="20" x2="8.01" y2="20"
+                                ></line><line x1="12" y1="18" x2="12.01" y2="18"
+                                ></line><line x1="12" y1="22" x2="12.01" y2="22"
+                                ></line><line x1="16" y1="16" x2="16.01" y2="16"
+                                ></line><line x1="16" y1="20" x2="16.01" y2="20"
+                                ></line></svg
+                            >
                             <span class="relative z-10">BiTNode</span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <a href="/course" class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90">
+            <a
+                href="/course"
+                class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90"
+            >
                 <span class="relative z-10">Courses</span>
             </a>
-            <a href="/blog" class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90">
-                 <span class="relative z-10">Knowledge</span>
+            <a
+                href="/blog"
+                class="shimmer-link eng text-xs font-bold uppercase tracking-widest text-white/90"
+            >
+                <span class="relative z-10">Knowledge</span>
             </a>
         </div>
 
         <div class="flex items-center gap-4 md:gap-6 pointer-events-auto">
-            <button id="cart-trigger" class="relative group p-3 hover:bg-[#D4AF37]/10 rounded-xl transition-all duration-300 border border-transparent hover:border-[#D4AF37]/30">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/90 group-hover:text-[#D4AF37] transition-colors duration-300"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                <span id="cart-badge" class="cart-count absolute top-0 right-0 w-5 h-5 bg-[#D4AF37] text-black text-[10px] font-black flex items-center justify-center rounded-full transform scale-0 transition-all duration-500 shadow-[0_0_15px_#D4AF37] border border-black">0</span>
+            <div class="hidden md:block">
+                <UserMenu client:load />
+            </div>
+
+            <button
+                id="cart-trigger"
+                class="relative group p-3 hover:bg-[#D4AF37]/10 rounded-xl transition-all duration-300 border border-transparent hover:border-[#D4AF37]/30"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="text-white/90 group-hover:text-[#D4AF37] transition-colors duration-300"
+                    ><path
+                        d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"
+                    ></path><path d="M3 6h18"></path><path
+                        d="M16 10a4 4 0 0 1-8 0"></path></svg
+                >
+                <span
+                    id="cart-badge"
+                    class="cart-count absolute top-0 right-0 w-5 h-5 bg-[#D4AF37] text-black text-[10px] font-black flex items-center justify-center rounded-full transform scale-0 transition-all duration-500 shadow-[0_0_15px_#D4AF37] border border-black"
+                    >0</span
+                >
             </button>
 
-            <button id="mobile-menu-trigger" class="lg:hidden group p-2 relative w-10 h-10 flex flex-col justify-center items-center gap-[6px] border border-white/10 rounded-lg hover:border-[#D4AF37]/50 transition-all">
-                <span class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"></span>
-                <span class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"></span>
-                <span class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"></span>
+            <button
+                id="mobile-menu-trigger"
+                class="lg:hidden group p-2 relative w-10 h-10 flex flex-col justify-center items-center gap-[6px] border border-white/10 rounded-lg hover:border-[#D4AF37]/50 transition-all"
+            >
+                <span
+                    class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"
+                ></span>
+                <span
+                    class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"
+                ></span>
+                <span
+                    class="hamburger-line w-6 h-[2px] bg-white/90 block transition-all duration-300 origin-center group-hover:bg-[#D4AF37]"
+                ></span>
             </button>
         </div>
     </div>
 </nav>
 
-<div id="mobile-menu" class="fixed inset-0 z-[200] pointer-events-none invisible transition-all duration-500">
-    <div id="mobile-menu-backdrop" class="absolute inset-0 bg-[#050505]/70 backdrop-blur-md opacity-0 transition-all duration-500"></div>
-    
-    <div id="mobile-menu-panel" class="absolute top-0 right-0 h-full w-full bg-[#050505] transform translate-x-full transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col pointer-events-auto z-10 shadow-[-30px_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
-        
+<div
+    id="mobile-menu"
+    class="fixed inset-0 z-[200] pointer-events-none invisible transition-all duration-500"
+>
+    <div
+        id="mobile-menu-backdrop"
+        class="absolute inset-0 bg-[#050505]/70 backdrop-blur-md opacity-0 transition-all duration-500"
+    >
+    </div>
+
+    <div
+        id="mobile-menu-panel"
+        class="absolute top-0 right-0 h-full w-full bg-[#050505] transform translate-x-full transition-all duration-500 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col pointer-events-auto z-10 shadow-[-30px_0_80px_rgba(0,0,0,0.8)] overflow-hidden"
+    >
         <div class="absolute inset-0 pointer-events-none z-0">
-            <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(212,175,55,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(212,175,55,0.05)_1px,transparent_1px)] bg-[size:30px_30px] animate-grid-scroll"></div>
-            <div class="absolute -top-1/4 -right-1/4 w-[300px] h-[300px] bg-[#D4AF37]/20 blur-[80px] rounded-full animate-pulse-slow"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#D4AF37]/10 blur-[100px] rounded-full"></div>
+            <div
+                class="absolute inset-0 bg-[linear-gradient(to_right,rgba(212,175,55,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(212,175,55,0.05)_1px,transparent_1px)] bg-[size:30px_30px] animate-grid-scroll"
+            >
+            </div>
+            <div
+                class="absolute -top-1/4 -right-1/4 w-[300px] h-[300px] bg-[#D4AF37]/20 blur-[80px] rounded-full animate-pulse-slow"
+            >
+            </div>
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#D4AF37]/10 blur-[100px] rounded-full"
+            >
+            </div>
         </div>
 
-        <div class="w-full px-6 h-24 flex items-center justify-between border-b border-white/10 relative z-10 bg-black/50 backdrop-blur-md">
-             <img src="/images/ui/logo.webp" alt="Cashless Thailand Logo" class="h-10 w-auto object-contain" />
-             <button id="close-mobile-menu" class="text-white/80 hover:text-[#D4AF37] transition-all p-3 border border-white/10 rounded-lg hover:border-[#D4AF37]/50 active:scale-90">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-             </button>
+        <div
+            class="w-full px-6 h-24 flex items-center justify-between border-b border-white/10 relative z-10 bg-black/50 backdrop-blur-md"
+        >
+            <img
+                src="/images/ui/logo.webp"
+                alt="Cashless Thailand Logo"
+                class="h-10 w-auto object-contain"
+            />
+            <button
+                id="close-mobile-menu"
+                class="text-white/80 hover:text-[#D4AF37] transition-all p-3 border border-white/10 rounded-lg hover:border-[#D4AF37]/50 active:scale-90"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M18 6 6 18"></path><path d="m6 6 12 12"
+                    ></path></svg
+                >
+            </button>
         </div>
 
-        <div class="flex-1 flex flex-col justify-center items-center p-8 gap-10 relative z-10 w-full">
-            <div class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[100ms] w-full text-center">
-                <a href="/" class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group">
-                    <span class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+        <div
+            class="flex-1 flex flex-col justify-center items-center p-8 gap-10 relative z-10 w-full"
+        >
+            <div
+                class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[100ms] w-full text-center"
+            >
+                <a
+                    href="/"
+                    class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group"
+                >
+                    <span
+                        class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                     Home
-                    <span class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+                    <span
+                        class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                 </a>
             </div>
-            
-            <div class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[150ms] w-full text-center">
-                <a href="/shop" class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group">
-                    <span class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+
+            <div
+                class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[150ms] w-full text-center"
+            >
+                <a
+                    href="/shop"
+                    class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group"
+                >
+                    <span
+                        class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                     Shop
-                    <span class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+                    <span
+                        class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                 </a>
             </div>
-            
-            <div class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[200ms] w-full text-center">
-                <a href="/course" class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group">
-                    <span class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+
+            <div
+                class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[200ms] w-full text-center"
+            >
+                <a
+                    href="/course"
+                    class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group"
+                >
+                    <span
+                        class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                     Courses
-                    <span class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+                    <span
+                        class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                 </a>
             </div>
-            
-            <div class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[250ms] w-full text-center">
-                <a href="/blog" class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group">
-                    <span class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+
+            <div
+                class="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[250ms] w-full text-center"
+            >
+                <a
+                    href="/blog"
+                    class="mobile-nav-link text-4xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group"
+                >
+                    <span
+                        class="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                     Knowledge
-                    <span class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>
+                    <span
+                        class="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]"
+                        >•</span
+                    >
                 </a>
             </div>
         </div>
 
-        <div class="p-8 border-t border-white/5 bg-black/50 backdrop-blur-md relative z-10 mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[350ms]">
-            <a href="https://linktr.ee/CryptoClock" target="_blank" class="flex items-center justify-center gap-3 p-4 rounded-2xl bg-[#D4AF37]/5 border border-[#D4AF37]/20 group active:bg-[#D4AF37]/20 transition-all">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></span>
-                <span class="eng text-sm font-bold uppercase tracking-widest text-[#D4AF37]">Support Terminal</span>
+        <div
+            class="p-8 border-t border-white/5 bg-black/50 backdrop-blur-md relative z-10 mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[350ms]"
+        >
+            <a
+                href="https://linktr.ee/CryptoClock"
+                target="_blank"
+                class="flex items-center justify-center gap-3 p-4 rounded-2xl bg-[#D4AF37]/5 border border-[#D4AF37]/20 group active:bg-[#D4AF37]/20 transition-all"
+            >
+                <span
+                    class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"
+                ></span>
+                <span
+                    class="eng text-sm font-bold uppercase tracking-widest text-[#D4AF37]"
+                    >Support Terminal</span
+                >
             </a>
         </div>
     </div>
@@ -146,28 +408,68 @@
 
 <style>
     /* CSS สำหรับ Desktop Shimmer (ของเดิม) */
-    .shimmer-link { position: relative; overflow: hidden; transition: color 0.3s; }
-    .shimmer-link::before { content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(212, 175, 55, 0.8) 50%, transparent 100%); transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; opacity: 0; }
-    .shimmer-link:hover::before { left: 100%; opacity: 1; }
-    .shimmer-link:hover { color: #D4AF37; }
+    .shimmer-link {
+        position: relative;
+        overflow: hidden;
+        transition: color 0.3s;
+    }
+    .shimmer-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 150%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(212, 175, 55, 0.8) 50%,
+            transparent 100%
+        );
+        transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+        opacity: 0;
+    }
+    .shimmer-link:hover::before {
+        left: 100%;
+        opacity: 1;
+    }
+    .shimmer-link:hover {
+        color: #d4af37;
+    }
 
     /* ==========================================
        🔥 NEW: Mobile Menu Animations 
        ========================================== */
-    
+
     /* 1. Grid เลื่อนลงเหมือน Matrix */
     @keyframes grid-scroll {
-        0% { transform: translateY(0); }
-        100% { transform: translateY(30px); }
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(30px);
+        }
     }
-    .animate-grid-scroll { animation: grid-scroll 2s linear infinite; }
+    .animate-grid-scroll {
+        animation: grid-scroll 2s linear infinite;
+    }
 
     /* 2. บอลแสงกระพริบ */
     @keyframes pulse-slow {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(1.1); }
+        0%,
+        100% {
+            opacity: 0.3;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
     }
-    .animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
+    .animate-pulse-slow {
+        animation: pulse-slow 4s ease-in-out infinite;
+    }
 
     /* 3. ลิงก์บินเข้าจากด้านล่าง (Fade Up) */
     #mobile-menu.menu-visible .mobile-link-item {
@@ -177,20 +479,19 @@
 </style>
 
 <script>
-    import { cartStore } from '../lib/cartStore.js';
+    import { cartStore, cartItems } from "../lib/cartStore.js"; // 👈 Import ตัวแปรให้ครบ
 
-    document.addEventListener('astro:page-load', () => {
-
+    document.addEventListener("astro:page-load", () => {
         // ==========================================
         // 🚀 QUANTUM CANVAS ENGINE (Desktop)
         // ==========================================
-        const canvas = document.getElementById('quantum-canvas');
-        const nav = document.getElementById('main-nav');
-        
+        const canvas = document.getElementById("quantum-canvas");
+        const nav = document.getElementById("main-nav");
+
         if (canvas && nav) {
             // @ts-ignore
-            const ctx = canvas.getContext('2d');
-            let particles = [];
+            const ctx = canvas.getContext("2d");
+            let particles: any[] = [];
             let mouse = { x: -999, y: -999, radius: 200 };
 
             const resize = () => {
@@ -212,8 +513,8 @@
                         // @ts-ignore
                         y: Math.random() * canvas.height,
                         vx: (Math.random() - 0.5) * 2,
-                        vy: (Math.random() - 0.5) * 2, 
-                        size: Math.random() * 2 + 1.5 
+                        vy: (Math.random() - 0.5) * 2,
+                        size: Math.random() * 2 + 1.5,
                     });
                 }
             };
@@ -252,7 +553,7 @@
                     // @ts-ignore
                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     // @ts-ignore
-                    ctx.fillStyle = 'rgba(212, 175, 55, 0.8)'; 
+                    ctx.fillStyle = "rgba(212, 175, 55, 0.8)";
                     // @ts-ignore
                     ctx.fill();
 
@@ -262,7 +563,7 @@
                         const dy2 = p.y - p2.y;
                         const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
 
-                        if (distance2 < 120) { 
+                        if (distance2 < 120) {
                             // @ts-ignore
                             ctx.beginPath();
                             // @ts-ignore
@@ -281,93 +582,97 @@
                 requestAnimationFrame(animate);
             };
 
-            nav.addEventListener('mousemove', (e) => {
+            nav.addEventListener("mousemove", (e) => {
                 const rect = nav.getBoundingClientRect();
                 mouse.x = e.clientX - rect.left;
                 mouse.y = e.clientY - rect.top;
             });
-            nav.addEventListener('mouseleave', () => {
+            nav.addEventListener("mouseleave", () => {
                 mouse.x = -999;
                 mouse.y = -999;
             });
 
-            window.addEventListener('resize', resize);
+            window.addEventListener("resize", resize);
             resize();
             animate();
         }
 
         // ==========================================
-
+        // 🚀 NEW: Auto-Sync Cart Badge (ระบบซิงก์อัตโนมัติ 100%)
+        // ==========================================
         const updateBadgeNavbar = () => {
-            try {
-                const { count } = cartStore.totals();
-                const badges = document.querySelectorAll('.cart-count');
-                badges.forEach(el => {
-                    el.textContent = count.toString();
-                    if (count > 0) {
-                        el.classList.remove('scale-0');
-                    } else {
-                        el.classList.add('scale-0');
-                    }
-                });
-            } catch (err) { }
+            const { count } = cartStore.totals();
+            const badges = document.querySelectorAll(".cart-count");
+
+            badges.forEach((el) => {
+                el.textContent = count.toString();
+                if (count > 0) {
+                    el.classList.remove("scale-0");
+                } else {
+                    el.classList.add("scale-0");
+                }
+            });
         };
 
-        const cartBtn = document.getElementById('cart-trigger');
+        // 1. ดึงข้อมูลทันทีที่โหลดหน้าเว็บ (เหมือนที่ Drawer ทำ)
+        updateBadgeNavbar();
+
+        // 2. ผูกกับ Event เดียวกันกับที่ Drawer ใช้
+        window.addEventListener("cart-updated", updateBadgeNavbar);
+
+        // ==========================================
+
+        const cartBtn = document.getElementById("cart-trigger");
         if (cartBtn) {
             const newBtn = cartBtn.cloneNode(true);
-            if(cartBtn.parentNode) cartBtn.parentNode.replaceChild(newBtn, cartBtn);
-            newBtn.addEventListener('click', (e) => {
+            if (cartBtn.parentNode)
+                cartBtn.parentNode.replaceChild(newBtn, cartBtn);
+            newBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 cartStore.open();
             });
         }
 
-        updateBadgeNavbar();
-        window.addEventListener('cart-updated', updateBadgeNavbar);
-
         // ==========================================
         // 🚀 UPGRADED: MOBILE MENU LOGIC
         // ==========================================
-        const menuTrigger = document.getElementById('mobile-menu-trigger');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobilePanel = document.getElementById('mobile-menu-panel');
-        const menuBackdrop = document.getElementById('mobile-menu-backdrop');
-        const closeMenuBtn = document.getElementById('close-mobile-menu'); // [NEW] ปุ่มปิดมุมขวา
-        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+        const menuTrigger = document.getElementById("mobile-menu-trigger");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const mobilePanel = document.getElementById("mobile-menu-panel");
+        const menuBackdrop = document.getElementById("mobile-menu-backdrop");
+        const closeMenuBtn = document.getElementById("close-mobile-menu");
+        const mobileLinks = document.querySelectorAll(".mobile-nav-link");
 
-        const toggleMobileMenu = (open) => {
+        const toggleMobileMenu = (open: boolean) => {
             if (open) {
-                // 1. เปิด Container หลัก
-                mobileMenu?.classList.remove('invisible', 'pointer-events-none');
-                
-                // 2. แผงควบคุมเลื่อนเข้า + แสดงลิงก์ (Staggered Fade Up)
+                mobileMenu?.classList.remove(
+                    "invisible",
+                    "pointer-events-none",
+                );
                 setTimeout(() => {
-                    menuBackdrop?.classList.remove('opacity-0');
-                    mobilePanel?.classList.remove('translate-x-full');
-                    mobileMenu?.classList.add('menu-visible'); // เรียก Animation ของลิงก์
+                    menuBackdrop?.classList.remove("opacity-0");
+                    mobilePanel?.classList.remove("translate-x-full");
+                    mobileMenu?.classList.add("menu-visible");
                 }, 10);
             } else {
-                // 1. ปิดเมนูและซ่อนลิงก์
-                mobilePanel?.classList.add('translate-x-full');
-                menuBackdrop?.classList.add('opacity-0');
-                mobileMenu?.classList.remove('menu-visible');
-
-                // 2. รอให้ Animation จบแล้วค่อยซ่อน Container
+                mobilePanel?.classList.add("translate-x-full");
+                menuBackdrop?.classList.add("opacity-0");
+                mobileMenu?.classList.remove("menu-visible");
                 setTimeout(() => {
-                    mobileMenu?.classList.add('invisible', 'pointer-events-none');
+                    mobileMenu?.classList.add(
+                        "invisible",
+                        "pointer-events-none",
+                    );
                 }, 500);
             }
         };
 
-        // ผูก Event Listener
-        menuTrigger?.addEventListener('click', () => toggleMobileMenu(true));
-        closeMenuBtn?.addEventListener('click', () => toggleMobileMenu(false)); // กดกากบาทปิดได้
-        menuBackdrop?.addEventListener('click', () => toggleMobileMenu(false));
-        
-        // กดลิงก์แล้วปิดเมนู
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => toggleMobileMenu(false));
+        menuTrigger?.addEventListener("click", () => toggleMobileMenu(true));
+        closeMenuBtn?.addEventListener("click", () => toggleMobileMenu(false));
+        menuBackdrop?.addEventListener("click", () => toggleMobileMenu(false));
+
+        mobileLinks.forEach((link) => {
+            link.addEventListener("click", () => toggleMobileMenu(false));
         });
     });
 </script>

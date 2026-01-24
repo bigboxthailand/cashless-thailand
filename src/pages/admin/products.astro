@@ -1,0 +1,39 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabaseClient";
+import ProductManager from "../../components/admin/ProductManager.jsx";
+
+// Fetch Real Products
+const { data: products, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+const thbFormatter = new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
+});
+---
+
+<AdminLayout title="Products">
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1
+                    class="text-3xl font-black text-white uppercase tracking-wider"
+                >
+                    Products Inventory
+                </h1>
+                {
+                    /* <p class="text-white/50 text-sm mt-1">
+                    {products?.length || 0} items in catalog
+                </p> */
+                }
+                {/* Let the component handle the count */}
+            </div>
+            {/* Button moved inside component */}
+        </div>
+
+        <ProductManager client:load initialProducts={products} />
+    </div>
+</AdminLayout>

@@ -1,106 +1,142 @@
 ---
 // src/components/FeaturedGrid.astro
-const items = [
-  {
-    id: "cryptoclock-basic",
-    title: "CryptoClock Basic",
-    category: "Smart Display",
-    price: "980.00",
-    image: "/images/products/cryptoclock-basic/Basic_White_Center.webp",      // รูปปกติ (หน้าตรง)
-    hoverImage: "/images/products/cryptoclock-basic/Basic_White_Right.webp",   // รูปตอนชี้ (มุมข้าง)
-    tag: "Best Seller"
-  },
-  {
-    id: "bitterm-series",
-    title: "BiTTerm Series",
-    category: "Bitcoin Kiosk",
-    price: "21,000.00",
-    image: "/images/products/bitterm-series/mini-front.webp",
-    // *ถ้ายังไม่มีรูปมุมข้าง ให้ใส่รูปเดิมไปก่อนครับ (หรือไปหารูป _Right มาใส่)
-    hoverImage: "/images/products/bitterm-series/mini-front.webp", 
-    tag: "Business"
-  },
-  {
-    id: "bitpos-terminal",
-    title: "BiTPos Terminal",
-    category: "POS System",
-    price: "8,900.00",
-    image: "/images/products/bitpos-terminal/main.webp",
-    hoverImage: "/images/products/bitpos-terminal/main.webp", // *รอเปลี่ยนเป็นรูปมุมข้าง
-    tag: "New Arrival"
-  },
-  {
-    id: "bitnode-personal",
-    title: "BiTNode Personal",
-    category: "Full Node",
-    price: "49,000.00",
-    image: "/images/products/bitnode-personal/umbrelhome.webp",
-    hoverImage: "/images/products/bitnode-personal/umbrelhome.webp", // *รอเปลี่ยนเป็นรูปมุมข้าง
-    tag: "Essential"
-  }
-];
+
+import products from "../data/products.json";
+
+// Simulate the Supabase "data" structure or just use the array directly
+// The existing code expects `products` to be the array.
+// We can just keep `products` as the array from the JSON.
+
+const uniqueCategories = new Set();
+const items = [];
+
+for (const p of products) {
+    // Check if category is already added
+    if (!uniqueCategories.has(p.category) && items.length < 4) {
+        uniqueCategories.add(p.category);
+        items.push({
+            id: p.id,
+            title: p.meta?.title || "Untitled Product",
+            category: p.meta?.tags ? p.meta.tags[0] : p.category, // Use first tag or category
+            price: (p.pricing?.basePrice || 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+            }),
+            image: p.media?.mainImage || "",
+            hoverImage:
+                p.media?.gallery && p.media.gallery.length > 1
+                    ? p.media.gallery[1]
+                    : p.media?.mainImage || "",
+            tag:
+                p.meta?.tags && p.meta.tags.length > 0
+                    ? p.meta.tags[0]
+                    : "Featured",
+        });
+    }
+}
 ---
 
 <section class="max-w-[1800px] mx-auto px-6 md:px-12 py-32 relative">
-    <div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 reveal">
+    <div
+        class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 reveal"
+    >
         <div class="space-y-4">
-            <h2 class="text-5xl md:text-7xl font-[900] tracking-tighter leading-none italic uppercase text-white">
-                Curated <br/> <span class="text-white/10 not-italic">Selection.</span>
+            <h2
+                class="text-5xl md:text-7xl font-[900] tracking-tighter leading-none italic uppercase text-white"
+            >
+                Curated <br />
+                <span class="text-white/10 not-italic">Selection.</span>
             </h2>
-            <div class="w-24 h-1 bg-gradient-to-r from-[#D4AF37] to-transparent"></div>
+            <div
+                class="w-24 h-1 bg-gradient-to-r from-[#D4AF37] to-transparent"
+            >
+            </div>
         </div>
-        <a href="/shop" class="group flex items-center gap-4 text-[#D4AF37] eng font-black uppercase tracking-[0.3em] text-xs pb-2 border-b border-[#D4AF37]/20 hover:border-[#D4AF37] transition-all">
-            Explore All 
-            <svg class="group-hover:translate-x-2 transition-transform" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+        <a
+            href="/shop"
+            class="group flex items-center gap-4 text-[#D4AF37] eng font-black uppercase tracking-[0.3em] text-xs pb-2 border-b border-[#D4AF37]/20 hover:border-[#D4AF37] transition-all"
+        >
+            Explore All
+            <svg
+                class="group-hover:translate-x-2 transition-transform"
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
+            >
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-        {items.map((item, i) => (
-            <div class="group relative reveal" style={`animation-delay: ${0.2 * i}s`}>
-                <div class="absolute -inset-2 bg-gradient-to-b from-[#D4AF37]/20 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700 rounded-[3rem]"></div>
-                
-                <div class="relative">
-                    <a href={`/products/${item.id}`} class="block aspect-[4/5] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-white/5 group-hover:border-[#D4AF37]/30 transition-all duration-500 shadow-2xl flex flex-col relative cursor-pointer">
-                        
-                        <img 
-                            src={item.image} 
-                            alt={item.title} 
-                            class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
-                            loading="lazy"
-                        />
+    <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
+    >
+        {
+            items.map((item, i) => (
+                <div
+                    class="group relative reveal"
+                    style={`animation-delay: ${0.2 * i}s`}
+                >
+                    <div class="absolute -inset-2 bg-gradient-to-b from-[#D4AF37]/20 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700 rounded-[3rem]" />
 
-                        <img 
-                            src={item.hoverImage} 
-                            alt={`${item.title} side view`} 
-                            class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                            loading="lazy"
-                        />
-                        
-                        <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                    <div class="relative">
+                        <a
+                            href={`/products/${item.id}`}
+                            class="block aspect-[4/5] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-white/5 group-hover:border-[#D4AF37]/30 transition-all duration-500 shadow-2xl flex flex-col relative cursor-pointer"
+                        >
+                            <img
+                                src={item.image}
+                                alt={item.title}
+                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
+                                loading="lazy"
+                            />
 
-                        <div class="absolute top-6 left-6 px-4 py-1 bg-black/80 backdrop-blur-md border border-[#D4AF37]/30 rounded-full z-10">
-                            <span class="eng text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">{item.tag}</span>
-                        </div>
+                            <img
+                                src={item.hoverImage}
+                                alt={`${item.title} side view`}
+                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                                loading="lazy"
+                            />
 
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <span class="bg-[#D4AF37] text-black px-8 py-4 rounded-2xl font-black eng text-sm uppercase tracking-tighter opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_#D4AF37]">
-                                View Details
-                            </span>
-                        </div>
-                    </a>
+                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
-                    <div class="mt-6 space-y-1 px-2">
-                        <p class="eng text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/60">{item.category}</p>
-                        <h3 class="text-lg font-bold text-white leading-tight group-hover:text-[#D4AF37] transition-colors">{item.title}</h3>
-                        <div class="flex items-center gap-2 pt-1">
-                            <span class="text-xl eng font-black text-white">{item.price}</span>
-                            <span class="text-[10px] eng font-medium text-white/30 uppercase tracking-widest">THB</span>
+                            <div class="absolute top-6 left-6 px-4 py-1 bg-black/80 backdrop-blur-md border border-[#D4AF37]/30 rounded-full z-10">
+                                <span class="eng text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">
+                                    {item.tag}
+                                </span>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span class="bg-[#D4AF37] text-black px-8 py-4 rounded-2xl font-black eng text-sm uppercase tracking-tighter opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_#D4AF37]">
+                                    View Details
+                                </span>
+                            </div>
+                        </a>
+
+                        <div class="mt-6 space-y-1 px-2">
+                            <p class="eng text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/60">
+                                {item.category}
+                            </p>
+                            <h3 class="text-lg font-bold text-white leading-tight group-hover:text-[#D4AF37] transition-colors">
+                                {item.title}
+                            </h3>
+                            <div class="flex items-center gap-2 pt-1">
+                                <span class="text-xl eng font-black text-white">
+                                    {item.price}
+                                </span>
+                                <span class="text-[10px] eng font-medium text-white/30 uppercase tracking-widest">
+                                    THB
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        ))}
+            ))
+        }
     </div>
 </section>
 
@@ -110,5 +146,10 @@ const items = [
         transform: translateY(30px);
         animation: fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     }
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>

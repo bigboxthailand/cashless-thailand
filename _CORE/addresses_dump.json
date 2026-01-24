@@ -1,0 +1,17 @@
+Fetching all addresses...
+[
+  {
+    "id": "a456c8d6-ecb5-42a0-b5ab-6b34dc6a00f0",
+    "user_id": "3b5859ea-8a64-41f1-8071-75d35efa67a7",
+    "label": "",
+    "first_name": "Natthapong",
+    "last_name": "Suwanjit",
+    "phone": "+66909879566",
+    "address_line1": "9999/99",
+    "district": "Wat Tha Phra",
+    "province": "Bangkok",
+    "zip_code": "10600",
+    "is_default": true,
+    "created_at": "2026-01-23T16:11:11.546992+00:00"
+  }
+]
