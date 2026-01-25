@@ -1,9 +1,9 @@
 ---
-// src/pages/products/[id].astro
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import CartDrawer from "../../components/CartDrawer.astro";
+import Reviews from "../../components/Reviews.jsx";
 import { supabase } from "../../lib/supabase";
 
 const { id } = Astro.params;
@@ -20,8 +20,6 @@ if (error || !productData) {
 }
 
 // Normalize Data (DB snake_case vs App camelCase)
-// Some columns might be returned as JSON strings if not typed as JSONB in Supabase explicitly,
-// or if we need to map them.
 // @ts-ignore
 const parseIfNeeded = (val) => {
     if (typeof val === "string") {
@@ -57,13 +55,12 @@ const hasGallery = product.media.gallery && product.media.gallery.length > 1;
 
 let initialPrice = product.pricing.basePrice;
 
-// Check if we need to get price from variants (if basePrice is 0 or missing, but variants exist)
+// Check if we need to get price from variants
 if (
     product.config &&
     product.config.variants &&
     product.config.variants.length > 0
 ) {
-    // If basePrice is 0/invalid, or we just want to show the first variant's price
     if (!initialPrice || initialPrice === 0) {
         initialPrice = product.config.variants[0].price;
     }
@@ -461,6 +458,9 @@ const productJson = JSON.stringify(product);
                 </div>
             )
         }
+
+        {/* Reviews Section */}
+        <Reviews productId={product.id} client:visible />
     </main>
     <Footer />
 </Layout>

@@ -24,6 +24,12 @@ export default function UserProfile() {
     // Stats
     const [orderHistory, setOrderHistory] = useState([]);
 
+    // Review System State
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [reviewTarget, setReviewTarget] = useState(null);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+
     useEffect(() => {
         fetchProfile();
         fetchAddresses();
@@ -88,6 +94,109 @@ export default function UserProfile() {
         setAddresses(formatted);
     };
 
+    const fetchOrders = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        try {
+            // Trigger Automation
+            await supabase.rpc('check_order_automations');
+
+            const { data, error } = await supabase
+                .from('orders')
+                .select(`
+                    *,
+                    reviews (product_id, rating),
+                    order_items (
+                        product_id,
+                        *,
+                        product:product_id (meta, media)
+                    )
+                `)
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            const formattedOrders = data.map(order => ({
+                id: order.id,
+                date: new Date(order.created_at).toLocaleDateString('th-TH'),
+                total: order.total_price,
+                status: order.payment_status,
+                shippingStatus: order.shipping_status || 'pending',
+                paymentMethod: order.payment_method?.toUpperCase() || 'UNKNOWN',
+                items: order.order_items.map(item => ({
+                    productId: item.product_id,
+                    title: item.product?.meta?.title || item.title || 'Unknown Product',
+                    quantity: item.quantity,
+                    price: item.price,
+                    image: item.product?.media?.mainImage || item.image_url || 'https://placehold.co/100x100?text=No+Image',
+                    hasReviewed: order.reviews?.some(r => r.product_id === item.product_id)
+                }))
+            }));
+
+            setOrderHistory(formattedOrders);
+        } catch (err) {
+            console.error('Error fetching orders:', err);
+        }
+    };
+
+    const confirmReceipt = async (orderId) => {
+        if (!confirm('ยืนยันว่าได้รับสินค้าแล้ว? (Confirm Receipt)')) return;
+
+        const { error } = await supabase
+            .from('orders')
+            .update({
+                shipping_status: 'delivered',
+                received_at: new Date()
+            })
+            .eq('id', orderId);
+
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            await fetchOrders();
+            alert('ขอบคุณ! เลิอกสินค้าเพื่อรีวิวได้เลย');
+        }
+    };
+
+    const openReviewModal = (orderId, item) => {
+        setReviewTarget({ orderId, productId: item.productId, title: item.title, image: item.image });
+        setRating(5);
+        setComment('');
+        setShowReviewModal(true);
+    };
+
+    const submitReview = async (e) => {
+        e.preventDefault();
+
+        if (!reviewTarget?.productId) {
+            alert('Error: Product ID is missing. Please try again.');
+            console.error('Review Target Missing Product ID:', reviewTarget);
+            return;
+        }
+
+        // Clean Product ID (Remove variant suffix like -standard, -xl, -s) to match Products table
+        const baseProductId = reviewTarget.productId.replace(/-(standard|s|m|l|xl|xxl)$/i, '');
+
+        try {
+            const { error } = await supabase.from('reviews').insert({
+                user_id: profile.id,
+                order_id: reviewTarget.orderId,
+                product_id: baseProductId,
+                rating,
+                comment
+            });
+            if (error) throw error;
+
+            alert('รีวิวสำเร็จ! (Review Submitted)');
+            setShowReviewModal(false);
+            fetchOrders();
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    };
+
     const saveAddress = async (e) => {
         e.preventDefault();
         const { data: { user } } = await supabase.auth.getUser();
@@ -130,6 +239,36 @@ export default function UserProfile() {
         if (!confirm('Are you sure?')) return;
         await supabase.from('addresses').delete().eq('id', id);
         fetchAddresses();
+    };
+
+    const updateProfile = async (e, overrides = {}) => {
+        if (e) e.preventDefault();
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('No user found');
+
+            const updates = {
+                id: user.id,
+                full_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+                phone: profile.phone,
+                tax_id: profile.tax_id,
+                date_of_birth: profile.date_of_birth,
+                sex: profile.gender, // Map gender state to sex column
+                bio: profile.bio,
+                updated_at: new Date(),
+                ...overrides
+            };
+
+            const { error } = await supabase.from('profiles').upsert(updates);
+            if (error) throw error;
+
+            setProfile(prev => ({ ...prev, ...updates }));
+            if (!overrides.avatar_url) alert('Profile updated successfully!');
+
+        } catch (error) {
+            alert('Error updating profile: ' + error.message);
+        }
     };
 
     const handleLogout = async () => {
@@ -228,6 +367,7 @@ export default function UserProfile() {
         </div>
     );
 
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-[600px]">
             <div className="relative">
@@ -253,6 +393,53 @@ export default function UserProfile() {
     return (
         <div className="grid lg:grid-cols-12 gap-8 items-start">
             {showAvatarModal && <AvatarModal />}
+            {showReviewModal && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setShowReviewModal(false)}></div>
+                    <div className="bg-[#1a1a1a] border border-[#D4AF37]/30 rounded-3xl p-8 w-full max-w-lg relative z-10 shadow-[0_0_50px_rgba(212,175,55,0.2)] animate-fade-in-up">
+                        <h3 className="text-2xl font-black text-white uppercase tracking-widest mb-6 text-center">Review Product</h3>
+
+                        <div className="flex items-center gap-4 mb-6 bg-white/5 p-4 rounded-xl border border-white/5">
+                            <img src={reviewTarget?.image} className="w-16 h-16 rounded-lg object-cover" />
+                            <div>
+                                <p className="font-bold text-white line-clamp-1">{reviewTarget?.title}</p>
+                                <p className="text-xs text-white/40 uppercase tracking-widest">Order: {reviewTarget?.orderId}</p>
+                            </div>
+                        </div>
+
+                        <form onSubmit={submitReview} className="space-y-6">
+                            <div className="flex justify-center gap-2">
+                                {[1, 2, 3, 4, 5].map(star => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setRating(star)}
+                                        className={`text-4xl transition-all hover:scale-110 ${rating >= star ? 'text-[#D4AF37]' : 'text-white/10'}`}
+                                    >
+                                        ★
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-center text-[#D4AF37] font-bold text-sm uppercase tracking-widest">
+                                {rating} out of 5 Stars
+                            </p>
+
+                            <textarea
+                                required
+                                rows="4"
+                                placeholder="Share your experience..."
+                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] focus:bg-black outline-none transition-all resize-none"
+                                value={comment}
+                                onChange={e => setComment(e.target.value)}
+                            ></textarea>
+
+                            <button className="w-full bg-[#D4AF37] text-black font-bold py-4 rounded-xl hover:bg-[#b89530] transition-all shadow-[0_4px_20px_rgba(212,175,55,0.3)] uppercase tracking-widest">
+                                Submit Review
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Sidebar Navigation */}
             <div className="lg:col-span-3 space-y-6">
@@ -606,14 +793,37 @@ export default function UserProfile() {
                             <div className="space-y-6">
                                 {orderHistory.map((order, i) => (
                                     <div key={i} className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden hover:border-[#D4AF37]/50 transition-all shadow-lg">
-                                        <div className="bg-black/40 p-4 border-b border-white/5 flex justify-between items-center">
+                                        <div className="bg-black/40 p-4 border-b border-white/5 flex flex-wrap justify-between items-center gap-4">
                                             <div>
                                                 <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Order ID</p>
                                                 <p className="text-white font-mono text-sm">{order.id}</p>
                                             </div>
-                                            <div className="text-right">
-                                                <span className="inline-block px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-lg text-[10px] font-bold uppercase tracking-widest">
-                                                    Pending Verification
+                                            <div className="text-right flex items-center gap-3">
+                                                {/* Confirm Button */}
+                                                {order.shippingStatus === 'shipped' && (
+                                                    <button
+                                                        onClick={() => confirmReceipt(order.id)}
+                                                        className="px-3 py-1 bg-green-500 hover:bg-green-400 text-black rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(34,197,94,0.4)] animate-pulse"
+                                                    >
+                                                        Confirm Received
+                                                    </button>
+                                                )}
+
+                                                {/* Report Button */}
+                                                {['shipped', 'delivered'].includes(order.shippingStatus) && (
+                                                    <button
+                                                        onClick={() => alert('ติดต่อ Support Line: @cashless (Feature Coming Soon)')}
+                                                        className="px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
+                                                    >
+                                                        Report Issue
+                                                    </button>
+                                                )}
+
+                                                <span className={`inline-block px-3 py-1 border rounded-lg text-[10px] font-bold uppercase tracking-widest ${['paid', 'shipped', 'delivered'].includes(order.status?.toLowerCase())
+                                                    ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                                                    : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                                                    }`}>
+                                                    {order.shippingStatus === 'delivered' ? 'DELIVERED' : (order.status || 'Pending')}
                                                 </span>
                                             </div>
                                         </div>
@@ -621,9 +831,22 @@ export default function UserProfile() {
                                         <div className="p-6">
                                             <div className="flex gap-4 mb-6 overflow-x-auto pb-2 no-scrollbar">
                                                 {order.items.map((item, j) => (
-                                                    <div key={j} className="flex-shrink-0 w-16 h-16 bg-black rounded-lg overflow-hidden border border-white/10 relative group">
-                                                        <img src={item.image} className="w-full h-full object-cover opacity-80" />
+                                                    <div key={j} onClick={() => (order.shippingStatus === 'delivered' && !item.hasReviewed) ? openReviewModal(order.id, item) : null} className={`flex-shrink-0 w-16 h-16 bg-black rounded-lg overflow-hidden border border-white/10 relative group ${order.shippingStatus === 'delivered' && !item.hasReviewed ? 'cursor-pointer hover:border-[#D4AF37]' : ''}`}>
+                                                        <img src={item.image} className="w-full h-full object-cover opacity-80 group-hover:opacity-40 transition-all" />
                                                         <div className="absolute bottom-0 right-0 bg-black/80 text-white text-[10px] px-1 font-bold">x{item.quantity}</div>
+
+                                                        {/* Review Overlay (Always Visible for unreviewed) */}
+                                                        {order.shippingStatus === 'delivered' && !item.hasReviewed && (
+                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                                                <span className="text-[8px] font-bold bg-[#D4AF37] text-black px-2 py-1 rounded shadow-lg uppercase animate-pulse">
+                                                                    Review
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {/* Reviewed Badge */}
+                                                        {item.hasReviewed && (
+                                                            <div className="absolute top-0 right-0 bg-green-500 text-black text-[8px] font-black px-1 rounded-bl shadow-sm">✓</div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>

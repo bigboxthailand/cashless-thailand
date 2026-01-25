@@ -1,6 +1,7 @@
 ---
 // src/components/Navbar.astro
 import UserMenu from "./UserMenu";
+import MobileUserMenu from "./MobileUserMenu";
 ---
 
 <nav
@@ -384,6 +385,8 @@ import UserMenu from "./UserMenu";
                     >
                 </a>
             </div>
+
+            <MobileUserMenu client:load />
         </div>
 
         <div
