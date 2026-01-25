@@ -91,7 +91,7 @@ const products =
                     const isEven = index % 2 === 0;
 
                     // @ts-ignore
-                    const overrides = feature.overrides || {};
+                    const overrides: any = feature.overrides || {};
                     const displayTitle =
                         overrides.title || product.meta?.title || "Untitled";
                     const displaySubheadline =
