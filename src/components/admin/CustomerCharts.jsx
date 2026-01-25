@@ -50,6 +50,10 @@ const options = {
     }
 };
 
+/**
+ * @param {Object} props
+ * @param {any[]} [props.customers]
+ */
 export default function CustomerCharts({ customers = [] }) {
 
     // 1. Region Distribution

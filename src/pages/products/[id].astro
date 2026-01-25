@@ -4,16 +4,48 @@ import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import CartDrawer from "../../components/CartDrawer.astro";
-import productsData from "../../data/products.json";
+import { supabase } from "../../lib/supabase";
 
-export async function getStaticPaths() {
-    return productsData.map((product) => ({
-        params: { id: product.id },
-        props: { product },
-    }));
+const { id } = Astro.params;
+
+// Fetch product from Supabase
+const { data: productData, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+if (error || !productData) {
+    return Astro.redirect("/404");
 }
 
-const { product } = Astro.props;
+// Normalize Data (DB snake_case vs App camelCase)
+// Some columns might be returned as JSON strings if not typed as JSONB in Supabase explicitly,
+// or if we need to map them.
+// @ts-ignore
+const parseIfNeeded = (val) => {
+    if (typeof val === "string") {
+        try {
+            return JSON.parse(val);
+        } catch (e) {
+            return val;
+        }
+    }
+    return val;
+};
+
+const product = {
+    ...productData,
+    meta: parseIfNeeded(productData.meta) || {},
+    marketing: parseIfNeeded(productData.marketing) || {},
+    // Map tech_specs (DB) to techSpecs (Frontend)
+    techSpecs:
+        parseIfNeeded(productData.tech_specs || productData.techSpecs) || [],
+    config: parseIfNeeded(productData.config) || {},
+    pricing: parseIfNeeded(productData.pricing) || {},
+    media: parseIfNeeded(productData.media) || {},
+    manualLink: productData.manual_link || productData.manualLink,
+};
 
 // Use optional chaining and snake_case for DB columns
 const hasMarketing =
@@ -24,17 +56,21 @@ const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
 const hasGallery = product.media.gallery && product.media.gallery.length > 1;
 
 let initialPrice = product.pricing.basePrice;
+
+// Check if we need to get price from variants (if basePrice is 0 or missing, but variants exist)
 if (
     product.config &&
     product.config.variants &&
-    product.config.variants.length > 0 &&
-    product.config.variants[0].price
+    product.config.variants.length > 0
 ) {
-    initialPrice = product.config.variants[0].price;
+    // If basePrice is 0/invalid, or we just want to show the first variant's price
+    if (!initialPrice || initialPrice === 0) {
+        initialPrice = product.config.variants[0].price;
+    }
 }
 
-const formattedPrice = initialPrice.toLocaleString();
-const currency = product.pricing.currency;
+const formattedPrice = (initialPrice || 0).toLocaleString();
+const currency = product.pricing.currency || "THB";
 
 const productJson = JSON.stringify(product);
 ---
@@ -98,6 +134,7 @@ const productJson = JSON.stringify(product);
                 {
                     hasGallery && (
                         <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                            {/* @ts-ignore */}
                             {product.media.gallery.map((img, index) => (
                                 <button
                                     class="w-20 h-20 rounded-2xl border border-white/10 bg-[#111] overflow-hidden hover:border-[#D4AF37] transition-all flex-shrink-0 snap-start focus:ring-2 focus:ring-[#D4AF37] focus:outline-none thumbnail-btn"
@@ -133,6 +170,7 @@ const productJson = JSON.stringify(product);
                     {
                         product.meta.tags && (
                             <div class="flex gap-2 mb-6">
+                                {/* @ts-ignore */}
                                 {product.meta.tags.map((tag) => (
                                     <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">
                                         {tag}
@@ -148,20 +186,27 @@ const productJson = JSON.stringify(product);
                         {product.meta.title}
                     </h1>
                     <p
-                        class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg"
+                        class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg whitespace-pre-line"
                     >
                         {product.meta.description}
                     </p>
 
-                    <div class="flex items-baseline gap-3 mb-10">
-                        <span
-                            id="price-display"
-                            class="text-5xl text-white font-black eng tracking-tighter"
-                            >{formattedPrice}</span
+                    <div class="mb-10">
+                        <div class="flex items-baseline gap-3">
+                            <span
+                                id="price-display"
+                                class="text-5xl text-white font-black eng tracking-tighter"
+                                >{formattedPrice}</span
+                            >
+                            <span class="text-xl text-[#D4AF37] font-bold eng"
+                                >{currency}</span
+                            >
+                        </div>
+                        <p
+                            class="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mt-1"
                         >
-                        <span class="text-xl text-[#D4AF37] font-bold eng"
-                            >{currency}</span
-                        >
+                            + ค่าจัดส่ง 50 บาท (ทั่วประเทศ)
+                        </p>
                     </div>
                 </div>
 
@@ -182,8 +227,9 @@ const productJson = JSON.stringify(product);
                                     class="flex gap-3 md:gap-4 flex-wrap"
                                     id="variant-selector"
                                 >
+                                    {/* @ts-ignore */}
                                     {product.config.variants.map(
-                                        (variant, index) =>
+                                        (variant: any, index: any) =>
                                             product.config.variantType ===
                                             "color" ? (
                                                 <button
@@ -302,36 +348,38 @@ const productJson = JSON.stringify(product);
                             </a>
                         )
                     }
-                    <a
-                        href="#specs"
-                        class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
-                    >
-                        <div
-                            class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors"
-                        >
-                            <svg
-                                class="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                ><path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                                ></path></svg
+                    {
+                        hasSpecs && (
+                            <a
+                                href="#specs"
+                                class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
                             >
-                        </div>
-                        <div class="flex flex-col">
-                            <span
-                                class="text-xs font-bold text-white uppercase tracking-wider"
-                                >Tech Specs</span
-                            >
-                            <span class="text-[10px] text-white/40"
-                                >Hardware Details</span
-                            >
-                        </div>
-                    </a>
+                                <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-white uppercase tracking-wider">
+                                        Tech Specs
+                                    </span>
+                                    <span class="text-[10px] text-white/40">
+                                        Hardware Details
+                                    </span>
+                                </div>
+                            </a>
+                        )
+                    }
                 </div>
             </div>
         </div>
@@ -353,6 +401,7 @@ const productJson = JSON.stringify(product);
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {/* @ts-ignore */}
                             {product.marketing.benefits.map((benefit) => (
                                 <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group">
                                     <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
@@ -395,6 +444,7 @@ const productJson = JSON.stringify(product);
                     <div class="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden relative">
                         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] to-transparent opacity-50" />
 
+                        {/* @ts-ignore */}
                         {product.techSpecs.map((spec, i) => (
                             <div
                                 class={`flex flex-col md:flex-row md:justify-between md:items-center p-6 ${i !== product.techSpecs.length - 1 ? "border-b border-white/5" : ""} hover:bg-white/5 transition-colors group`}
@@ -423,12 +473,15 @@ const productJson = JSON.stringify(product);
         if (!container) return;
 
         const productData = JSON.parse(container.dataset.productJson || "{}");
+        // @ts-ignore
         const galleryImgs = productData.media?.gallery || [
+            // @ts-ignore
             productData.media?.mainImage,
         ];
 
         let initialVariantName = "Standard";
         let initialImage = galleryImgs[0];
+        // @ts-ignore
         let initialPrice = productData.pricing?.basePrice;
 
         if (
@@ -447,18 +500,22 @@ const productJson = JSON.stringify(product);
             currentPrice: initialPrice,
         };
 
-        const getCleanElement = (id) => {
+        const getCleanElement = (id: string) => {
             const el = document.getElementById(id);
             if (!el) return null;
-            const newEl = el.cloneNode(true);
+            const newEl = el.cloneNode(true) as HTMLElement;
             if (el.parentNode) el.parentNode.replaceChild(newEl, el);
             return newEl;
         };
 
         const imageContainer = document.getElementById("image-container");
-        const mainImage = document.getElementById("main-image");
+        const mainImage = document.getElementById(
+            "main-image",
+        ) as HTMLImageElement;
         const priceDisplay = document.getElementById("price-display");
-        const qtyInput = document.getElementById("qty-input");
+        const qtyInput = document.getElementById(
+            "qty-input",
+        ) as HTMLInputElement;
         const minusBtn = getCleanElement("qty-minus");
         const plusBtn = getCleanElement("qty-plus");
         const addBtn = getCleanElement("add-to-cart-btn");
@@ -466,7 +523,7 @@ const productJson = JSON.stringify(product);
         const variantBtns = document.querySelectorAll(".variant-btn");
         const thumbBtns = document.querySelectorAll(".thumbnail-btn");
 
-        const changeImage = (src) => {
+        const changeImage = (src: string) => {
             if (!mainImage || !src || state.currentImage === src) return;
             mainImage.style.opacity = "0";
             mainImage.style.transform = "scale(0.95)";
@@ -480,19 +537,26 @@ const productJson = JSON.stringify(product);
             }, 200);
         };
 
-        const updateThumbnails = (activeSrc) => {
+        const updateThumbnails = (activeSrc: string) => {
             document.querySelectorAll(".thumbnail-btn").forEach((b) => {
-                const isActive = b.dataset.src === activeSrc;
+                const btn = b as HTMLElement;
+                const isActive = btn.dataset.src === activeSrc;
+                const img = btn.querySelector("img");
+
                 if (isActive) {
-                    b.classList.remove("border-white/10");
-                    b.classList.add("border-[#D4AF37]");
-                    b.querySelector("img").classList.remove("opacity-60");
-                    b.querySelector("img").classList.add("opacity-100");
+                    btn.classList.remove("border-white/10");
+                    btn.classList.add("border-[#D4AF37]");
+                    if (img) {
+                        img.classList.remove("opacity-60");
+                        img.classList.add("opacity-100");
+                    }
                 } else {
-                    b.classList.remove("border-[#D4AF37]");
-                    b.classList.add("border-white/10");
-                    b.querySelector("img").classList.add("opacity-60");
-                    b.querySelector("img").classList.remove("opacity-100");
+                    btn.classList.remove("border-[#D4AF37]");
+                    btn.classList.add("border-white/10");
+                    if (img) {
+                        img.classList.add("opacity-60");
+                        img.classList.remove("opacity-100");
+                    }
                 }
             });
         };
@@ -503,6 +567,7 @@ const productJson = JSON.stringify(product);
 
         const handleSwipe = () => {
             if (galleryImgs.length <= 1) return;
+            // @ts-ignore
             const currentIndex = galleryImgs.indexOf(state.currentImage);
 
             if (touchendX < touchstartX - 50) {
@@ -537,13 +602,16 @@ const productJson = JSON.stringify(product);
         thumbBtns.forEach((btn) => {
             const newBtn = btn.cloneNode(true);
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener("click", (e) =>
-                changeImage(e.currentTarget.dataset.src),
-            );
+            newBtn.addEventListener("click", (e) => {
+                const target = e.currentTarget as HTMLElement;
+                if (target.dataset.src) {
+                    changeImage(target.dataset.src);
+                }
+            });
         });
 
         variantBtns.forEach((btn, index) => {
-            const newBtn = btn.cloneNode(true);
+            const newBtn = btn.cloneNode(true) as HTMLElement;
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
             if (index === 0) {
@@ -566,10 +634,11 @@ const productJson = JSON.stringify(product);
             }
 
             newBtn.addEventListener("click", (e) => {
-                const target = e.currentTarget;
-                const name = target.dataset.name;
+                const target = e.currentTarget as HTMLElement;
+                const name = target.dataset.name || "";
                 const img = target.dataset.image;
-                const price = parseInt(target.dataset.price);
+                const priceStr = target.dataset.price || "0";
+                const price = parseInt(priceStr);
 
                 state.selectedVariantName = name;
                 state.currentPrice = price;
@@ -589,21 +658,22 @@ const productJson = JSON.stringify(product);
                 }
 
                 document.querySelectorAll(".variant-btn").forEach((b) => {
-                    if (b.classList.contains("rounded-full")) {
-                        b.classList.remove(
+                    const btnEl = b as HTMLElement;
+                    if (btnEl.classList.contains("rounded-full")) {
+                        btnEl.classList.remove(
                             "border-[#D4AF37]",
                             "scale-110",
                             "active-variant",
                         );
-                        b.classList.add("border-white/20");
+                        btnEl.classList.add("border-white/20");
                     } else {
-                        b.classList.remove(
+                        btnEl.classList.remove(
                             "bg-[#D4AF37]",
                             "text-black",
                             "border-[#D4AF37]",
                             "active-variant",
                         );
-                        b.classList.add("border-white/10", "text-white/60");
+                        btnEl.classList.add("border-white/10", "text-white/60");
                     }
                 });
 
@@ -627,16 +697,21 @@ const productJson = JSON.stringify(product);
         });
 
         minusBtn?.addEventListener("click", () => {
-            let val = parseInt(qtyInput.value);
-            if (val > 1) qtyInput.value = (val - 1).toString();
+            if (qtyInput) {
+                let val = parseInt(qtyInput.value);
+                if (val > 1) qtyInput.value = (val - 1).toString();
+            }
         });
 
         plusBtn?.addEventListener("click", () => {
-            let val = parseInt(qtyInput.value);
-            qtyInput.value = (val + 1).toString();
+            if (qtyInput) {
+                let val = parseInt(qtyInput.value);
+                qtyInput.value = (val + 1).toString();
+            }
         });
 
         addBtn?.addEventListener("click", () => {
+            if (!addBtn) return;
             const qty = parseInt(qtyInput?.value || "1");
             const variantSlug = state.selectedVariantName
                 .replace(/\s+/g, "-")

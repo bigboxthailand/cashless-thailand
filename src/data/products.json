@@ -690,5 +690,197 @@
       }
     ],
     "manualLink": "/knowledge/bitnode-personal"
+  },
+  {
+    "id": "bitcoin-hodl-shirt",
+    "category": "shirt",
+    "meta": {
+      "title": "Bitcoin Hodl T-Shirt",
+      "description": "เสื้อยืด Cotton 100% ลาย Bitcoin Hodl ใส่สบาย ระบายอากาศได้ดี เหมาะสำหรับใส่ไปงาน Meetup หรือใส่เล่นอยู่บ้าน",
+      "tags": [
+        "APPAREL",
+        "COTTON",
+        "HODL"
+      ]
+    },
+    "pricing": {
+      "basePrice": 450,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=Bitcoin+Shirt",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=Bitcoin+Shirt"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "S",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+S"
+        },
+        {
+          "name": "M",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+M"
+        },
+        {
+          "name": "L",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+L"
+        },
+        {
+          "name": "XL",
+          "price": 490,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+XL"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Wear Your Belief",
+      "subheadline": "บ่งบอกความเป็น Bitcoiner ในตัวคุณ",
+      "benefits": [
+        {
+          "title": "Premium Cotton",
+          "desc": "ผ้าฝ้ายแท้ 100% นุ่มสบาย ไม่ระคายเคืองผิว",
+          "icon": "gift"
+        },
+        {
+          "title": "Durable Print",
+          "desc": "สกรีนลายด้วยเทคโนโลยี DTG สีสด ติดทนนาน ไม่ลอกง่าย",
+          "icon": "shop"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "100% Cotton Comb 32"
+      },
+      {
+        "label": "Size",
+        "value": "S, M, L, XL"
+      }
+    ]
+  },
+  {
+    "id": "btc-metal-keychain",
+    "category": "keychain",
+    "meta": {
+      "title": "BTC Metal Keychain",
+      "description": "พวงกุญแจโลหะลาย Bitcoin สีทอง หรูหรา ทนทาน เหมาะสำหรับห้อยกุญแจรถหรือกระเป๋า",
+      "tags": [
+        "ACCESSORY",
+        "METAL",
+        "GIFT"
+      ]
+    },
+    "pricing": {
+      "basePrice": 199,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=BTC+Keychain",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=BTC+Keychain"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Gold",
+          "price": 199,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Gold"
+        },
+        {
+          "name": "Silver",
+          "price": 199,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Silver"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Carry Bitcoin Everywhere",
+      "subheadline": "พกพาความมั่งคั่งไปกับคุณทุกที่",
+      "benefits": [
+        {
+          "title": "Solid Metal",
+          "desc": "ผลิตจากโลหะผสม Zinc Alloy แข็งแรง ทนทาน",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "Zinc Alloy"
+      },
+      {
+        "label": "Diameter",
+        "value": "40mm"
+      }
+    ]
+  },
+  {
+    "id": "to-the-moon-mug",
+    "category": "mug",
+    "meta": {
+      "title": "To The Moon Mug",
+      "description": "แก้วเซรามิกคุณภาพดี สกรีนลาย To The Moon สำหรับจิบกาแฟยามเช้าพร้อมดูตารางราคา",
+      "tags": [
+        "LIFESTYLE",
+        "CERAMIC",
+        "HOME"
+      ]
+    },
+    "pricing": {
+      "basePrice": 290,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=Moon+Mug",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=Moon+Mug"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Black",
+          "price": 290,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Black+Mug"
+        },
+        {
+          "name": "White",
+          "price": 290,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=White+Mug"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Morning Pump",
+      "subheadline": "เริ่มต้นวันใหม่ด้วยพลังแห่ง Bitcoin",
+      "benefits": [
+        {
+          "title": "High Quality Ceramic",
+          "desc": "เซรามิกเกรด A ทนความร้อน เข้าไมโครเวฟได้",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "Ceramic"
+      },
+      {
+        "label": "Capacity",
+        "value": "11 oz"
+      }
+    ]
   }
 ]

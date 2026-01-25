@@ -160,7 +160,8 @@ import Footer from "../components/Footer.astro";
                         <button
                             type="button"
                             id="btn-crypto"
-                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/40 hover:text-white transition-all"
+                            disabled
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/20 bg-white/5 cursor-not-allowed"
                             >Crypto</button
                         >
                         <button
@@ -176,23 +177,33 @@ import Footer from "../components/Footer.astro";
                         class="text-center space-y-6 animate-fade-in"
                     >
                         <div
-                            class="bg-white p-4 rounded-2xl inline-block shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] relative overflow-hidden group"
+                            class="bg-white p-6 rounded-2xl inline-block shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] relative overflow-hidden group"
                         >
                             <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
-                                class="w-48 h-48 mix-blend-multiply mx-auto"
+                                src="https://www.designil.com/wp-content/uploads/2020/04/prompt-pay-logo.png"
+                                class="h-8 mx-auto mb-4 object-contain"
+                                alt="PromptPay"
                             />
                             <div
-                                class="absolute inset-0 bg-gradient-to-b from-transparent via-[#D4AF37]/20 to-transparent h-[10px] w-full animate-scan"
+                                id="promptpay-qr-target"
+                                class="relative w-48 h-48 flex items-center justify-center"
+                            >
+                                <div class="loading-dots text-black">
+                                    Generating QR...
+                                </div>
+                            </div>
+
+                            <div
+                                class="absolute inset-0 bg-gradient-to-b from-transparent via-[#D4AF37]/20 to-transparent h-[10px] w-full animate-scan pointer-events-none"
                             >
                             </div>
                         </div>
                         <div
                             class="text-white/60 text-xs uppercase tracking-widest"
                         >
-                            <p>บริษัท แคชเลส (ประเทศไทย) จำกัด</p>
+                            <p>นายณัฐพงษ์ สุวรรณจิตต์</p>
                             <p class="text-[#D4AF37] font-bold mt-1">
-                                081-234-5678 (KBank)
+                                090-987-9566 (PromptPay)
                             </p>
                         </div>
                     </div>
@@ -517,6 +528,7 @@ import Footer from "../components/Footer.astro";
     import { supabase } from "../lib/supabaseClient";
     import { ethers } from "ethers";
     import QRCode from "qrcode";
+    import { generatePromptPayPayload } from "../lib/promptpay";
 
     document.addEventListener("astro:page-load", () => {
         // --- [A] MATH CAPTCHA SETUP ---
@@ -626,6 +638,9 @@ import Footer from "../components/Footer.astro";
 
         const cart = cartStore.get();
         const { total } = cartStore.totals();
+        const shippingFee = 50;
+        const grandTotal = total + shippingFee;
+
         const container = document.getElementById("checkout-items-desktop");
         const finalTotal = document.getElementById("final-total");
 
@@ -653,9 +668,26 @@ import Footer from "../components/Footer.astro";
             `,
                 )
                 .join("");
+
+            // Add Shipping Row
+            container.innerHTML += `
+                <div class="flex gap-4 items-center bg-[#D4AF37]/5 p-3 rounded-xl border border-[#D4AF37]/20 mt-2">
+                    <div class="w-16 h-16 bg-[#D4AF37]/10 rounded-lg flex items-center justify-center shrink-0">
+                        <span class="text-xl">🚚</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-[#D4AF37] font-bold text-sm">ค่าจัดส่ง (Flat Rate)</h4>
+                        <p class="text-white/40 text-xs">จัดส่งทั่วประเทศ</p>
+                    </div>
+                    <div class="text-[#D4AF37] font-bold text-sm">
+                        ${shippingFee.toLocaleString()} ฿
+                    </div>
+                </div>
+            `;
         }
 
-        if (finalTotal) finalTotal.innerText = total.toLocaleString() + " THB";
+        if (finalTotal)
+            finalTotal.innerText = grandTotal.toLocaleString() + " THB";
 
         const fileInput = document.getElementById("slip-input");
         const fileLabel = document.getElementById("file-label");
@@ -705,7 +737,36 @@ import Footer from "../components/Footer.astro";
             divPrompt?.classList.remove("hidden");
             btnPrompt?.classList.add("bg-[#D4AF37]", "text-black");
             btnPrompt?.classList.remove("text-white/40");
+            generatePromptPayQR();
         });
+
+        async function generatePromptPayQR() {
+            const container = document.getElementById("promptpay-qr-target");
+            if (!container) return;
+
+            const phoneNumber = "090-987-9566";
+            const payload = generatePromptPayPayload(phoneNumber, grandTotal);
+
+            try {
+                const url = await QRCode.toDataURL(payload, {
+                    width: 200,
+                    margin: 1,
+                    color: {
+                        dark: "#000000",
+                        light: "#FFFFFF",
+                    },
+                });
+                container.innerHTML = `<img src="${url}" class="w-full h-full mix-blend-multiply" />`;
+            } catch (err) {
+                console.error("QR Error", err);
+                container.innerHTML = `<span class="text-red-500 text-xs">Error generating QR</span>`;
+            }
+        }
+
+        // Initial generation if default
+        if (!divPrompt?.classList.contains("hidden")) {
+            generatePromptPayQR();
+        }
 
         btnCrypto?.addEventListener("click", () => {
             resetTabs();
@@ -747,7 +808,7 @@ import Footer from "../components/Footer.astro";
 
             const btcPrice = cryptoPrices.btc;
             // Formula: (THB / BTC_Price) * 100,000,000
-            const sats = Math.ceil((total / btcPrice) * 100000000);
+            const sats = Math.ceil((grandTotal / btcPrice) * 100000000);
 
             const satsDisplay = document.getElementById("bitcoin-amount-sats");
             const rateDisplay = document.getElementById("bitcoin-rate-display");

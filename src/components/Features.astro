@@ -1,7 +1,43 @@
 ---
 // src/components/ProductEcosystem.astro
 // อัปเกรด: Cinematic Scroll Reveal + Direct Purchase Buttons
-import products from "../data/products.json";
+import { supabase } from "../lib/supabase";
+
+const featureSteps = [
+    { id: "cryptoclock-basic", step: "01 / FRONT OF HOUSE" },
+    { id: "bitterm-series", step: "02 / CUSTOMER SCREEN" },
+    { id: "bitpos-terminal", step: "03 / CASHIER CONTROL" },
+    { id: "bitnode-personal", step: "04 / INFRASTRUCTURE" },
+    {
+        id: "bitcoin-t-shirt--by-blc",
+        step: "05 / APPAREL",
+        overrides: {
+            title: "Bitcoin Legacy Shirt",
+            subheadline: "สวมใส่อุดมการณ์แห่งอนาคต",
+            description:
+                "เนื้อผ้า Cotton Premium 100% สัมผัสนุ่ม ใส่สบาย ดีไซน์มินิมอลแต่ทรงพลัง สำหรับ Bitcoiner ตัวจริงที่ต้องการความแตกต่าง",
+        },
+    },
+];
+
+const { data: dbProducts } = await supabase
+    .from("products")
+    .select("*")
+    .in(
+        "id",
+        featureSteps.map((f) => f.id),
+    );
+
+const products =
+    dbProducts?.map((p) => ({
+        ...p,
+        meta: typeof p.meta === "string" ? JSON.parse(p.meta) : p.meta,
+        media: typeof p.media === "string" ? JSON.parse(p.media) : p.media,
+        marketing:
+            typeof p.marketing === "string"
+                ? JSON.parse(p.marketing)
+                : p.marketing,
+    })) || [];
 ---
 
 <section
@@ -48,16 +84,24 @@ import products from "../data/products.json";
             </div>
 
             {
-                [
-                    { id: "cryptoclock-basic", step: "01 / FRONT OF HOUSE" },
-                    { id: "bitterm-series", step: "02 / CUSTOMER SCREEN" },
-                    { id: "bitpos-terminal", step: "03 / CASHIER CONTROL" },
-                    { id: "bitnode-personal", step: "04 / INFRASTRUCTURE" },
-                ].map((feature, index) => {
+                featureSteps.map((feature, index) => {
                     const product = products.find((p) => p.id === feature.id);
                     if (!product) return null;
 
                     const isEven = index % 2 === 0;
+
+                    // @ts-ignore
+                    const overrides = feature.overrides || {};
+                    const displayTitle =
+                        overrides.title || product.meta?.title || "Untitled";
+                    const displaySubheadline =
+                        overrides.subheadline ||
+                        product.marketing?.subheadline ||
+                        "";
+                    const displayDesc =
+                        overrides.description ||
+                        product.meta?.description ||
+                        "";
 
                     return (
                         <div
@@ -89,13 +133,13 @@ import products from "../data/products.json";
                                 class={`w-full md:w-1/2 space-y-6 step-text ${!isEven ? "md:pl-10" : ""}`}
                             >
                                 <h3 class="text-4xl md:text-5xl font-bold tracking-tight text-white">
-                                    {product.meta?.title || "Untitled"}
+                                    {displayTitle}
                                 </h3>
                                 <h4 class="text-xl md:text-2xl font-light text-[#D4AF37]">
-                                    {product.marketing?.subheadline || ""}
+                                    {displaySubheadline}
                                 </h4>
                                 <p class="text-white/60 text-lg leading-relaxed max-w-md mb-8">
-                                    {product.meta?.description || ""}
+                                    {displayDesc}
                                 </p>
                                 <a
                                     href={`/products/${product.id}`}

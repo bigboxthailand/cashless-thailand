@@ -52,7 +52,10 @@ const ProductManager = ({ initialProducts }) => {
         "Book": ["Education", "Novel", "Comic", "Whitepaper", "Technical", "Investment"],
         "eBook": ["PDF", "ePub", "Kindle", "Audiobook"],
         "Digital Content": ["Course", "Voucher", "Subscription", "License"],
-        "Merchandise": ["T-Shirt", "Cap", "Hoodie", "Mug", "Bag", "Sticker Pack"]
+        "Merchandise": ["T-Shirt", "Cap", "Hoodie", "Mug", "Bag", "Sticker Pack"],
+        "Shirt": ["T-Shirt", "Polo", "Hoodie"],
+        "Keychain": ["Metal", "Acrylic", "Leather"],
+        "Mug": ["Ceramic", "Thermal", "Travel"]
     };
 
     // Variant Helper: Generate Combinations
@@ -139,6 +142,16 @@ const ProductManager = ({ initialProducts }) => {
             const slug = formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
             // Construct the payload matching the ACTUAL schema
+            // Determine Base price logic
+            let finalBasePrice = parseFloat(formData.price) || 0;
+            if ((finalBasePrice === 0 || !formData.price) && formData.hasVariants && formData.variantCombinations.length > 0) {
+                // Auto-pick the lowest price from variants as base price
+                const prices = formData.variantCombinations.map(v => parseFloat(v.price) || 0).filter(p => p > 0);
+                if (prices.length > 0) {
+                    finalBasePrice = Math.min(...prices);
+                }
+            }
+
             const productPayload = {
                 category: formData.category,
 
@@ -179,7 +192,7 @@ const ProductManager = ({ initialProducts }) => {
                 },
 
                 pricing: {
-                    basePrice: parseFloat(formData.price) || 0,
+                    basePrice: finalBasePrice,
                     currency: 'THB'
                 }
             };
@@ -367,14 +380,63 @@ const ProductManager = ({ initialProducts }) => {
         setFormData({ ...formData, images: newImages });
     };
 
+    const resizeImage = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        const resizedFile = new File([blob], file.name, {
+                            type: file.type,
+                            lastModified: Date.now(),
+                        });
+                        resolve(resizedFile);
+                    }, file.type, 0.7); // 0.7 quality
+                };
+            };
+        });
+    };
+
     const handleImageUpload = async (e, index) => {
-        const file = e.target.files[0];
+        let file = e.target.files[0];
         if (!file) return;
 
-        // Simple validation
-        if (file.size > 2 * 1024 * 1024) { // 2MB
-            alert("File too large! Max 2MB.");
-            return;
+        // Auto Resize if > 2MB
+        if (file.size > 2 * 1024 * 1024) {
+            try {
+                // Show temporary loading state or toast if possible, but for now just process
+                file = await resizeImage(file);
+            } catch (err) {
+                console.error("Resize error:", err);
+                alert("Failed to resize image. Please upload a smaller file.");
+                return;
+            }
         }
 
         try {
@@ -405,12 +467,18 @@ const ProductManager = ({ initialProducts }) => {
     };
 
     const handleVariantImageUpload = async (e, comboIndex) => {
-        const file = e.target.files[0];
+        let file = e.target.files[0];
         if (!file) return;
 
+        // Auto Resize if > 2MB
         if (file.size > 2 * 1024 * 1024) {
-            alert("File too large! Max 2MB.");
-            return;
+            try {
+                file = await resizeImage(file);
+            } catch (err) {
+                console.error("Resize error:", err);
+                alert("Failed to resize image.");
+                return;
+            }
         }
 
         try {

@@ -3,23 +3,19 @@
 
 import products from "../data/products.json";
 
-// Simulate the Supabase "data" structure or just use the array directly
-// The existing code expects `products` to be the array.
-// We can just keep `products` as the array from the JSON.
-
 const uniqueCategories = new Set();
 const items = [];
 
 for (const p of products) {
     // Check if category is already added
-    if (!uniqueCategories.has(p.category) && items.length < 4) {
+    if (!uniqueCategories.has(p.category) && items.length < 5) {
         uniqueCategories.add(p.category);
         items.push({
             id: p.id,
             title: p.meta?.title || "Untitled Product",
             category: p.meta?.tags ? p.meta.tags[0] : p.category, // Use first tag or category
             price: (p.pricing?.basePrice || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
+                minimumFractionDigits: 0,
             }),
             image: p.media?.mainImage || "",
             hoverImage:
