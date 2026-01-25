@@ -134,10 +134,46 @@
             }
         };
 
-        const renderCart = () => {
+        // Fetch BTC price from Bitkub (with caching)
+        let btcPriceCache: number | null = null;
+        let lastFetchTime = 0;
+        const CACHE_DURATION = 60000; // 1 minute
+
+        async function fetchBtcPrice(): Promise<number> {
+            const now = Date.now();
+            if (btcPriceCache && now - lastFetchTime < CACHE_DURATION) {
+                return btcPriceCache as number;
+            }
+
+            try {
+                // Bitkub API
+                const response = await fetch(
+                    "https://api.bitkub.com/api/market/ticker?sym=THB_BTC",
+                );
+                const data = await response.json();
+                // Bitkub structure: { THB_BTC: { last: 3300000, ... } }
+                const price = data.THB_BTC?.last;
+
+                if (price) {
+                    btcPriceCache = price;
+                    lastFetchTime = now;
+                    return price;
+                }
+                throw new Error("Invalid Bitkub data");
+            } catch (error) {
+                console.error("BTC price fetch error:", error);
+                return btcPriceCache || 3300000; // Fallback
+            }
+        }
+
+        const renderCart = async () => {
             try {
                 const cart = cartStore.get();
-                const { total, sats } = cartStore.totals();
+                const { total } = cartStore.totals();
+
+                // Fetch real BTC price and calculate sats
+                const btcPrice = await fetchBtcPrice();
+                const sats = Math.ceil((total / btcPrice) * 100000000);
 
                 if (totalEl)
                     totalEl.innerText = total.toLocaleString() + " THB";
