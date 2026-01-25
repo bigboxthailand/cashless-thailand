@@ -36,11 +36,24 @@ const ProductManager = ({ initialProducts }) => {
         width: '',
         length: '',
         height: '',
+
+        subcategory: '', // New field
     };
 
     const [formData, setFormData] = useState(initialFormState);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
+
+    const CATEGORY_DATA = {
+        "Hardware Wallet": ["Trezor", "Ledger", "Tangem", "OneKey", "BitBox", "Keystone"],
+        "Clock": ["BitBlock", "Tickr", "Custom", "Desktop", "Wall"],
+        "Accessory": ["Cable", "Case", "Stand", "Sticker", "Seed Storage"],
+        "Kiosk": ["POS Terminal", "ATM", "Display", "Vending"],
+        "Book": ["Education", "Novel", "Comic", "Whitepaper", "Technical", "Investment"],
+        "eBook": ["PDF", "ePub", "Kindle", "Audiobook"],
+        "Digital Content": ["Course", "Voucher", "Subscription", "License"],
+        "Merchandise": ["T-Shirt", "Cap", "Hoodie", "Mug", "Bag", "Sticker Pack"]
+    };
 
     // Variant Helper: Generate Combinations
     useEffect(() => {
@@ -69,7 +82,7 @@ const ProductManager = ({ initialProducts }) => {
         const meta = product.meta || {};
         const config = product.config || {};
         const pricing = product.pricing || {};
-        const inventory = product.inventory || {};
+        const inventory = product.inventory || config.inventory || {};
         const media = product.media || {};
         const shipping = product.shipping || {}; // Assuming stored in shipping column if exists, else inventory
 
@@ -88,6 +101,7 @@ const ProductManager = ({ initialProducts }) => {
             id: product.id,
             name: product.name || product.title || meta.title || '',
             category: config.category || product.category || 'Hardware Wallet',
+            subcategory: config.subcategory || '',
             description: meta.description || '',
             images: [
                 media.mainImage || product.image_url || '',
@@ -121,47 +135,58 @@ const ProductManager = ({ initialProducts }) => {
         setIsLoading(true);
 
         try {
+            // Generate slug for ID (only used for new products)
+            const slug = formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+            // Construct the payload matching the ACTUAL schema
             const productPayload = {
-                name: formData.name,
-                slug: formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
-                config: {
-                    category: formData.category,
-                    // Save expanded variant structure
-                    hasVariants: formData.hasVariants,
-                    variantOptions: formData.hasVariants ? formData.variantOptions : [],
-                    variants: formData.hasVariants ? formData.variantCombinations : []
-                },
+                category: formData.category,
+
+                // Meta holds the display title and description
                 meta: {
                     title: formData.name,
                     description: formData.description,
                     brand: formData.brand,
                     model: formData.model,
-                    condition: formData.condition
+                    condition: formData.condition,
+                    // Preserve other meta fields if they existed but are not in form? 
+                    // ideally we'd merge, but for now we write what we control.
                 },
+
+                // Config holds variants AND now Inventory (since invalid column removed)
+                config: {
+                    hasVariants: formData.hasVariants,
+                    variantOptions: formData.hasVariants ? formData.variantOptions : [],
+                    variants: formData.hasVariants ? formData.variantCombinations : [],
+                    subcategory: formData.subcategory,
+                    // Storing inventory here since 'inventory' column doesn't exist
+                    inventory: {
+                        stock: parseInt(formData.stock) || 0,
+                        sku: formData.sku || `SKU-${Date.now()}`,
+                        weight: parseFloat(formData.weight) || 0,
+                        dimensions: {
+                            width: parseFloat(formData.width) || 0,
+                            length: parseFloat(formData.length) || 0,
+                            height: parseFloat(formData.height) || 0
+                        }
+                    }
+                },
+
                 media: {
                     mainImage: formData.images[0] || 'https://placehold.co/400',
                     gallery: formData.images.slice(1).filter(url => url),
                     video: formData.video
                 },
+
                 pricing: {
                     basePrice: parseFloat(formData.price) || 0,
                     currency: 'THB'
-                },
-                inventory: {
-                    stock: parseInt(formData.stock) || 0,
-                    sku: formData.sku || `SKU-${Date.now()}`,
-                    weight: parseFloat(formData.weight) || 0,
-                    dimensions: {
-                        width: parseFloat(formData.width) || 0,
-                        length: parseFloat(formData.length) || 0,
-                        height: parseFloat(formData.height) || 0
-                    }
-                },
-                updated_at: new Date().toISOString()
+                }
             };
 
             let error;
             if (isEditing) {
+                // Update existing
                 const { data: updated, error: updateError } = await supabase
                     .from('products')
                     .update(productPayload)
@@ -174,9 +199,12 @@ const ProductManager = ({ initialProducts }) => {
                 }
                 error = updateError;
             } else {
+                // Insert new - we must specify the ID since it's not auto-generated UUID
+                const newId = slug || `product-${Date.now()}`;
+
                 const { data: inserted, error: insertError } = await supabase
                     .from('products')
-                    .insert([productPayload])
+                    .insert([{ ...productPayload, id: newId }])
                     .select()
                     .single();
 
@@ -186,12 +214,15 @@ const ProductManager = ({ initialProducts }) => {
                 error = insertError;
             }
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase Error:", error);
+                throw error;
+            }
             setIsModalOpen(false);
 
         } catch (err) {
             console.error('Error saving product:', err);
-            alert('Failed to save product: ' + err.message);
+            alert('Failed to save product: ' + (err.message || JSON.stringify(err)));
         } finally {
             setIsLoading(false);
         }
@@ -285,6 +316,21 @@ const ProductManager = ({ initialProducts }) => {
         const newCombos = [...formData.variantCombinations];
         newCombos[index][field] = value;
         setFormData(prev => ({ ...prev, variantCombinations: newCombos }));
+    };
+
+    // Helper: Get Total Stock
+    const helperGetStock = (product) => {
+        if (product.config?.hasVariants && product.config?.variants?.length > 0) {
+            return product.config.variants.reduce((a, b) => a + (parseInt(b.stock) || 0), 0);
+        }
+        return parseInt(product.config?.inventory?.stock || product.inventory?.stock || product.stock || 0);
+    };
+
+    // Helper: Get Stock Color Class
+    const helperGetStockColor = (stock) => {
+        if (stock === 0) return "text-red-500";
+        if (stock < 10) return "text-yellow-500";
+        return "text-green-500";
     };
 
 
@@ -400,7 +446,7 @@ const ProductManager = ({ initialProducts }) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="text-white/50 text-sm mt-1">{products.length} Products</div>
                 <div className="flex w-full md:w-auto gap-3">
-                    <div className="flex bg-[#0A0A0A] rounded border border-white/10 p-1">
+                    <div className="flex bg-black/10 backdrop-blur-md rounded border border-white/10 p-1">
                         <button
                             onClick={() => setViewMode('list')}
                             className={`p-2 rounded ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
@@ -417,7 +463,7 @@ const ProductManager = ({ initialProducts }) => {
                     <input
                         type="text" placeholder="Search..."
                         value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-[#0A0A0A] border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37] w-full md:w-64"
+                        className="bg-black/10 backdrop-blur-md border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37] w-full md:w-64"
                     />
                     <button
                         onClick={openAddModal}
@@ -431,7 +477,8 @@ const ProductManager = ({ initialProducts }) => {
             {/* Product View: List vs Grid */}
             {viewMode === 'list' ? (
                 /* List View */
-                <div className="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden animate-in fade-in">
+                /* List View */
+                <div className="bg-black/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden animate-in fade-in">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm text-white/70">
                             <thead className="bg-white/5 text-white font-bold uppercase text-xs tracking-wider">
@@ -465,12 +512,8 @@ const ProductManager = ({ initialProducts }) => {
                                             </span>
                                         </td>
                                         <td className="p-4 text-center">
-                                            <div className={`font-bold ${(product.inventory?.stock || 0) < 10 ? "text-red-500" : "text-green-500"}`}>
-                                                {// Sum variants stock if available
-                                                    (product.config?.hasVariants && product.config?.variants?.length > 0)
-                                                        ? product.config.variants.reduce((a, b) => a + (parseInt(b.stock) || 0), 0)
-                                                        : (product.inventory?.stock || product.stock || 0)
-                                                }
+                                            <div className={`font-bold ${helperGetStockColor(helperGetStock(product))}`}>
+                                                {helperGetStock(product)}
                                             </div>
                                         </td>
                                         <td className="p-4 text-right font-bold text-[#D4AF37]">
@@ -490,7 +533,7 @@ const ProductManager = ({ initialProducts }) => {
                 /* Grid View */
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 animate-in fade-in">
                     {filteredProducts.map((product) => (
-                        <div key={product.id} className="bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden hover:border-[#D4AF37] transition-all group relative flex flex-col">
+                        <div key={product.id} className="bg-black/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden hover:border-[#D4AF37] transition-all group relative flex flex-col">
                             {/* Image */}
                             <div className="aspect-square bg-white/5 relative overflow-hidden">
                                 <img
@@ -533,12 +576,8 @@ const ProductManager = ({ initialProducts }) => {
                                     </div>
                                     <div className="text-right">
                                         <div className="text-[10px] text-white/40 uppercase font-bold mb-0.5">Stock</div>
-                                        <div className={`text-xs font-bold ${(product.inventory?.stock || 0) < 10 ? "text-red-500" : "text-green-500"}`}>
-                                            {// Sum variants stock if available
-                                                (product.config?.hasVariants && product.config?.variants?.length > 0)
-                                                    ? product.config.variants.reduce((a, b) => a + (parseInt(b.stock) || 0), 0)
-                                                    : (product.inventory?.stock || product.stock || 0)
-                                            }
+                                        <div className={`text-xs font-bold ${helperGetStockColor(helperGetStock(product))}`}>
+                                            {helperGetStock(product)}
                                         </div>
                                     </div>
                                 </div>
@@ -607,11 +646,28 @@ const ProductManager = ({ initialProducts }) => {
                                                     </div>
                                                     <div>
                                                         <label className="input-label">Category *</label>
-                                                        <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="input-field">
-                                                            <option value="Hardware Wallet">Hardware Wallet</option>
-                                                            <option value="Clock">Clock</option>
-                                                            <option value="Accessory">Accessory</option>
-                                                            <option value="Kiosk">Kiosk</option>
+                                                        <select
+                                                            value={formData.category}
+                                                            onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
+                                                            className="input-field"
+                                                        >
+                                                            {Object.keys(CATEGORY_DATA).map(cat => (
+                                                                <option key={cat} value={cat}>{cat}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="input-label">Subcategory</label>
+                                                        <select
+                                                            value={formData.subcategory}
+                                                            onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                                                            className="input-field"
+                                                            disabled={!formData.category}
+                                                        >
+                                                            <option value="">Select Subcategory</option>
+                                                            {formData.category && CATEGORY_DATA[formData.category]?.map(sub => (
+                                                                <option key={sub} value={sub}>{sub}</option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -755,10 +811,10 @@ const ProductManager = ({ initialProducts }) => {
                                                                         <tr>
                                                                             <th className="p-3 w-16 text-center">Image</th>
                                                                             <th className="p-3">Variation</th>
-                                                                            <th className="p-3 w-28">Price</th>
-                                                                            <th className="p-3 w-20">Stock</th>
-                                                                            <th className="p-3 w-28">SKU</th>
-                                                                            <th className="p-3 w-20">Weight</th>
+                                                                            <th className="p-3 w-40">Price</th>
+                                                                            <th className="p-3 w-32">Stock</th>
+                                                                            <th className="p-3 w-40">SKU</th>
+                                                                            <th className="p-3 w-28">Weight</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-white/5">

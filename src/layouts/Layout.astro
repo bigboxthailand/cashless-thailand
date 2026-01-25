@@ -4,6 +4,7 @@ import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import "../styles/cart-fix.css";
 import CartDrawer from "../components/CartDrawer.astro";
+import ChatWidget from "../components/chat/ChatWidget.jsx";
 
 interface Props {
     title: string;
@@ -190,6 +191,11 @@ const {
                 splitElements.forEach((el) => observer.observe(el));
             });
         </script>
+        <script>
+            import { cartStore } from "../lib/cartStore.js";
+            // ... (rest of script)
+        </script>
+        <ChatWidget client:load />
         <CartDrawer />
     </body>
 </html>

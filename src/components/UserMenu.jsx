@@ -32,7 +32,7 @@ export default function UserMenu() {
     }, []);
 
     const fetchProfile = async (userId) => {
-        const { data } = await supabase.from('profiles').select('avatar_url, first_name').eq('id', userId).single();
+        const { data } = await supabase.from('profiles').select('avatar_url, full_name').eq('id', userId).single();
         setProfile(data);
     };
 
@@ -58,7 +58,7 @@ export default function UserMenu() {
                             profile?.avatar_url ? (
                                 <img src={profile.avatar_url} className="w-full h-full object-cover" />
                             ) : (
-                                <span>{profile?.first_name?.[0] || session.user.email[0].toUpperCase()}</span>
+                                <span>{profile?.full_name?.[0] || session.user.email[0].toUpperCase()}</span>
                             )
                         ) : (
                             // Wallet Icon / Avatar
@@ -71,7 +71,7 @@ export default function UserMenu() {
                 <div className="absolute top-full right-0 mt-2 w-48 bg-[#111] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/5">
                         <p className="text-white text-xs font-bold truncate">
-                            {session ? (profile?.first_name || 'User') : 'Metamask User'}
+                            {session ? (profile?.full_name || 'User') : 'Metamask User'}
                         </p>
                         <p className="text-white/40 text-[10px] truncate">
                             {session ? session.user.email : shortAddress(wallet)}

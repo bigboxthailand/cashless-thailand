@@ -131,16 +131,16 @@
   "shipping_address": "text",
   "province": "text",
   "zipcode": "text",
-  "sex": "text",
-  "age": "integer",
-  "buy_duration": "text (instant/1-3d/1w/1m)",
-  "payment_method": "text (PromptPay/Bitcoin/Ethereum)",
+  "sex": "text (Analytics)",
+  "age": "integer (Analytics)",
+  "buy_duration": "integer (Analytics)",
+  "payment_method": "text (PromptPay/Crypto/Bitcoin Lightning)",
   "payment_status": "text (pending/paid/shipped)",
   "shipping_status": "text (pending/shipped/delivered)",
-  "slip_image": "text (URL or Base64)",
+  "slip_image": "text (URL or Base64 or TX Hash)",
   "slip_name": "text",
   "total_price": "numeric",
-  "total_sats": "numeric",
+  "total_sats": "numeric (Bitcoin Sats)",
   "created_at": "timestamp",
   "updated_at": "timestamp"
 }
@@ -160,13 +160,13 @@
   "zipcode": "10110",
   "sex": "Male",
   "age": 32,
-  "buy_duration": "instant",
+  "buy_duration": 45,
   "payment_method": "PromptPay",
   "payment_status": "paid",
   "shipping_status": "pending",
   "slip_image": "/payment_slip.png",
   "total_price": 25500,
-  "total_sats": null,
+  "total_sats": 0,
   "created_at": "2024-01-20T14:30:00Z"
 }
 ```
@@ -180,12 +180,12 @@
 {
   "id": "uuid (PK)",
   "order_id": "text (FK → orders.id)",
-  "product_id": "uuid (FK → products.id, nullable)",
+  "product_id": "text (FK → products.id, nullable)",
   "title": "text",
   "price": "numeric",
   "quantity": "integer",
   "image_url": "text",
-  "variant_name": "text",
+  "variant_name": "text (Optional)",
   "created_at": "timestamp"
 }
 ```
@@ -198,10 +198,43 @@
   "product_id": "550e8400-e29b-41d4-a716-446655440000",
   "title": "BitNode Personal",
   "price": 25500,
-  "quantity": 1,
+  "quantity": 2,
   "image_url": "/products/bitnode-personal.jpg",
   "variant_name": "Pro Edition",
   "created_at": "2024-01-20T14:30:00Z"
+}
+```
+
+---
+
+## 📦 **6. PRODUCT_VARIANTS** (ตัวเลือกสินค้า)
+
+### Schema:
+```json
+{
+  "id": "uuid (PK)",
+  "product_id": "text (FK → products.id)",
+  "variant_name": "text (e.g. Size S, Color Red)",
+  "sku": "text",
+  "stock": "integer",
+  "price": "numeric",
+  "image_url": "text",
+  "options": "jsonb (e.g. { \"color_code\": \"#fff\" })",
+  "created_at": "timestamp"
+}
+```
+
+### ตัวอย่างข้อมูล:
+```json
+{
+  "id": "var-111-222",
+  "product_id": "prod-abc-123",
+  "variant_name": "Space Gray",
+  "sku": "PROD-GRAY-001",
+  "stock": 50,
+  "price": 29900,
+  "image_url": "https://...",
+  "options": { "color": "#333" }
 }
 ```
 

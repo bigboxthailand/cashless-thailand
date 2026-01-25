@@ -44,13 +44,18 @@ export default function UserProfile() {
 
             if (error && error.code !== 'PGRST116') console.error(error);
 
-            setProfile(data || {
+            setProfile(data ? {
+                ...data,
+                first_name: data.full_name?.split(' ')[0] || '',
+                last_name: data.full_name?.split(' ').slice(1).join(' ') || ''
+            } : {
                 id: user.id,
                 first_name: user.user_metadata.full_name?.split(' ')[0] || '',
                 last_name: user.user_metadata.full_name?.split(' ').slice(1).join(' ') || '',
                 email: user.email,
                 avatar_url: null
             });
+
         } catch (error) {
             console.error('Error loading profile:', error);
         } finally {
@@ -79,11 +84,12 @@ export default function UserProfile() {
         if (e) e.preventDefault();
         setLoading(true);
 
+        const fullName = customData?.full_name || `${profile.first_name} ${profile.last_name}`.trim();
+
         // Allow updating just specific fields if passed
         const updates = {
             id: profile.id,
-            first_name: profile.first_name,
-            last_name: profile.last_name,
+            full_name: fullName,
             phone: profile.phone,
             date_of_birth: profile.date_of_birth,
             gender: profile.gender,
@@ -94,9 +100,13 @@ export default function UserProfile() {
             ...customData
         };
 
+        // Remove local-only fields
+        delete updates.first_name;
+        delete updates.last_name;
+
         const { error } = await supabase.from('profiles').upsert(updates);
         if (!error) {
-            setProfile(updates);
+            setProfile(prev => ({ ...prev, ...updates, first_name: profile.first_name, last_name: profile.last_name }));
             if (!customData) alert('Profile updated successfully!');
         } else {
             alert('Error: ' + error.message);
