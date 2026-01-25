@@ -1476,6 +1476,14 @@ import Footer from "../components/Footer.astro";
                 // await fetch(GOOGLE_SCRIPT_URL, ...);
 
                 // Success
+                localStorage.setItem(
+                    "lastOrder",
+                    JSON.stringify({
+                        id: orderId,
+                        total: total + 50, // Including shipping in display
+                        items: items,
+                    }),
+                );
                 cartStore.clear();
                 window.location.href = "/thankyou"; // Make sure this page exists or redirect home
             } catch (error: any) {

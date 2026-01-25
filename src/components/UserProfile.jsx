@@ -27,8 +27,7 @@ export default function UserProfile() {
     useEffect(() => {
         fetchProfile();
         fetchAddresses();
-        // TODO: Fetch real orders from database when orders table is created
-        // fetchOrders();
+        fetchOrders();
     }, []);
 
     const fetchProfile = async () => {
@@ -77,41 +76,16 @@ export default function UserProfile() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const { data } = await supabase.from('addresses').select('*').eq('user_id', user.id).order('is_default', { ascending: false });
-        setAddresses(data || []);
-    };
 
-    const updateProfile = async (e, customData = null) => {
-        if (e) e.preventDefault();
-        setLoading(true);
-
-        const fullName = customData?.full_name || `${profile.first_name} ${profile.last_name}`.trim();
-
-        // Allow updating just specific fields if passed
-        const updates = {
-            id: profile.id,
-            full_name: fullName,
-            phone: profile.phone,
-            date_of_birth: profile.date_of_birth,
-            gender: profile.gender,
-            tax_id: profile.tax_id,
-            bio: profile.bio,
-            avatar_url: profile.avatar_url,
-            updated_at: new Date(),
-            ...customData
-        };
-
-        // Remove local-only fields
-        delete updates.first_name;
-        delete updates.last_name;
-
-        const { error } = await supabase.from('profiles').upsert(updates);
-        if (!error) {
-            setProfile(prev => ({ ...prev, ...updates, first_name: profile.first_name, last_name: profile.last_name }));
-            if (!customData) alert('Profile updated successfully!');
-        } else {
-            alert('Error: ' + error.message);
-        }
-        setLoading(false);
+        // Map DB fields to UI fields
+        const formatted = (data || []).map(addr => ({
+            ...addr,
+            first_name: addr.full_name ? addr.full_name.split(' ')[0] : '',
+            last_name: addr.full_name ? addr.full_name.split(' ').slice(1).join(' ') : '',
+            zip_code: addr.zipcode,
+            label: 'Home' // DB doesn't have label, default to Home
+        }));
+        setAddresses(formatted);
     };
 
     const saveAddress = async (e) => {
@@ -123,26 +97,33 @@ export default function UserProfile() {
             return;
         }
         const form = e.target;
+        const fullName = `${form.first_name.value} ${form.last_name.value}`.trim();
+
         const newAddress = {
             user_id: user.id,
-            label: form.label.value,
-            first_name: form.first_name.value,
-            last_name: form.last_name.value,
+            full_name: fullName,
             phone: form.phone.value,
             address_line1: form.address_line1.value,
             district: form.district.value,
             province: form.province.value,
-            zip_code: form.zip_code.value,
+            zipcode: form.zip_code.value,
             is_default: form.is_default.checked
         };
 
+        let result;
         if (editingAddress?.id) {
-            await supabase.from('addresses').update(newAddress).eq('id', editingAddress.id);
+            result = await supabase.from('addresses').update(newAddress).eq('id', editingAddress.id);
         } else {
-            await supabase.from('addresses').insert(newAddress);
+            result = await supabase.from('addresses').insert(newAddress);
         }
-        setEditingAddress(null);
-        fetchAddresses();
+
+        if (result.error) {
+            alert('Error saving address: ' + result.error.message);
+            console.error(result.error);
+        } else {
+            setEditingAddress(null);
+            fetchAddresses();
+        }
     };
 
     const deleteAddress = async (id) => {
