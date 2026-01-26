@@ -336,28 +336,28 @@
       ]
     },
     "marketing": {
-      "headline": "Less is More",
-      "subheadline": "เรียบง่าย คลาสสิก ประหยัดไฟ",
+      "headline": "Proof of Savings",
+      "subheadline": "สะสมอย่างมีสไตล์ เรียบง่ายในโลกที่วุ่นวาย",
       "benefits": [
         {
-          "title": "Eco Friendly",
-          "desc": "กินไฟน้อยกว่า 1W เปิดทิ้งไว้ทั้งปี ค่าไฟไม่ถึง 20 บาท",
-          "icon": "gift"
+          "title": "Low Time Preference",
+          "desc": "กินไฟน้อยกว่า 1W เปิดเฝ้าราคาได้ทั้งปี ค่าไฟถูกกว่าค่าธรรมเนียมถอนเหรียญ (ไม่ถึง 20 บาทต่อปี)",
+          "icon": "time"
         },
         {
-          "title": "Retro Aesthetic",
-          "desc": "ดีไซน์ตัวเลข 7-Segment สีแดงสด ให้ความรู้สึกเหมือนตลาดหุ้นยุค 90s",
-          "icon": "shop"
+          "title": "HODL Aesthetic",
+          "desc": "เคส 3D Print ดีไซน์เฉพาะตัว พร้อมตัวเลข 7-Segment สีแดงสด ให้ฟีลสิ่งดิบเท่แบบ Cyberpunk ยุค 90s",
+          "icon": "diamond"
         },
         {
-          "title": "Distraction Free",
-          "desc": "ไม่มีแสงสีรบกวนสายตา แสดงแค่ข้อมูลราคาที่คุณต้องการรู้จริงๆ",
-          "icon": "chart"
-        },
-        {
-          "title": "Perfect Gift",
-          "desc": "ราคาย่อมเยา เหมาะสำหรับซื้อแจกเพื่อน หรือของขวัญจับฉลาก",
+          "title": "Direct Stacking",
+          "desc": "สแกน QR Code บนหน้าจอเพื่อเติม Bitcoin เข้า Wallet ได้ทันที เปลี่ยนการออมให้เป็นกิจวัตรที่จับต้องได้",
           "icon": "money"
+        },
+        {
+          "title": "Signal over Noise",
+          "desc": "แสดงเพียง 'Signal' ราคาที่คุณต้องการ ตัด 'Noise' กราฟที่วุ่นวายออกไป เพื่อสมาธิในการถือยาว",
+          "icon": "zap"
         }
       ]
     },

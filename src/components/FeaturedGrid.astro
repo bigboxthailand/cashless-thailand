@@ -8,7 +8,7 @@ const items = [];
 
 for (const p of products) {
     // Check if category is already added
-    if (!uniqueCategories.has(p.category) && items.length < 5) {
+    if (!uniqueCategories.has(p.category) && items.length < 4) {
         uniqueCategories.add(p.category);
         items.push({
             id: p.id,

@@ -466,6 +466,25 @@ const productJson = JSON.stringify(product);
                                             {benefit.icon === "shop" && "🏪"}
                                             {benefit.icon === "gift" && "🎁"}
                                             {benefit.icon === "money" && "💰"}
+                                            {benefit.icon === "time" && "⏳"}
+                                            {benefit.icon === "diamond" && "💎"}
+                                            {benefit.icon === "shield" && "🛡️"}
+                                            {benefit.icon === "zap" && "⚡"}
+                                            {benefit.icon === "lock" && "🔒"}
+                                            {benefit.icon === "globe" && "🌍"}
+                                            {/* Fallback */}
+                                            {![
+                                                "chart",
+                                                "shop",
+                                                "gift",
+                                                "money",
+                                                "time",
+                                                "diamond",
+                                                "shield",
+                                                "zap",
+                                                "lock",
+                                                "globe",
+                                            ].includes(benefit.icon) && "✨"}
                                         </span>
                                     </div>
                                     <h4 class="text-2xl font-bold text-white mb-4 group-hover:text-[#D4AF37] transition-colors">

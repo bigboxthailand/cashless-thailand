@@ -475,7 +475,8 @@ import MobileUserMenu from "./MobileUserMenu";
     }
 
     /* 3. ลิงก์บินเข้าจากด้านล่าง (Fade Up) */
-    #mobile-menu.menu-visible .mobile-link-item {
+    /* 3. ลิงก์บินเข้าจากด้านล่าง (Fade Up) */
+    #mobile-menu.menu-visible :global(.mobile-link-item) {
         transform: translateY(0);
         opacity: 1;
     }

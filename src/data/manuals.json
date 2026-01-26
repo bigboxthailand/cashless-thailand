@@ -133,12 +133,30 @@
         "type": "specs",
         "title": "ข้อมูลทางเทคนิค (Hardware Specs)",
         "items": [
-          { "label": "CPU", "value": "Dual-core 32-bit (Up to 240MHz)" },
-          { "label": "Memory", "value": "520 KB SRAM / 32Mbit SPI Flash" },
-          { "label": "Wireless", "value": "Wi-Fi 802.11 b/g/n (2.4GHz) & Bluetooth 4.2" },
-          { "label": "Power Input", "value": "5V / 2A (USB-C)" },
-          { "label": "Image Support", "value": "JPEG, BMP, GRAYSCALE" },
-          { "label": "Working Temp", "value": "-20℃ ~ 70℃" }
+          {
+            "label": "CPU",
+            "value": "Dual-core 32-bit (Up to 240MHz)"
+          },
+          {
+            "label": "Memory",
+            "value": "520 KB SRAM / 32Mbit SPI Flash"
+          },
+          {
+            "label": "Wireless",
+            "value": "Wi-Fi 802.11 b/g/n (2.4GHz) & Bluetooth 4.2"
+          },
+          {
+            "label": "Power Input",
+            "value": "5V / 2A (USB-C)"
+          },
+          {
+            "label": "Image Support",
+            "value": "JPEG, BMP, GRAYSCALE"
+          },
+          {
+            "label": "Working Temp",
+            "value": "-20℃ ~ 70℃"
+          }
         ]
       },
       {
@@ -328,46 +346,46 @@
     ]
   },
   "bitterm-series": {
-    "title": "BiTTerm Enterprise Deployment Guide",
-    "intro": "คู่มือมาตรฐาน (SOP) ฉบับสมบูรณ์สำหรับการติดตั้ง บริหารจัดการ และดูแลรักษา BiTTerm ATM Series ครอบคลุมตั้งแต่ระดับโครงสร้างระบบจนถึงกฎหมายและแผนงานในอนาคต",
+    "title": "BiTTerm Hybrid ATM: Enterprise Deployment Guide",
+    "intro": "คู่มือมาตรฐาน (SOP) ฉบับสมบูรณ์สำหรับ BiTTerm ATM Series ระบบ Micro-ATM อัจฉริยะ ครอบคลุมตั้งแต่การติดตั้ง การใช้งาน การบริหารจัดการสินทรัพย์ดิจิทัล ความปลอดภัย กฎหมาย การสนับสนุน และแผนพัฒนาในอนาคต",
     "sections": [
       {
-        "id": "exec-summary",
+        "id": "intro",
         "type": "features",
-        "title": "0. Executive Summary",
-        "intro": "บทสรุปผู้บริหาร: วัตถุประสงค์และขอบเขตของระบบ",
+        "title": "0. บทนำ: รู้จักกับ BiTTerm ATM",
+        "intro": "สรุปข้อมูลสำคัญ: ตู้นี้คืออะไร แก้ปัญหาอะไร และทำไมคุณถึงควรมีไว้ที่ร้าน",
         "items": [
-          "Objective: โครงสร้างพื้นฐานเชื่อมต่อ Blockchain Payment Gateway สำหรับโลกธุรกิจจริง",
-          "Target Audience: ร้านค้าปลีก (Retail), ตู้ Kiosk, และพาร์ทเนอร์ทางธุรกิจ",
-          "Scope: ครอบคลุมตั้งแต่อุปกรณ์หน้างาน (Terminal) ถึงระบบ Settlement หลังบ้าน",
-          "Key Value: ลดความเสี่ยงจากความผันผวนของราคาด้วยระบบ Real-time Spot Rate"
+          "BiTTerm คืออะไร?: เครื่อง Micro-ATM รับแลกเงินสด/PromptPay เป็น Bitcoin ได้ทันที ใช้งานง่ายเหมือนตู้เติมเงิน",
+          "แก้ปัญหาอะไร?: ลบความยุ่งยากในการซื้อ Bitcoin แบบเดิมๆ ไม่ต้องรอ KYC ไม่ต้องใช้แอปซับซ้อน สอดเงินปุ๊บเหรียญเข้าปั๊บ",
+          "วัตถุประสงค์หลัก: สร้างจุดเชื่อมต่อ (Gateway) ให้คนทั่วไปเข้าถึงสินทรัพย์ดิจิทัลได้ง่ายที่สุด ผ่านร้านค้าในชุมชน",
+          "ใครควรใช้งาน?: เจ้าของร้านค้า, คาเฟ่ หรือ Community Mall ที่ต้องการรายได้เสริม (Passive Income) และสร้างจุดเด่นให้ธุรกิจ"
         ]
       },
       {
         "id": "overview",
         "type": "grid_card",
-        "title": "1. Product Overview & Value Proposition",
-        "intro": "ภาพรวมผลิตภัณฑ์และจุดขายหลัก",
+        "title": "1. Product Overview & Core Strengths",
+        "intro": "ภาพรวมผลิตภัณฑ์และจุดเด่นหลัก",
         "items": [
           {
-            "head": "Bitเติม คืออะไร",
-            "body": "ระบบรับชำระและเติมเงินสินทรัพย์ดิจิทัล (Crypto POS & Top-up) บนโครงสร้างพื้นฐาน Lightning Network",
-            "image": "/images/manuals/bitterm/marketing/overview-industrial.webp"
+            "head": "Bare-metal / Industrial Design",
+            "body": "สถาปัตยกรรมเน้นเสถียรภาพ บูตเร็ว ลดความเสี่ยงระบบค้างและมัลแวร์",
+            "image": "/images/manuals/bitterm/core/industrial.jpg"
           },
           {
-            "head": "แก้ปัญหาความล่าช้า",
-            "body": "รองรับ Instant Settlement ผ่าน Layer-2 Technology ตัดปัญหารอ Confirmation นาน",
-            "image": "/images/manuals/bitterm/marketing/overview-lightning.webp"
+            "head": "Hybrid Payment",
+            "body": "ผสาน Fiat + Lightning + NFC ใช้งานได้จริงกับลูกค้าทั่วไป",
+            "image": "/images/manuals/bitterm/core/hybrid.jpg"
           },
           {
-            "head": "สำหรับร้านค้า",
-            "body": "ลดความเสี่ยงในการถือครองสินทรัพย์ และมีระบบบัญชีที่ตรวจสอบง่าย (Reconciliation)",
-            "image": "/images/manuals/bitterm/marketing/overview-income.webp"
+            "head": "Real-time Control",
+            "body": "แจ้งเตือนและติดตามสถานะเครื่องแบบเรียลไทม์",
+            "image": "/images/manuals/bitterm/core/alerts.jpg"
           },
           {
-            "head": "สำหรับองค์กร",
-            "body": "เชื่อมต่อ API เพื่อขยายบริการไปยัง Platform ของตนเองได้ทันที (Whitelabel Ready)",
-            "image": "/images/manuals/bitterm/marketing/overview-security.webp"
+            "head": "Scalable Deployment",
+            "body": "รองรับการขยายหลายเครื่อง หลายสาขา และแฟรนไชส์",
+            "image": "/images/manuals/bitterm/core/scalable.jpg"
           }
         ]
       },
@@ -377,58 +395,75 @@
         "title": "2. System Architecture & Specifications",
         "intro": "สถาปัตยกรรมระบบและสเปกฮาร์ดแวร์",
         "items": [
-          { "label": "Architecture", "value": "Hybrid Cloud-Edge (Terminal + Cloud Core)" },
-          { "label": "Processor", "value": "Quad-core ARM Cortex-A72 (Industrial Grade)" },
-          { "label": "Connectivity", "value": "Gigabit Ethernet, Wi-Fi 5 (ac), 4G LTE Failover" },
-          { "label": "Display", "value": "10.1\" Industrial Touchscreen (Anti-glare)" },
-          { "label": "Security", "value": "TLS 1.3 Encryption / Device Identity Certificate" },
-          { "label": "Peripherals", "value": "QR Scanner, NFC Reader, Thermal Printer (80mm)" },
-          { "label": "Power Input", "value": "12V/24V DC with Surge Protection" }
+          {
+            "label": "Architecture",
+            "value": "Hybrid Edge (Terminal) + Cloud Core"
+          },
+          {
+            "label": "Processor",
+            "value": "Industrial-grade Controller / MCU"
+          },
+          {
+            "label": "Display",
+            "value": "3.5\" – 10.1\" Touchscreen (Configurable)"
+          },
+          {
+            "label": "Connectivity",
+            "value": "Wi-Fi / Ethernet / Optional LTE"
+          },
+          {
+            "label": "Peripherals",
+            "value": "Bill Acceptor, NFC, QR, Printer"
+          },
+          {
+            "label": "Security",
+            "value": "Device Identity, Encrypted Storage, Physical Lock"
+          }
         ]
       },
       {
         "id": "installation",
         "type": "steps",
-        "title": "3. Installation & Deployment Protocols",
-        "intro": "มาตรฐานการติดตั้ง Hardware (Technician Only)",
+        "title": "3. Installation & Deployment",
+        "intro": "มาตรฐานการติดตั้งหน้างาน",
         "items": [
           {
-            "head": "3.1 Unboxing & Physical Setup",
-            "body": "ตรวจสอบ Seal ป้องกันการเปิด (Tamper-evident) และติดตั้งในพื้นที่แห้ง อากาศถ่ายเทสะดวก",
-            "image": "/images/manuals/bitterm/installation/install-site-survey.webp"
+            "head": "3.1 Site Preparation",
+            "body": "เลือกจุดวางใกล้ไฟฟ้า เครือข่าย และกล้องวงจรปิด",
+            "image": "/images/manuals/bitterm/install/site.jpg"
           },
           {
-            "head": "3.2 Floor Mounting",
-            "body": "เจาะยึดพื้น 4 จุดด้วยดอกสว่านเบอร์ 12 ลึก 10cm และฝังพุกเหล็ก (Expansion Anchor Bolts)",
-            "image": "/images/manuals/bitterm/installation/install-bolting.webp"
+            "head": "3.2 Physical Mounting",
+            "body": "ยึดเครื่องและล็อกด้วยระบบป้องกันการงัดแงะ",
+            "image": "/images/manuals/bitterm/install/lock.jpg"
           },
           {
-            "head": "3.3 Network & Boot",
-            "body": "เสียบสาย LAN และไฟ AC ผ่าน UPS รอระบบ Boot และนำ Pairing Code ไปกรอกใน Merchant Dashboard",
-            "image": "/images/manuals/bitterm/installation/install-cabling.webp"
+            "head": "3.3 Network Pairing",
+            "body": "จับคู่เครื่องกับระบบผ่าน WiFi",
+            "image": "/images/manuals/bitterm/install/wifi.jpg"
           }
         ]
       },
       {
         "id": "merchant",
         "type": "steps",
-        "title": "4. Merchant Operations Guide",
-        "intro": "คู่มือปฏิบัติงานประจำวันสำหรับร้านค้า (Daily Routine)",
+        "title": "4. Merchant Operations & Configuration",
+        "intro": "การบริหารจัดการสำหรับร้านค้า (รวม Fees, Limits และ API)",
         "items": [
           {
-            "head": "4.1 Daily Start-up",
-            "body": "Start of Day: เปิดเครื่อง > เช็คสถานะ Online > พิมพ์ Test Slip ยืนยันความพร้อม",
-            "image": "/images/manuals/bitterm/merchant/merchant-startup.webp"
+            "head": "Fee & Limit Management",
+            "body": "ตั้งค่าค่าธรรมเนียม, ส่วนต่างราคา, วงเงินขั้นต่ำ-สูงสุด ได้เอง",
+            "image": "/images/manuals/bitterm/merchant/settings.jpg"
           },
           {
-            "head": "4.2 Fee & Spread",
-            "body": "เข้าเมนู Admin > Extensions > LNURLDevice เพื่อกำหนด Profit Margin (แนะนำ 3-5%)",
-            "image": "/images/manuals/bitterm/merchant/merchant-fees.webp"
+            "head": "API & Webhook Integration",
+            "body": "เชื่อมต่อ LNbits, PromptPay และ Partner API",
+            "image": "/images/manuals/bitterm/merchant/api.jpg"
           },
           {
-            "head": "4.3 Settlement",
-            "body": "End of Day: พิมพ์ Z-Report และตรวจสอบยอดเงินสดใน Cashbox เทียบกับ Dashboard",
-            "image": "/images/manuals/bitterm/merchant/merchant-settlement.webp"
+            "head": "Daily Operation",
+            "body": "ตรวจสอบยอด, Cash-out และ Reconciliation ประจำวัน",
+            "image": "/images/manuals/bitterm/merchant/cashout.jpg"
           }
         ]
       },
@@ -436,22 +471,22 @@
         "id": "customer",
         "type": "steps",
         "title": "5. Customer User Guide",
-        "intro": "ขั้นตอนการใช้งานสำหรับลูกค้า (End-User)",
+        "intro": "ขั้นตอนการใช้งานสำหรับลูกค้า",
         "items": [
           {
-            "head": "Step 1: Initiate",
-            "body": "แตะหน้าจอ เลือกภาษา และตรวจสอบอัตราแลกเปลี่ยน (Rate) ก่อนทำรายการ",
-            "image": "/images/manuals/bitterm/customer/user-step1-start.webp"
+            "head": "Step 1: Initiation",
+            "body": "เลือกภาษา ตรวจสอบอัตราแลกเปลี่ยน และวิธีชำระเงิน",
+            "image": "/images/manuals/bitterm/user/step1.jpg"
           },
           {
-            "head": "Step 2: Insert Cash",
-            "body": "สอดธนบัตร (รองรับ 20-1000 บาท) หน้าจอจะแสดงยอด Crypto ที่ได้รับแบบ Real-time",
-            "image": "/images/manuals/bitterm/customer/user-step2-insert.webp"
+            "head": "Step 2: Payment",
+            "body": "สอดเงินสด หรือสแกน PromptPay",
+            "image": "/images/manuals/bitterm/user/step2.jpg"
           },
           {
-            "head": "Step 3: Scan & Settlement",
-            "body": "สแกน QR Code ด้วย Wallet (Lightning Network) ยอดเงินเข้าทันทีใน 3-5 วินาที",
-            "image": "/images/manuals/bitterm/customer/user-step3-scan.webp"
+            "head": "Step 3: Settlement",
+            "body": "รับเงินผ่าน QR (Lightning) หรือแตะ Bolt Card",
+            "image": "/images/manuals/bitterm/user/step3.jpg"
           }
         ]
       },
@@ -459,180 +494,106 @@
         "id": "assets",
         "type": "features",
         "title": "6. Wallet, Asset & Token Handling",
-        "intro": "การจัดการสินทรัพย์ดิจิทัล",
+        "intro": "การจัดการ Wallet และสินทรัพย์ดิจิทัล",
         "items": [
-          "Supported Assets: Bitcoin (Mainnet/Lightning), USDT/USDC (Supported Chains)",
-          "Dynamic Address: สร้าง Address ใหม่ทุกธุรกรรมเพื่อ Privacy",
-          "Confirmation Logic: On-chain รอ 1-3 Confirms / Lightning สำเร็จทันที"
-        ]
-      },
-      {
-        "id": "fees",
-        "type": "specs",
-        "title": "7. Fees, Limits & Policies",
-        "intro": "โครงสร้างค่าธรรมเนียมและวงเงิน",
-        "items": [
-          { "label": "Network Fee", "value": "ผู้ทำรายการรับผิดชอบ (Miner Fee)" },
-          { "label": "Service Fee", "value": "รวมใน Rate หรือแยกแสดงตาม Config" },
-          { "label": "Min Transaction", "value": "100 THB / รายการ" },
-          { "label": "Max Transaction", "value": "100,000 THB / รายการ" },
-          { "label": "Daily Limit", "value": "ตามระดับ KYC ของผู้ใช้งาน" },
-          { "label": "Refund Policy", "value": "คืนเป็น Fiat/Crypto ณ มูลค่าตั้งต้น (Case-by-case)" }
-        ]
-      },
-      {
-        "id": "security",
-        "type": "grid_card",
-        "title": "8. Security, Compliance & Risk Control",
-        "intro": "ความปลอดภัยและการกำกับดูแล",
-        "items": [
-          {
-            "head": "Anti-Tamper",
-            "body": "หากมีการงัดแงะ ระบบจะทำการ Zeroization (ลบ Key สำคัญ) ทันที",
-            "image": "/images/manuals/bitterm/security/sec-tamper.webp"
-          },
-          {
-            "head": "Non-Custodial Hybrid",
-            "body": "ร้านค้าเลือก Auto-sweep เข้า Cold Wallet หรือพักบน Custodian Partner ได้",
-            "image": "/images/manuals/bitterm/security/sec-coldwallet.webp"
-          },
-          {
-            "head": "Anti-Fraud & AML",
-            "body": "Rate Limiting และ Blacklist Monitoring ป้องกันการฟอกเงิน",
-            "image": "/images/manuals/bitterm/security/sec-aml.webp"
-          },
-          {
-            "head": "Data Privacy",
-            "body": "ข้อมูลส่วนบุคคลเข้ารหัสและจัดเก็บตามระยะเวลาที่กฎหมายกำหนด",
-            "image": "/images/manuals/bitterm/security/sec-privacy.webp"
-          }
-        ]
-      },
-      {
-        "id": "api",
-        "type": "steps",
-        "title": "9. API Integration Guide",
-        "intro": "คู่มือการเชื่อมต่อระบบสำหรับพาร์ทเนอร์",
-        "items": [
-          {
-            "head": "9.1 Authentication",
-            "body": "ใช้ API Key และ Secret Key ผ่าน HTTP Header `X-API-KEY`",
-            "image": "/images/manuals/bitterm/api/api-auth.webp"
-          },
-          {
-            "head": "9.2 Webhook",
-            "body": "ตั้งค่า Callback URL เพื่อรับสถานะธุรกรรม (Pending/Confirmed) Real-time",
-            "image": "/images/manuals/bitterm/api/api-webhook.webp"
-          },
-          {
-            "head": "9.3 Sandbox",
-            "body": "ทดสอบที่ `api-sandbox.bitterm.com` ด้วย Testnet Coin ก่อน Production",
-            "image": "/images/manuals/bitterm/api/api-sandbox.webp"
-          }
+          "รองรับ Bitcoin (On-chain / Lightning) และ Token ที่กำหนด",
+          "สร้าง Address ใหม่ทุกธุรกรรมเพื่อความเป็นส่วนตัว",
+          "Logic การยืนยันธุรกรรมตามประเภทเครือข่าย"
         ]
       },
       {
         "id": "logs",
         "type": "features",
-        "title": "10. Monitoring, Logs & Audit",
-        "intro": "การบันทึกข้อมูลเพื่อการตรวจสอบ (Audit Trail)",
+        "title": "7. Monitoring, Logs & Audit",
+        "intro": "การบันทึกข้อมูลและการตรวจสอบ",
         "items": [
-          "Transaction Log: รายละเอียด Hash, Time, Amount, Status",
-          "Event Log: การ Login, การเปลี่ยน Config, การเปิด-ปิดเครื่อง",
-          "Error Log: บันทึกความผิดพลาดของระบบและเครือข่าย",
-          "Data Retention: เก็บรักษาข้อมูลอย่างน้อย 5 ปี หรือตามกฎหมายกำหนด"
+          "Transaction Log: Amount, Hash, Status, Timestamp",
+          "Event Log: Login, Config Change, Power Cycle",
+          "Error Log: Network / Hardware / API",
+          "รองรับ Audit และการตรวจย้อนหลังตามกฎหมาย"
         ]
       },
       {
         "id": "troubleshooting",
         "type": "faq",
-        "title": "11. Troubleshooting & Maintenance",
+        "title": "8. Troubleshooting & Maintenance",
         "items": [
           {
-            "head": "Network Error",
-            "body": "ตรวจสอบสาย LAN/Wi-Fi และ Router หากไม่หายให้ทำ Hard Reset"
+            "head": "Bill Jam",
+            "body": "เปิดฝาหน้าและนำธนบัตรที่ติดออกอย่างระมัดระวัง"
           },
           {
-            "head": "Printer Error",
-            "body": "ตรวจสอบกระดาษหมด ฝาปิดไม่สนิท หรือความร้อนหัวพิมพ์สูงเกินไป"
+            "head": "System Offline",
+            "body": "ตรวจสอบเครือข่าย หากจำเป็นให้รีบูตเครื่อง"
           },
           {
-            "head": "Transaction Pending",
-            "body": "หากรอนานเกินไป ให้เช็ค TxID บน Blockchain Explorer"
-          },
-          {
-            "head": "Preventive Maintenance",
-            "body": "ทำความสะอาดหน้าจอ/เป่าฝุ่นทุกเดือน ห้ามใช้น้ำยาเคมีรุนแรง"
+            "head": "Transaction Failed",
+            "body": "ตรวจสอบ Liquidity และสถานะ API"
           }
         ]
       },
       {
         "id": "firmware",
         "type": "steps",
-        "title": "12. Firmware & Lifecycle",
-        "intro": "การอัปเดตและวงจรชีวิตผลิตภัณฑ์",
+        "title": "9. Firmware & Lifecycle",
+        "intro": "การอัปเดตซอฟต์แวร์และอายุการสนับสนุน",
         "items": [
           {
-            "head": "12.1 OTA Update",
-            "body": "ระบบตรวจสอบเวอร์ชันใหม่ทุก 03:00 น. และอัปเดตเมื่อ Idle",
-            "image": "/images/manuals/bitterm/firmware/fw-check.webp"
+            "head": "OTA Update",
+            "body": "ตรวจสอบและอัปเดตอัตโนมัติเมื่อเครื่อง Idle",
+            "image": "/images/manuals/bitterm/firmware/fw.jpg"
           },
           {
-            "head": "12.2 End-of-Life Policy",
-            "body": "สนับสนุน Software Patch อย่างน้อย 5 ปี นับจากวันหยุดจำหน่าย",
-            "image": "/images/manuals/bitterm/firmware/fw-install.webp"
+            "head": "Lifecycle Policy",
+            "body": "สนับสนุนซอฟต์แวร์ตามระยะเวลาที่กำหนด",
+            "image": "/images/manuals/bitterm/firmware/lifecycle.jpg"
           }
         ]
       },
       {
         "id": "legal",
         "type": "features",
-        "title": "13. Legal Disclaimer & Terms",
-        "intro": "ข้อจำกัดความรับผิดชอบและข้อกำหนดทางกฎหมาย",
+        "title": "10. Legal Disclaimer & Terms",
+        "intro": "ข้อกำหนดและข้อจำกัดความรับผิดชอบ",
         "items": [
-          "Limitation of Liability: ไม่รับผิดชอบต่อความเสียหายจากความผันผวนของราคา",
-          "Regulatory Notice: ผู้ใช้ต้องปฏิบัติตามกฎหมายภาษี/ฟอกเงินในเขตอำนาจศาลตน",
-          "User Responsibility: ร้านค้าต้องรักษาความปลอดภัยของ Password อย่างเคร่งครัด"
+          "ไม่รับผิดชอบต่อความผันผวนของราคา",
+          "ผู้ใช้งานต้องปฏิบัติตามกฎหมายในเขตอำนาจศาลของตน",
+          "ร้านค้าต้องดูแลความปลอดภัยของข้อมูลและรหัสผ่าน"
         ]
       },
       {
         "id": "support",
         "type": "grid_card",
-        "title": "14. Support & Escalation",
-        "intro": "ช่องทางสนับสนุนและ SLA",
+        "title": "11. Support & Escalation",
+        "intro": "ช่องทางสนับสนุนและระดับ SLA",
         "items": [
           {
-            "head": "Critical Issue (SLA 1 Hr)",
-            "body": "กรณีระบบล่ม/รับเงินไม่ได้ ติดต่อ Hotline ฉุกเฉิน 24 ชม.",
-            "image": "/images/manuals/bitterm/support/supp-emergency.webp"
+            "head": "Critical Issue",
+            "body": "กรณีระบบหยุดทำงาน ติดต่อทีมฉุกเฉิน",
+            "image": "/images/manuals/bitterm/support/critical.jpg"
           },
           {
-            "head": "General Inquiry (SLA 24 Hr)",
-            "body": "สอบถามทั่วไป แจ้งปัญหาไม่เร่งด่วนผ่าน Merchant Portal Ticket",
-            "image": "/images/manuals/bitterm/support/supp-ticket.webp"
+            "head": "General Support",
+            "body": "แจ้งปัญหาทั่วไปผ่านระบบ Ticket",
+            "image": "/images/manuals/bitterm/support/general.jpg"
           }
         ]
       },
       {
         "id": "roadmap",
         "type": "steps",
-        "title": "15. Roadmap & Future Expansion",
-        "intro": "แผนงานพัฒนาในอนาคต",
+        "title": "12. Roadmap & Future Expansion",
+        "intro": "แผนพัฒนาในอนาคต",
         "items": [
           {
-            "head": "Phase Q3/20xx: NFC Support",
-            "body": "รองรับการแตะจ่ายด้วย NFC Cards (Bolt Card Support)",
-            "image": "/images/manuals/bitterm/roadmap/nfc.webp"
+            "head": "Multi-chain Expansion",
+            "body": "เพิ่มการรองรับสินทรัพย์และ Layer-2 ใหม่",
+            "image": "/images/manuals/bitterm/roadmap/multichain.jpg"
           },
           {
-            "head": "Phase Q4/20xx: Multi-chain",
-            "body": "เพิ่มการรองรับ Multi-chain assets และ Layer 2 chains อื่นๆ",
-            "image": "/images/manuals/bitterm/roadmap/multichain.webp"
-          },
-          {
-            "head": "Phase Q1/20xx: Loyalty Program",
-            "body": "ระบบสะสมแต้มและ NFT Rewards บนตัวเครื่อง",
-            "image": "/images/manuals/bitterm/roadmap/loyalty.webp"
+            "head": "Loyalty & Rewards",
+            "body": "ระบบสะสมแต้มและสิทธิประโยชน์",
+            "image": "/images/manuals/bitterm/roadmap/loyalty.jpg"
           }
         ]
       }
