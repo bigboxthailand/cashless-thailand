@@ -1039,19 +1039,20 @@ import Footer from "../components/Footer.astro";
             }
 
             try {
-                // 1. Fetch BTC from Bitkub
+                // 1. Fetch BTC from Bitkub (v3 API)
                 let btcPrice = 2500000;
                 try {
                     const bitkubResponse = await fetch(
-                        "https://api.bitkub.com/api/market/ticker?sym=THB_BTC",
+                        "https://api.bitkub.com/api/v3/market/ticker?sym=BTC_THB",
                     );
                     const bitkubData = await bitkubResponse.json();
-                    if (bitkubData.THB_BTC?.last) {
-                        btcPrice = bitkubData.THB_BTC.last;
+                    // Bitkub v3 returns array: [{ symbol: 'BTC_THB', last: '...' }]
+                    if (Array.isArray(bitkubData) && bitkubData[0]?.last) {
+                        btcPrice = parseFloat(bitkubData[0].last);
                     }
                 } catch (e) {
                     console.warn(
-                        "Bitkub fetch failed, using fallback/coingecko for BTC",
+                        "Bitkub v3 fetch failed, using fallback/coingecko for BTC",
                     );
                 }
 

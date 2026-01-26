@@ -110,17 +110,21 @@ const formattedPrice = price.toLocaleString();
 
     try {
       const response = await fetch(
-        "https://api.bitkub.com/api/market/ticker?sym=THB_BTC",
+        "https://api.bitkub.com/api/v3/market/ticker?sym=BTC_THB",
       );
       const data = await response.json();
-      const price = data.THB_BTC?.last;
+      // Bitkub v3 returns array: [{ symbol: 'BTC_THB', last: '...' }]
+      let price = 0;
+      if (Array.isArray(data) && data[0]?.last) {
+        price = parseFloat(data[0].last);
+      }
 
       if (price) {
         btcPriceCache = price;
         lastFetchTime = now;
         return price;
       }
-      throw new Error("Invalid Bitkub data");
+      throw new Error("Invalid Bitkub v3 data");
     } catch (error) {
       return btcPriceCache || 3300000;
     }
