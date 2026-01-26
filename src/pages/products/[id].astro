@@ -257,6 +257,65 @@ const productJson = JSON.stringify(product);
                         )
                     }
 
+                    {/* NEW: Composite Options (Multi-Level) */}
+                    {
+                        product.config &&
+                            product.config.variantType === "composite" &&
+                            product.config.options && (
+                                <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5 space-y-6">
+                                    {/* @ts-ignore */}
+                                    {product.config.options.map(
+                                        (option, groupIdx) => (
+                                            <div>
+                                                <span class="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+                                                    Select {option.name}
+                                                </span>
+                                                <div
+                                                    class="flex gap-3 flex-wrap option-group"
+                                                    data-group-index={groupIdx}
+                                                >
+                                                    {/* @ts-ignore */}
+                                                    {option.values.map(
+                                                        (val, valIdx) => (
+                                                            <button
+                                                                class={`option-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${valIdx === 0 ? "border-[#D4AF37] bg-[#D4AF37] text-black active-option" : "border-white/10 text-white/60 hover:border-white hover:text-white"}`}
+                                                                data-group-index={
+                                                                    groupIdx
+                                                                }
+                                                                data-value-index={
+                                                                    valIdx
+                                                                }
+                                                                data-name={
+                                                                    val.name
+                                                                }
+                                                                data-price={
+                                                                    val.price
+                                                                }
+                                                                data-image={
+                                                                    val.image ||
+                                                                    ""
+                                                                }
+                                                            >
+                                                                {val.name}
+                                                                {val.price >
+                                                                    0 && (
+                                                                    <span class="opacity-60 ml-1">
+                                                                        (+
+                                                                        {val.price.toLocaleString()}
+                                                                        )
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            )
+                    }
+
                     <div class="flex gap-3 md:gap-4 h-14">
                         <div
                             class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-28 md:w-32 justify-between shrink-0"
@@ -498,7 +557,18 @@ const productJson = JSON.stringify(product);
             currentImage: initialImage,
             selectedVariantName: initialVariantName,
             currentPrice: initialPrice,
+            // New: For composite options
+            compositeSelection: {} as Record<number, number>, // groupIndex -> valueIndex
         };
+
+        // Initialize composite selection if needed
+        if (productData.config?.variantType === "composite") {
+            productData.config.options.forEach((_: any, idx: number) => {
+                state.compositeSelection[idx] = 0;
+            });
+            // Recalculate initial price/name for composite
+            // ... (Logic will be handled in updateCompositeState)
+        }
 
         const getCleanElement = (id: string) => {
             const el = document.getElementById(id);
@@ -693,6 +763,120 @@ const productJson = JSON.stringify(product);
                         "active-variant",
                     );
                 }
+            });
+        });
+
+        // --- Composite Logic ---
+        const optionBtns = document.querySelectorAll(".option-btn");
+
+        // --- Composite Logic (Exact Lookup) ---
+        const updateCompositeState = () => {
+            // 1. Build current selection array [0, 1]
+            const currentIndices: number[] = [];
+            // @ts-ignore
+            productData.config.options.forEach((_: any, idx: number) => {
+                currentIndices.push(state.compositeSelection[idx] || 0);
+            });
+
+            // 2. Find matching combination
+            let matchedCombo = null;
+            // @ts-ignore
+            if (productData.config.combinations) {
+                // @ts-ignore
+                matchedCombo = productData.config.combinations.find(
+                    (c: any) =>
+                        JSON.stringify(c.indices) ===
+                        JSON.stringify(currentIndices),
+                );
+            }
+
+            // 3. Fallback logic (should not happen if combinations are complete)
+            // Use combo price if found, otherwise basePrice
+            let finalPrice = matchedCombo
+                ? matchedCombo.price
+                : productData.pricing?.basePrice || 0;
+
+            // 4. Update Names & Image
+            let names: string[] = [];
+            let newImage = "";
+            // @ts-ignore
+            productData.config.options.forEach((opt: any, groupIdx: number) => {
+                const selectedValIdx = state.compositeSelection[groupIdx] || 0;
+                const selectedVal = opt.values[selectedValIdx];
+                names.push(selectedVal.name);
+                if (selectedVal.image) newImage = selectedVal.image;
+            });
+
+            // 5. Update State & UI
+            state.currentPrice = finalPrice;
+            state.selectedVariantName = names.join(" + ");
+            if (matchedCombo && matchedCombo.sku) {
+                // Optional: Store SKU if needed
+            }
+
+            if (newImage && newImage !== state.currentImage) {
+                changeImage(newImage);
+            }
+
+            if (priceDisplay) {
+                priceDisplay.innerText = finalPrice.toLocaleString();
+                priceDisplay.classList.add("scale-110", "text-[#D4AF37]");
+                setTimeout(
+                    () =>
+                        priceDisplay.classList.remove(
+                            "scale-110",
+                            "text-[#D4AF37]",
+                        ),
+                    150,
+                );
+            }
+        };
+
+        // Run once on init for composite
+        if (productData.config?.variantType === "composite") {
+            updateCompositeState();
+        }
+
+        optionBtns.forEach((btn) => {
+            // Clone to remove old listeners if any
+            const newBtn = btn.cloneNode(true) as HTMLElement;
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener("click", (e) => {
+                const target = e.currentTarget as HTMLElement;
+                const groupIdx = parseInt(target.dataset.groupIndex || "0");
+                const valIdx = parseInt(target.dataset.valueIndex || "0");
+
+                // Update State
+                state.compositeSelection[groupIdx] = valIdx;
+
+                // Update UI classes
+                const groupContainer = document.querySelector(
+                    `.option-group[data-group-index="${groupIdx}"]`,
+                );
+                if (groupContainer) {
+                    groupContainer
+                        .querySelectorAll(".option-btn")
+                        .forEach((b) => {
+                            b.classList.remove(
+                                "bg-[#D4AF37]",
+                                "text-black",
+                                "border-[#D4AF37]",
+                                "active-option",
+                            );
+                            b.classList.add("border-white/10", "text-white/60");
+                        });
+                }
+
+                target.classList.remove("border-white/10", "text-white/60");
+                target.classList.add(
+                    "bg-[#D4AF37]",
+                    "text-black",
+                    "border-[#D4AF37]",
+                    "active-option",
+                );
+
+                updateCompositeState();
             });
         });
 
