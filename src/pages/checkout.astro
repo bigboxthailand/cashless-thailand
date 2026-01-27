@@ -1498,6 +1498,24 @@ import Footer from "../components/Footer.astro";
                 // 5. Submit to Google Sheets (Legacy/Backup) - Optional
                 // await fetch(GOOGLE_SCRIPT_URL, ...);
 
+                // 5. Notify Telegram (Async - don't block)
+                fetch("/api/telegram-notify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        orderId,
+                        customerName: dbOrder.customer_name,
+                        total,
+                        paymentMethod,
+                        items: items.map((i: any) => ({
+                            title: i.title,
+                            quantity: i.quantity,
+                        })),
+                    }),
+                }).catch((err) =>
+                    console.error("Telegram Notification Failed:", err),
+                );
+
                 // Success
                 localStorage.setItem(
                     "lastOrder",

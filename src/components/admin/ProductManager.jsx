@@ -38,6 +38,19 @@ const ProductManager = ({ initialProducts }) => {
         height: '',
 
         subcategory: '', // New field
+
+        // Marketing
+        marketing: {
+            headline: '',
+            subheadline: '',
+            benefits: [] // { title, desc, icon }
+        },
+
+        // Tech Specs
+        techSpecs: [], // { label, value }
+
+        // Manual
+        manualLink: '',
     };
 
     const [formData, setFormData] = useState(initialFormState);
@@ -125,10 +138,13 @@ const ProductManager = ({ initialProducts }) => {
             variantOptions,
             variantCombinations,
 
-            weight: shipping.weight || inventory.weight || '',
-            width: shipping.width || inventory.dimensions?.width || '',
             length: shipping.length || inventory.dimensions?.length || '',
             height: shipping.height || inventory.dimensions?.height || '',
+
+            // Content
+            marketing: config.marketing || { headline: '', subheadline: '', benefits: [] },
+            techSpecs: config.techSpecs || [],
+            manualLink: config.manualLink || '',
         });
         setIsModalOpen(true);
     };
@@ -182,7 +198,11 @@ const ProductManager = ({ initialProducts }) => {
                             length: parseFloat(formData.length) || 0,
                             height: parseFloat(formData.height) || 0
                         }
-                    }
+                    },
+                    // New Fields
+                    marketing: formData.marketing,
+                    techSpecs: formData.techSpecs,
+                    manualLink: formData.manualLink,
                 },
 
                 media: {
@@ -371,6 +391,7 @@ const ProductManager = ({ initialProducts }) => {
         { id: 'basic', label: 'Basic Info', icon: '📝' },
         { id: 'media', label: 'Media', icon: '🖼️' },
         { id: 'sales', label: 'Sales Info', icon: '💰' },
+        { id: 'marketing', label: 'Marketing & Specs', icon: '📢' },
         // { id: 'shipping', label: 'Shipping', icon: '🚚' },
         { id: 'attributes', label: 'Attributes', icon: '🏷️' },
     ];
@@ -507,6 +528,63 @@ const ProductManager = ({ initialProducts }) => {
         }
     };
 
+
+
+    // --- Marketing Helpers ---
+    const handleMarketingChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            marketing: { ...prev.marketing, [field]: value }
+        }));
+    };
+
+    const handleAddBenefit = () => {
+        setFormData(prev => ({
+            ...prev,
+            marketing: {
+                ...prev.marketing,
+                benefits: [...(prev.marketing.benefits || []), { title: '', desc: '', icon: 'gift' }]
+            }
+        }));
+    };
+
+    const handleBenefitChange = (index, field, value) => {
+        const newBenefits = [...(formData.marketing.benefits || [])];
+        newBenefits[index][field] = value;
+        setFormData(prev => ({
+            ...prev,
+            marketing: { ...prev.marketing, benefits: newBenefits }
+        }));
+    };
+
+    const handleRemoveBenefit = (index) => {
+        const newBenefits = [...(formData.marketing.benefits || [])];
+        newBenefits.splice(index, 1);
+        setFormData(prev => ({
+            ...prev,
+            marketing: { ...prev.marketing, benefits: newBenefits }
+        }));
+    };
+
+    // --- Tech Specs Helpers ---
+    const handleAddTechSpec = () => {
+        setFormData(prev => ({
+            ...prev,
+            techSpecs: [...(prev.techSpecs || []), { label: '', value: '' }]
+        }));
+    };
+
+    const handleTechSpecChange = (index, field, value) => {
+        const newSpecs = [...(formData.techSpecs || [])];
+        newSpecs[index][field] = value;
+        setFormData(prev => ({ ...prev, techSpecs: newSpecs }));
+    };
+
+    const handleRemoveTechSpec = (index) => {
+        const newSpecs = [...(formData.techSpecs || [])];
+        newSpecs.splice(index, 1);
+        setFormData(prev => ({ ...prev, techSpecs: newSpecs }));
+    };
 
     return (
         <div className="space-y-6">
@@ -929,6 +1007,136 @@ const ProductManager = ({ initialProducts }) => {
                                                     </div>
                                                 )}
 
+                                            </div>
+                                        )}
+
+                                        {/* MARKETING & SPECS */}
+                                        {activeTab === 'marketing' && (
+                                            <div className="space-y-8 animate-in fade-in">
+                                                {/* Marketing Header */}
+                                                <div className="space-y-4">
+                                                    <h3 className="section-title">Marketing Copy</h3>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        <div>
+                                                            <label className="input-label">Headline</label>
+                                                            <input
+                                                                value={formData.marketing?.headline || ''}
+                                                                onChange={e => handleMarketingChange('headline', e.target.value)}
+                                                                className="input-field"
+                                                                placeholder="e.g. Why Basic?"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="input-label">Subheadline</label>
+                                                            <input
+                                                                value={formData.marketing?.subheadline || ''}
+                                                                onChange={e => handleMarketingChange('subheadline', e.target.value)}
+                                                                className="input-field"
+                                                                placeholder="e.g. จุดเริ่มต้นของการเป็น Bitcoiner"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Benefits */}
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                        <h3 className="section-title mb-0 border-0 pb-0">Key Benefits</h3>
+                                                        <button type="button" onClick={handleAddBenefit} className="text-[#D4AF37] text-xs font-bold hover:underline">+ Add Benefit</button>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        {(formData.marketing?.benefits || []).map((benefit, idx) => (
+                                                            <div key={idx} className="bg-white/5 p-4 rounded-lg border border-white/10 relative group">
+                                                                <button type="button" onClick={() => handleRemoveBenefit(idx)} className="absolute top-2 right-2 text-white/30 hover:text-red-500">×</button>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="input-label">Title</label>
+                                                                        <input
+                                                                            value={benefit.title}
+                                                                            onChange={e => handleBenefitChange(idx, 'title', e.target.value)}
+                                                                            className="input-field"
+                                                                            placeholder="e.g. Minimal Design"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="input-label">Icon (Phosphor/FontAwesome name)</label>
+                                                                        <input
+                                                                            value={benefit.icon}
+                                                                            onChange={e => handleBenefitChange(idx, 'icon', e.target.value)}
+                                                                            className="input-field"
+                                                                            placeholder="e.g. gift, chart, shop"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="col-span-2">
+                                                                        <label className="input-label">Description</label>
+                                                                        <textarea
+                                                                            rows="2"
+                                                                            value={benefit.desc}
+                                                                            onChange={e => handleBenefitChange(idx, 'desc', e.target.value)}
+                                                                            className="input-field resize-none"
+                                                                            placeholder="Benefit description..."
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        {(formData.marketing?.benefits || []).length === 0 && (
+                                                            <div className="text-center py-8 text-white/30 text-sm border border-dashed border-white/10 rounded-lg">
+                                                                No benefits added.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Tech Specs */}
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                        <h3 className="section-title mb-0 border-0 pb-0">Tech Specs</h3>
+                                                        <button type="button" onClick={handleAddTechSpec} className="text-[#D4AF37] text-xs font-bold hover:underline">+ Add Spec</button>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {(formData.techSpecs || []).map((spec, idx) => (
+                                                            <div key={idx} className="flex gap-2 items-start">
+                                                                <div className="w-1/3">
+                                                                    <input
+                                                                        value={spec.label}
+                                                                        onChange={e => handleTechSpecChange(idx, 'label', e.target.value)}
+                                                                        className="input-field"
+                                                                        placeholder="Label (e.g. CPU)"
+                                                                    />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <input
+                                                                        value={spec.value}
+                                                                        onChange={e => handleTechSpecChange(idx, 'value', e.target.value)}
+                                                                        className="input-field"
+                                                                        placeholder="Value (e.g. Dual-core...)"
+                                                                    />
+                                                                </div>
+                                                                <button type="button" onClick={() => handleRemoveTechSpec(idx)} className="p-2 text-white/30 hover:text-red-500">×</button>
+                                                            </div>
+                                                        ))}
+                                                        {(formData.techSpecs || []).length === 0 && (
+                                                            <div className="text-center py-8 text-white/30 text-sm border border-dashed border-white/10 rounded-lg">
+                                                                No specs added.
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Manual Link */}
+                                                <div className="space-y-4 pt-4 border-t border-white/10">
+                                                    <h3 className="section-title">Documentation</h3>
+                                                    <div>
+                                                        <label className="input-label">Manual Link (Path)</label>
+                                                        <input
+                                                            value={formData.manualLink}
+                                                            onChange={e => setFormData({ ...formData, manualLink: e.target.value })}
+                                                            className="input-field"
+                                                            placeholder="/knowledge/product-id"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
 
