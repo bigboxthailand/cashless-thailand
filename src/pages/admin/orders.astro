@@ -1,6 +1,6 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabaseClient";
+import { supabase } from "../../lib/supabase";
 
 // 1. Fetch Orders
 const { data: orders } = await supabase
@@ -454,73 +454,89 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                                     PENDING
                                 </div>
                             </div>
-                        </div>
 
-                        <div
-                            class="bg-white/5 rounded-xl p-6 border border-white/5"
-                        >
-                            <h4
-                                class="text-white font-bold uppercase text-sm mb-4"
-                            >
-                                Payment Proof via <span
-                                    id="modal-payment-method"
-                                    class="text-[#D4AF37]"></span>
-                            </h4>
+                            <!-- Tracking # Display -->
                             <div
-                                id="modal-proof-content"
-                                class="min-h-[150px] bg-black/50 rounded-lg flex items-center justify-center border border-dashed border-white/20"
+                                class="bg-white/5 text-white p-4 rounded-xl border border-white/10 col-span-2 hidden"
+                                id="modal-tracking-container"
                             >
+                                <p
+                                    class="text-xs font-black uppercase tracking-widest opacity-50"
+                                >
+                                    Tracking Number
+                                </p>
+                                <p
+                                    class="text-lg font-mono font-bold mt-1 text-[#D4AF37]"
+                                    id="modal-tracking-number"
+                                >
+                                    -
+                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <h3
-                        class="text-xl font-bold text-white mb-6 flex items-center gap-3"
-                    >
-                        <span class="w-2 h-2 bg-[#D4AF37] rounded-full"></span>
-                        Ordered Items
-                    </h3>
                     <div
-                        class="bg-[#0A0A0A] rounded-xl overflow-hidden border border-white/10"
+                        class="bg-white/5 rounded-xl p-6 border border-white/5"
                     >
-                        <table class="w-full text-left">
-                            <thead
-                                class="bg-white/5 text-white/50 text-xs font-bold uppercase tracking-wider"
-                            >
-                                <tr>
-                                    <th class="p-4">Product</th>
-                                    <th class="p-4 text-center">Qty</th>
-                                    <th class="p-4 text-right">Price</th>
-                                    <th class="p-4 text-right">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody
-                                class="divide-y divide-white/5 text-sm"
-                                id="modal-items-list"
-                            >
-                            </tbody>
-                        </table>
+                        <h4 class="text-white font-bold uppercase text-sm mb-4">
+                            Payment Proof via <span
+                                id="modal-payment-method"
+                                class="text-[#D4AF37]"></span>
+                        </h4>
+                        <div
+                            id="modal-proof-content"
+                            class="min-h-[150px] bg-black/50 rounded-lg flex items-center justify-center border border-dashed border-white/20"
+                        >
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div
-                class="p-6 border-t border-white/10 bg-[#1A1A1A] flex justify-end gap-4"
-            >
-                <button
-                    class="px-6 py-2 rounded-lg font-bold text-white/70 hover:text-white transition-colors"
-                    onclick="document.getElementById('order-modal').classList.add('hidden')"
-                    >Close</button
+            <div>
+                <h3
+                    class="text-xl font-bold text-white mb-6 flex items-center gap-3"
                 >
-                <button
-                    id="modal-action-btn"
-                    class="px-6 py-2 rounded-lg font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
+                    <span class="w-2 h-2 bg-[#D4AF37] rounded-full"></span>
+                    Ordered Items
+                </h3>
+                <div
+                    class="bg-[#0A0A0A] rounded-xl overflow-hidden border border-white/10"
                 >
-                    Mark as Paid
-                </button>
+                    <table class="w-full text-left">
+                        <thead
+                            class="bg-white/5 text-white/50 text-xs font-bold uppercase tracking-wider"
+                        >
+                            <tr>
+                                <th class="p-4">Product</th>
+                                <th class="p-4 text-center">Qty</th>
+                                <th class="p-4 text-right">Price</th>
+                                <th class="p-4 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            class="divide-y divide-white/5 text-sm"
+                            id="modal-items-list"
+                        >
+                        </tbody>
+                    </table>
+                </div>
             </div>
+        </div>
+
+        <div
+            class="p-6 border-t border-white/10 bg-[#1A1A1A] flex justify-end gap-4"
+        >
+            <button
+                class="px-6 py-2 rounded-lg font-bold text-white/70 hover:text-white transition-colors"
+                onclick="document.getElementById('order-modal').classList.add('hidden')"
+                >Close</button
+            >
+            <button
+                id="modal-action-btn"
+                class="px-6 py-2 rounded-lg font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
+            >
+                Mark as Paid
+            </button>
         </div>
     </div>
 </AdminLayout>
@@ -603,6 +619,20 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                 actionBtn.classList.add("hidden");
                 actionBtn.dataset.action = "";
                 actionBtn.dataset.orderId = "";
+            }
+
+            // Populate Tracking Number
+            const trackingContainer = document.getElementById(
+                "modal-tracking-container",
+            );
+            const trackingEl = document.getElementById("modal-tracking-number");
+
+            if (order.tracking_number) {
+                trackingContainer.classList.remove("hidden");
+                trackingEl.innerText = order.tracking_number;
+            } else {
+                trackingContainer.classList.add("hidden");
+                trackingEl.innerText = "-";
             }
 
             // Populate Items
@@ -692,7 +722,8 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
 </script>
 
 <script>
-    import { supabase } from "../../lib/supabaseClient";
+    // @ts-nocheck
+    import { supabase } from "../../lib/supabase";
 
     declare global {
         interface Window {
@@ -703,32 +734,53 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
     }
 
     window.updateStatus = async (orderId, newStatus) => {
-        const updateData =
-            newStatus === "shipped"
-                ? {
-                      shipping_status: "shipped",
-                      payment_status: "shipped",
-                  }
-                : { payment_status: newStatus };
+        if (newStatus === "shipped") {
+            const tracking = prompt("Please enter Tracking Number (optional):");
+            if (tracking !== null) {
+                const { error: trackError } = await supabase
+                    .from("orders")
+                    .update({
+                        shipping_status: "shipped",
+                        payment_status: "shipped",
+                        tracking_number: tracking,
+                    })
+                    .eq("id", orderId);
 
-        const { error } = await supabase
-            .from("orders")
-            .update(updateData)
-            .eq("id", orderId);
+                if (trackError) {
+                    alert("Error saving tracking: " + trackError.message);
+                    return;
+                }
 
-        if (error) {
-            alert(error.message);
-            return;
-        }
+                // Update local data
+                const localOrder = window.allOrders.find(
+                    (o) => o.id === orderId,
+                );
+                if (localOrder) {
+                    localOrder.payment_status = "shipped";
+                    localOrder.shipping_status = "shipped";
+                    localOrder.tracking_number = tracking;
+                }
 
-        // ===============================
-        // 🔥 UPDATE LOCAL DATA (Fixes Modal Stale Data)
-        // ===============================
-        const localOrder = window.allOrders.find((o) => o.id === orderId);
-        if (localOrder) {
-            localOrder.payment_status = newStatus;
-            if (newStatus === "shipped") {
-                localOrder.shipping_status = "shipped";
+                // Trigger UI updates below...
+            } else {
+                return; // User cancelled
+            }
+        } else {
+            // Normal status update (pending -> paid)
+            const { error } = await supabase
+                .from("orders")
+                .update({ payment_status: newStatus })
+                .eq("id", orderId);
+
+            if (error) {
+                alert(error.message);
+                return;
+            }
+
+            // Update local data
+            const localOrder = window.allOrders.find((o) => o.id === orderId);
+            if (localOrder) {
+                localOrder.payment_status = newStatus;
             }
         }
 

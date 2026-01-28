@@ -1,0 +1,184 @@
+{
+	"version": 3,
+	"routes": [
+		{
+			"handle": "filesystem"
+		},
+		{
+			"src": "^/_astro/(.*)$",
+			"headers": {
+				"cache-control": "public, max-age=31536000, immutable"
+			},
+			"continue": true
+		},
+		{
+			"src": "^/_server-islands/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/_image/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/404/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/chat/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/customers/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/disputes/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/orders/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/products/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/sellers/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/settings/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/admin/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/api/telegram-notify/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/articles/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/blog/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/chat/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/checkout/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/course/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/knowledge/post/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/knowledge/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/knowledge/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/learn/advanced-security/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/learn/bitcoin-101/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/learn/lightning-network/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/learn/self-custody/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/login/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/policies/privacy/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/policies/refund/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/policies/shipping/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/policies/terms/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/products/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/profile/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/dashboard/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/orders/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/products/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/register/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/wallet/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/shop/([^/]+?)/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/shop/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/support/contact/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/thankyou/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/.*$",
+			"dest": "_render",
+			"status": 404
+		}
+	]
+}

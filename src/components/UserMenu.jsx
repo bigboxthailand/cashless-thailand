@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import AuthModal from './AuthModal';
 
 export default function UserMenu() {
@@ -13,27 +13,43 @@ export default function UserMenu() {
         // 1. Check Supabase Session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
-            if (session) fetchProfile(session.user.id);
+            if (session) fetchProfile(session.user.id, null);
+            else {
+                // If no session, check for Wallet immediately
+                const storedWallet = localStorage.getItem('user_wallet');
+                if (storedWallet) {
+                    setWallet(storedWallet);
+                    fetchProfile(null, storedWallet);
+                }
+            }
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
-            if (session) fetchProfile(session.user.id);
-            else setProfile(null);
+            if (session) fetchProfile(session.user.id, null);
+            else {
+                setProfile(null);
+                // Check wallet again on logout
+                const storedWallet = localStorage.getItem('user_wallet');
+                if (storedWallet) {
+                    setWallet(storedWallet);
+                    fetchProfile(null, storedWallet);
+                } else {
+                    setWallet(null);
+                }
+            }
         });
-
-        // 2. Check Local Wallet (Metamask)
-        const storedWallet = localStorage.getItem('user_wallet');
-        if (storedWallet) {
-            setWallet(storedWallet);
-        }
 
         return () => subscription.unsubscribe();
     }, []);
 
-    const fetchProfile = async (userId) => {
-        const { data } = await supabase.from('profiles').select('avatar_url, full_name').eq('id', userId).single();
-        setProfile(data);
+    const fetchProfile = async (userId, walletAddr) => {
+        let query = supabase.from('profiles').select('avatar_url, full_name, id');
+        if (userId) query = query.eq('id', userId);
+        else if (walletAddr) query = query.eq('wallet_address', walletAddr);
+
+        const { data } = await query.single();
+        if (data) setProfile(data);
     };
 
     const handleLogout = async () => {
@@ -42,6 +58,7 @@ export default function UserMenu() {
         } else if (wallet) {
             localStorage.removeItem('user_wallet');
             setWallet(null);
+            setProfile(null);
             window.location.reload();
         }
     };
@@ -54,15 +71,10 @@ export default function UserMenu() {
             <div className="relative group">
                 <a href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <div className="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center text-black font-bold text-xs overflow-hidden border border-[#D4AF37]">
-                        {session ? (
-                            profile?.avatar_url ? (
-                                <img src={profile.avatar_url} className="w-full h-full object-cover" />
-                            ) : (
-                                <span>{profile?.full_name?.[0] || session.user.email[0].toUpperCase()}</span>
-                            )
+                        {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} className="w-full h-full object-cover" />
                         ) : (
-                            // Wallet Icon / Avatar
-                            <span className="text-[10px]">0x</span>
+                            <span>{profile?.full_name?.[0] || (session ? session.user.email[0].toUpperCase() : 'W')}</span>
                         )}
                     </div>
                 </a>
@@ -71,10 +83,10 @@ export default function UserMenu() {
                 <div className="absolute top-full right-0 mt-2 w-48 bg-[#111] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/5">
                         <p className="text-white text-xs font-bold truncate">
-                            {session ? (profile?.full_name || 'User') : 'Metamask User'}
+                            {profile?.full_name || (session ? 'User' : "Meta Mask's Shop")}
                         </p>
                         <p className="text-white/40 text-[10px] truncate">
-                            {session ? session.user.email : shortAddress(wallet)}
+                            {session ? `ID: ${session.user.id.slice(0, 8)}...` : ''}
                         </p>
                     </div>
                     {session && (

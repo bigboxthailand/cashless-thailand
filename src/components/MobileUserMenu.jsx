@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import AuthModal from './AuthModal';
 
 export default function MobileUserMenu() {
@@ -48,8 +48,8 @@ export default function MobileUserMenu() {
 
     // Shared styling for mobile links
     const linkClass = "mobile-nav-link text-3xl font-black text-white hover:text-[#D4AF37] transition-colors tracking-widest uppercase flex items-center justify-center gap-3 group w-full cursor-pointer";
-    const dotLeft = <span className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>;
-    const dotRight = <span className="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#D4AF37]">•</span>;
+    const dotLeft = <div className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 w-2 h-2 bg-[#D4AF37] rounded-full"></div>;
+    const dotRight = <div className="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 w-2 h-2 bg-[#D4AF37] rounded-full"></div>;
 
     // Helper to close mobile menu (simulated by triggering click on a link which Navbar.astro observes)
     // Note: Navbar.astro listens to .mobile-nav-link clicks to close the menu.

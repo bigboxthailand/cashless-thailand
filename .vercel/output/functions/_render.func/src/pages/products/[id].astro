@@ -1,0 +1,1069 @@
+---
+import { supabase } from "../../lib/supabase";
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import CartDrawer from "../../components/CartDrawer.astro";
+import Reviews from "../../components/Reviews.jsx";
+const { id } = Astro.params;
+
+// Fetch product from Supabase
+const { data: productData, error } = await supabase
+    .from("products")
+    .select("*, shop:shops(name, slug, logo_url, is_verified)")
+    .eq("id", id)
+    .single();
+
+if (error || !productData) {
+    return Astro.redirect("/404");
+}
+
+// Normalize Data (DB snake_case vs App camelCase)
+// @ts-ignore
+const parseIfNeeded = (val) => {
+    if (typeof val === "string") {
+        try {
+            return JSON.parse(val);
+        } catch (e) {
+            return val;
+        }
+    }
+    return val;
+};
+
+const product = {
+    ...productData,
+    meta: parseIfNeeded(productData.meta) || {},
+    marketing: parseIfNeeded(productData.marketing) || {},
+    // Map tech_specs (DB) to techSpecs (Frontend)
+    techSpecs:
+        parseIfNeeded(productData.tech_specs || productData.techSpecs) || [],
+    config: parseIfNeeded(productData.config) || {},
+    pricing: parseIfNeeded(productData.pricing) || {},
+    media: parseIfNeeded(productData.media) || {},
+    manualLink: productData.manual_link || productData.manualLink,
+};
+
+// Use optional chaining and snake_case for DB columns
+const hasMarketing =
+    product.marketing &&
+    product.marketing.benefits &&
+    product.marketing.benefits.length > 0;
+const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
+const hasGallery = product.media.gallery && product.media.gallery.length > 1;
+
+let initialPrice = product.pricing.basePrice;
+
+// Check if we need to get price from variants
+if (
+    product.config &&
+    product.config.variants &&
+    product.config.variants.length > 0
+) {
+    if (!initialPrice || initialPrice === 0) {
+        initialPrice = product.config.variants[0].price;
+    }
+}
+
+const formattedPrice = (initialPrice || 0).toLocaleString();
+const currency = product.pricing.currency || "THB";
+
+const productJson = JSON.stringify(product);
+---
+
+<Layout
+    title={`${product.meta.title} | Cashless Thailand`}
+    description={product.meta.description}
+>
+    <Navbar />
+    <CartDrawer />
+
+    <main
+        id="product-page-container"
+        class="bg-[#050505] min-h-screen pt-32 pb-10 overflow-x-hidden"
+        data-product-json={productJson}
+    >
+        <div
+            class="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-32"
+        >
+            <div class="space-y-6 animate-fade-in">
+                <div
+                    id="image-container"
+                    class="aspect-[4/5] md:aspect-square bg-[#111] rounded-[2rem] border border-white/5 relative group flex items-center justify-center p-8 overflow-hidden shadow-2xl touch-pan-y select-none cursor-grab active:cursor-grabbing"
+                >
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                    >
+                    </div>
+                    <img
+                        id="main-image"
+                        src={product.media.mainImage}
+                        alt={product.meta.title}
+                        class="w-full h-full object-contain transition-all duration-300 pointer-events-none"
+                        loading="eager"
+                    />
+
+                    {
+                        hasGallery && (
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 md:hidden flex gap-1 items-center">
+                                <span class="text-[10px] text-white/50 uppercase tracking-widest font-bold">
+                                    Swipe
+                                </span>
+                                <svg
+                                    class="w-3 h-3 text-white/50"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                </svg>
+                            </div>
+                        )
+                    }
+                </div>
+
+                {
+                    hasGallery && (
+                        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                            {/* @ts-ignore */}
+                            {product.media.gallery.map((img, index) => (
+                                <button
+                                    class="w-20 h-20 rounded-2xl border border-white/10 bg-[#111] overflow-hidden hover:border-[#D4AF37] transition-all flex-shrink-0 snap-start focus:ring-2 focus:ring-[#D4AF37] focus:outline-none thumbnail-btn"
+                                    data-src={img}
+                                    aria-label={`View image ${index + 1}`}
+                                >
+                                    <img
+                                        src={img}
+                                        class="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity"
+                                    />
+                                </button>
+                            ))}
+                        </div>
+                    )
+                }
+            </div>
+
+            <div class="flex flex-col justify-center relative pb-40 md:pb-0">
+                <div class="animate-fade-in">
+                    <div class="flex items-center gap-4 mb-6">
+                        <a
+                            href={product.shop
+                                ? `/shop/${product.shop.slug}`
+                                : "/shop"}
+                            class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors"
+                            >{product.shop ? product.shop.name : "Shop"}</a
+                        >
+                        <span class="text-white/20">/</span>
+                        <span
+                            class="text-xs font-bold text-[#D4AF37] uppercase tracking-widest"
+                            >{product.meta.title}</span
+                        >
+                    </div>
+
+                    {
+                        product.meta.tags && (
+                            <div class="flex gap-2 mb-6">
+                                {/* @ts-ignore */}
+                                {product.meta.tags.map((tag) => (
+                                    <span class="px-3 py-1 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] rounded shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )
+                    }
+
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white leading-[0.9] mb-6 tracking-tight"
+                    >
+                        {product.meta.title}
+                    </h1>
+                    <p
+                        class="text-white/60 font-light text-lg mb-10 leading-relaxed max-w-lg whitespace-pre-line"
+                    >
+                        {product.meta.description}
+                    </p>
+
+                    <div class="mb-10">
+                        <div class="flex items-baseline gap-3">
+                            <span
+                                id="price-display"
+                                class="text-5xl text-white font-black eng tracking-tighter"
+                                >{formattedPrice}</span
+                            >
+                            <span class="text-xl text-[#D4AF37] font-bold eng"
+                                >{currency}</span
+                            >
+                        </div>
+                        <p
+                            class="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mt-1"
+                        >
+                            + ค่าจัดส่ง 50 บาท (ทั่วประเทศ)
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    class="fixed md:static bottom-0 left-0 w-full md:w-auto bg-[#0a0a0a]/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none border-t border-white/10 md:border-none px-6 py-5 md:p-0 z-[100] flex flex-col gap-4"
+                >
+                    {
+                        product.config && product.config.variants && (
+                            <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5">
+                                <span class="hidden md:block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+                                    Select{" "}
+                                    {product.config.variantType === "color"
+                                        ? "Color"
+                                        : "Model"}
+                                </span>
+
+                                <div
+                                    class="flex gap-3 md:gap-4 flex-wrap"
+                                    id="variant-selector"
+                                >
+                                    {/* @ts-ignore */}
+                                    {product.config.variants.map(
+                                        (variant: any, index: any) =>
+                                            product.config.variantType ===
+                                            "color" ? (
+                                                <button
+                                                    class={`variant-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 transition-all duration-300 relative group ${index === 0 ? "border-[#D4AF37] scale-110 active-variant" : "border-white/20 hover:scale-110"}`}
+                                                    style={`background-color: ${variant.value}`}
+                                                    data-image={variant.image}
+                                                    data-name={variant.name}
+                                                    data-price={variant.price}
+                                                    aria-label={variant.name}
+                                                >
+                                                    <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10 hidden md:block">
+                                                        {variant.name}
+                                                    </span>
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    class={`variant-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${index === 0 ? "border-[#D4AF37] bg-[#D4AF37] text-black active-variant" : "border-white/10 text-white/60 hover:border-white hover:text-white"}`}
+                                                    data-image={variant.image}
+                                                    data-name={variant.name}
+                                                    data-price={variant.price}
+                                                >
+                                                    {variant.name}
+                                                </button>
+                                            ),
+                                    )}
+                                </div>
+                            </div>
+                        )
+                    }
+
+                    {/* NEW: Composite Options (Multi-Level) */}
+                    {
+                        product.config &&
+                            product.config.variantType === "composite" &&
+                            product.config.options && (
+                                <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5 space-y-6">
+                                    {/* @ts-ignore */}
+                                    {product.config.options.map(
+                                        (option: any, groupIdx: any) => (
+                                            <div>
+                                                <span class="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
+                                                    Select {option.name}
+                                                </span>
+                                                <div
+                                                    class="flex gap-3 flex-wrap option-group"
+                                                    data-group-index={groupIdx}
+                                                >
+                                                    {/* @ts-ignore */}
+                                                    {option.values.map(
+                                                        (
+                                                            val: any,
+                                                            valIdx: any,
+                                                        ) => (
+                                                            <button
+                                                                class={`option-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${valIdx === 0 ? "border-[#D4AF37] bg-[#D4AF37] text-black active-option" : "border-white/10 text-white/60 hover:border-white hover:text-white"}`}
+                                                                data-group-index={
+                                                                    groupIdx
+                                                                }
+                                                                data-value-index={
+                                                                    valIdx
+                                                                }
+                                                                data-name={
+                                                                    val.name
+                                                                }
+                                                                data-price={
+                                                                    val.price
+                                                                }
+                                                                data-image={
+                                                                    val.image ||
+                                                                    ""
+                                                                }
+                                                            >
+                                                                {val.name}
+                                                                {val.price >
+                                                                    0 && (
+                                                                    <span class="opacity-60 ml-1">
+                                                                        (+
+                                                                        {val.price.toLocaleString()}
+                                                                        )
+                                                                    </span>
+                                                                )}
+                                                            </button>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            )
+                    }
+
+                    <div class="flex gap-3 md:gap-4 h-14">
+                        <div
+                            class="flex items-center bg-[#111] border border-white/10 rounded-xl px-2 w-28 md:w-32 justify-between shrink-0"
+                        >
+                            <button
+                                id="qty-minus"
+                                class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90"
+                                >-</button
+                            >
+                            <input
+                                id="qty-input"
+                                type="number"
+                                value="1"
+                                min="1"
+                                class="w-8 md:w-10 bg-transparent text-center text-white font-bold outline-none appearance-none font-mono"
+                                readonly
+                            />
+                            <button
+                                id="qty-plus"
+                                class="text-white/30 hover:text-white w-8 md:w-10 h-full flex items-center justify-center text-xl transition-colors active:scale-90"
+                                >+</button
+                            >
+                        </div>
+
+                        <button
+                            id="add-to-cart-btn"
+                            class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
+                        >
+                            <span
+                                class="relative z-10 flex items-center justify-center gap-2"
+                            >
+                                Add to Cart
+                                <svg
+                                    class="w-4 h-4 transition-transform group-hover:translate-x-1"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                    ></path></svg
+                                >
+                            </span>
+                            <div
+                                class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                            >
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    class="grid grid-cols-2 gap-4 pt-8 border-t border-white/5 mt-8 md:mt-0 animate-fade-in"
+                >
+                    {
+                        product.manualLink && (
+                            <a
+                                href={product.manualLink}
+                                class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
+                            >
+                                <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-white uppercase tracking-wider">
+                                        User Guide
+                                    </span>
+                                    <span class="text-[10px] text-white/40">
+                                        Setup & Manual
+                                    </span>
+                                </div>
+                            </a>
+                        )
+                    }
+                    {
+                        hasSpecs && (
+                            <a
+                                href="#specs"
+                                class="flex items-center gap-4 p-4 rounded-2xl bg-[#111] border border-white/5 hover:border-[#D4AF37]/50 hover:bg-[#1a1a1a] transition-all group"
+                            >
+                                <div class="w-10 h-10 rounded-full bg-[#050505] flex items-center justify-center border border-white/10 group-hover:border-[#D4AF37] group-hover:text-[#D4AF37] transition-colors">
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-white uppercase tracking-wider">
+                                        Tech Specs
+                                    </span>
+                                    <span class="text-[10px] text-white/40">
+                                        Hardware Details
+                                    </span>
+                                </div>
+                            </a>
+                        )
+                    }
+                </div>
+            </div>
+        </div>
+
+        {
+            hasMarketing && (
+                <div class="relative py-32 border-t border-white/5 overflow-hidden">
+                    <div class="absolute inset-0 bg-[#0a0a0a]" />
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none" />
+
+                    <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+                        <div class="text-center mb-20">
+                            <h2 class="inline-block px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.3em] uppercase mb-6 backdrop-blur-md">
+                                {product.marketing.headline}
+                            </h2>
+                            <h3 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                                {product.marketing.subheadline}
+                            </h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {/* @ts-ignore */}
+                            {product.marketing.benefits.map((benefit) => (
+                                <div class="bg-[#111]/80 backdrop-blur-sm border border-white/5 p-8 rounded-[2rem] hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 group">
+                                    <div class="w-16 h-16 bg-[#050505] rounded-2xl flex items-center justify-center border border-white/10 mb-8 group-hover:scale-110 group-hover:border-[#D4AF37] transition-all shadow-lg">
+                                        <span class="text-3xl filter grayscale group-hover:grayscale-0 transition-all">
+                                            {benefit.icon === "chart" && "📈"}
+                                            {benefit.icon === "shop" && "🏪"}
+                                            {benefit.icon === "gift" && "🎁"}
+                                            {benefit.icon === "money" && "💰"}
+                                            {benefit.icon === "time" && "⏳"}
+                                            {benefit.icon === "diamond" && "💎"}
+                                            {benefit.icon === "shield" && "🛡️"}
+                                            {benefit.icon === "zap" && "⚡"}
+                                            {benefit.icon === "lock" && "🔒"}
+                                            {benefit.icon === "globe" && "🌍"}
+                                            {/* Fallback */}
+                                            {![
+                                                "chart",
+                                                "shop",
+                                                "gift",
+                                                "money",
+                                                "time",
+                                                "diamond",
+                                                "shield",
+                                                "zap",
+                                                "lock",
+                                                "globe",
+                                            ].includes(benefit.icon) && "✨"}
+                                        </span>
+                                    </div>
+                                    <h4 class="text-2xl font-bold text-white mb-4 group-hover:text-[#D4AF37] transition-colors">
+                                        {benefit.title}
+                                    </h4>
+                                    <p class="text-white/50 font-light leading-relaxed">
+                                        {benefit.desc}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        {
+            hasSpecs && (
+                <div class="py-32 max-w-[900px] mx-auto px-6" id="specs">
+                    <div class="flex items-end justify-between mb-12 border-b border-white/10 pb-6">
+                        <h3 class="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter">
+                            Technical{" "}
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F9E79F]">
+                                Specifications
+                            </span>
+                        </h3>
+                        <div class="hidden md:block text-[#D4AF37] font-mono text-xs opacity-50">
+                            /// HARDWARE_ID: {product.id.toUpperCase()}
+                        </div>
+                    </div>
+
+                    <div class="bg-[#111] rounded-[2rem] border border-white/5 overflow-hidden relative">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#D4AF37] to-transparent opacity-50" />
+
+                        {/* @ts-ignore */}
+                        {product.techSpecs.map((spec, i) => (
+                            <div
+                                class={`flex flex-col md:flex-row md:justify-between md:items-center p-6 ${i !== product.techSpecs.length - 1 ? "border-b border-white/5" : ""} hover:bg-white/5 transition-colors group`}
+                            >
+                                <span class="text-white/40 font-bold uppercase text-xs tracking-[0.2em] mb-2 md:mb-0 group-hover:text-[#D4AF37] transition-colors">
+                                    {spec.label}
+                                </span>
+                                <span class="text-white font-medium text-sm md:text-right">
+                                    {spec.value}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )
+        }
+
+        {/* Reviews Section */}
+        <Reviews productId={product.id} client:visible />
+    </main>
+    <Footer />
+</Layout>
+
+<script>
+    // @ts-nocheck
+    import { cartStore } from "../../lib/cartStore.js";
+    import { supabase } from "../../lib/supabase";
+
+    function initProductPage() {
+        const container = document.getElementById("product-page-container");
+        if (!container) return;
+
+        const productData = JSON.parse(container.dataset.productJson || "{}");
+        // @ts-ignore
+        const galleryImgs = productData.media?.gallery || [
+            // @ts-ignore
+            productData.media?.mainImage,
+        ];
+
+        let initialVariantName = "Standard";
+        let initialImage = galleryImgs[0];
+        // @ts-ignore
+        let initialPrice = productData.pricing?.basePrice;
+
+        if (
+            productData.config &&
+            productData.config.variants &&
+            productData.config.variants.length > 0
+        ) {
+            initialVariantName = productData.config.variants[0].name;
+            initialImage = productData.config.variants[0].image || initialImage;
+            initialPrice = productData.config.variants[0].price || initialPrice;
+        }
+
+        const state = {
+            currentImage: initialImage,
+            selectedVariantName: initialVariantName,
+            currentPrice: initialPrice,
+            // New: For composite options
+            compositeSelection: {}, // groupIndex -> valueIndex
+        };
+
+        // Initialize composite selection if needed
+        if (productData.config?.variantType === "composite") {
+            productData.config.options.forEach((_, idx) => {
+                state.compositeSelection[idx] = 0;
+            });
+            // Recalculate initial price/name for composite
+            // ... (Logic will be handled in updateCompositeState)
+        }
+
+        const getCleanElement = (id) => {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            const newEl = el.cloneNode(true);
+            if (el.parentNode) el.parentNode.replaceChild(newEl, el);
+            return newEl;
+        };
+
+        const imageContainer = document.getElementById("image-container");
+        const mainImage = document.getElementById("main-image");
+        const priceDisplay = document.getElementById("price-display");
+        const qtyInput = document.getElementById("qty-input");
+        const minusBtn = getCleanElement("qty-minus");
+        const plusBtn = getCleanElement("qty-plus");
+        const addBtn = getCleanElement("add-to-cart-btn");
+
+        const variantBtns = document.querySelectorAll(".variant-btn");
+        const thumbBtns = document.querySelectorAll(".thumbnail-btn");
+
+        const changeImage = (src) => {
+            if (!mainImage || !src || state.currentImage === src) return;
+            mainImage.style.opacity = "0";
+            mainImage.style.transform = "scale(0.95)";
+
+            setTimeout(() => {
+                mainImage.src = src;
+                mainImage.style.opacity = "1";
+                mainImage.style.transform = "scale(1)";
+                state.currentImage = src;
+                updateThumbnails(src);
+            }, 200);
+        };
+
+        const updateThumbnails = (activeSrc) => {
+            document.querySelectorAll(".thumbnail-btn").forEach((b) => {
+                const btn = b;
+                const isActive = btn.dataset.src === activeSrc;
+                const img = btn.querySelector("img");
+
+                if (isActive) {
+                    btn.classList.remove("border-white/10");
+                    btn.classList.add("border-[#D4AF37]");
+                    if (img) {
+                        img.classList.remove("opacity-60");
+                        img.classList.add("opacity-100");
+                    }
+                } else {
+                    btn.classList.remove("border-[#D4AF37]");
+                    btn.classList.add("border-white/10");
+                    if (img) {
+                        img.classList.add("opacity-60");
+                        img.classList.remove("opacity-100");
+                    }
+                }
+            });
+        };
+
+        // --- Swipe Logic ---
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        const handleSwipe = () => {
+            if (galleryImgs.length <= 1) return;
+            // @ts-ignore
+            const currentIndex = galleryImgs.indexOf(state.currentImage);
+
+            if (touchendX < touchstartX - 50) {
+                const nextIndex = (currentIndex + 1) % galleryImgs.length;
+                changeImage(galleryImgs[nextIndex]);
+            }
+            if (touchendX > touchstartX + 50) {
+                const prevIndex =
+                    (currentIndex - 1 + galleryImgs.length) %
+                    galleryImgs.length;
+                changeImage(galleryImgs[prevIndex]);
+            }
+        };
+
+        imageContainer?.addEventListener(
+            "touchstart",
+            (e) => {
+                touchstartX = e.changedTouches[0].screenX;
+            },
+            { passive: true },
+        );
+
+        imageContainer?.addEventListener(
+            "touchend",
+            (e) => {
+                touchendX = e.changedTouches[0].screenX;
+                handleSwipe();
+            },
+            { passive: true },
+        );
+
+        thumbBtns.forEach((btn) => {
+            const newBtn = btn.cloneNode(true);
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener("click", (e) => {
+                const target = e.currentTarget;
+                if (target.dataset.src) {
+                    changeImage(target.dataset.src);
+                }
+            });
+        });
+
+        variantBtns.forEach((btn, index) => {
+            const newBtn = btn.cloneNode(true);
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            if (index === 0) {
+                if (newBtn.classList.contains("rounded-full")) {
+                    newBtn.classList.add(
+                        "border-[#D4AF37]",
+                        "scale-110",
+                        "active-variant",
+                    );
+                    newBtn.classList.remove("border-white/20");
+                } else {
+                    newBtn.classList.add(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "border-[#D4AF37]",
+                        "active-variant",
+                    );
+                    newBtn.classList.remove("border-white/10", "text-white/60");
+                }
+            }
+
+            newBtn.addEventListener("click", (e) => {
+                const target = e.currentTarget;
+                const name = target.dataset.name || "";
+                const img = target.dataset.image;
+                const priceStr = target.dataset.price || "0";
+                const price = parseInt(priceStr);
+
+                state.selectedVariantName = name;
+                state.currentPrice = price;
+                if (img) changeImage(img);
+
+                if (priceDisplay && !isNaN(price)) {
+                    priceDisplay.innerText = price.toLocaleString();
+                    priceDisplay.classList.add("scale-110", "text-[#D4AF37]");
+                    setTimeout(
+                        () =>
+                            priceDisplay.classList.remove(
+                                "scale-110",
+                                "text-[#D4AF37]",
+                            ),
+                        150,
+                    );
+                }
+
+                document.querySelectorAll(".variant-btn").forEach((b) => {
+                    const btnEl = b;
+                    if (btnEl.classList.contains("rounded-full")) {
+                        btnEl.classList.remove(
+                            "border-[#D4AF37]",
+                            "scale-110",
+                            "active-variant",
+                        );
+                        btnEl.classList.add("border-white/20");
+                    } else {
+                        btnEl.classList.remove(
+                            "bg-[#D4AF37]",
+                            "text-black",
+                            "border-[#D4AF37]",
+                            "active-variant",
+                        );
+                        btnEl.classList.add("border-white/10", "text-white/60");
+                    }
+                });
+
+                if (target.classList.contains("rounded-full")) {
+                    target.classList.remove("border-white/20");
+                    target.classList.add(
+                        "border-[#D4AF37]",
+                        "scale-110",
+                        "active-variant",
+                    );
+                } else {
+                    target.classList.remove("border-white/10", "text-white/60");
+                    target.classList.add(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "border-[#D4AF37]",
+                        "active-variant",
+                    );
+                }
+            });
+        });
+
+        // --- Composite Logic ---
+        const optionBtns = document.querySelectorAll(".option-btn");
+
+        // --- Composite Logic (Exact Lookup) ---
+        const updateCompositeState = () => {
+            // 1. Build current selection array [0, 1]
+            const currentIndices = [];
+            // @ts-ignore
+            productData.config.options.forEach((_, idx) => {
+                currentIndices.push(state.compositeSelection[idx] || 0);
+            });
+
+            // 2. Find matching combination
+            let matchedCombo = null;
+            // @ts-ignore
+            if (productData.config.combinations) {
+                // @ts-ignore
+                matchedCombo = productData.config.combinations.find(
+                    (c) =>
+                        JSON.stringify(c.indices) ===
+                        JSON.stringify(currentIndices),
+                );
+            }
+
+            // 3. Fallback logic (should not happen if combinations are complete)
+            // Use combo price if found, otherwise basePrice
+            let finalPrice = matchedCombo
+                ? matchedCombo.price
+                : productData.pricing?.basePrice || 0;
+
+            // 4. Update Names & Image
+            let names = [];
+            let newImage = "";
+            // @ts-ignore
+            productData.config.options.forEach((opt, groupIdx) => {
+                const selectedValIdx = state.compositeSelection[groupIdx] || 0;
+                const selectedVal = opt.values[selectedValIdx];
+                names.push(selectedVal.name);
+                if (selectedVal.image) newImage = selectedVal.image;
+            });
+
+            // 5. Update State & UI
+            state.currentPrice = finalPrice;
+            state.selectedVariantName = names.join(" + ");
+            if (matchedCombo && matchedCombo.sku) {
+                // Optional: Store SKU if needed
+            }
+
+            if (newImage && newImage !== state.currentImage) {
+                changeImage(newImage);
+            }
+
+            if (priceDisplay) {
+                priceDisplay.innerText = finalPrice.toLocaleString();
+                priceDisplay.classList.add("scale-110", "text-[#D4AF37]");
+                setTimeout(
+                    () =>
+                        priceDisplay.classList.remove(
+                            "scale-110",
+                            "text-[#D4AF37]",
+                        ),
+                    150,
+                );
+            }
+        };
+
+        // Run once on init for composite
+        if (productData.config?.variantType === "composite") {
+            updateCompositeState();
+        }
+
+        optionBtns.forEach((btn) => {
+            // Clone to remove old listeners if any
+            const newBtn = btn.cloneNode(true);
+            if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener("click", (e) => {
+                const target = e.currentTarget;
+                const groupIdx = parseInt(target.dataset.groupIndex || "0");
+                const valIdx = parseInt(target.dataset.valueIndex || "0");
+
+                // Update State
+                state.compositeSelection[groupIdx] = valIdx;
+
+                // Update UI classes
+                const groupContainer = document.querySelector(
+                    `.option-group[data-group-index="${groupIdx}"]`,
+                );
+                if (groupContainer) {
+                    groupContainer
+                        .querySelectorAll(".option-btn")
+                        .forEach((b) => {
+                            b.classList.remove(
+                                "bg-[#D4AF37]",
+                                "text-black",
+                                "border-[#D4AF37]",
+                                "active-option",
+                            );
+                            b.classList.add("border-white/10", "text-white/60");
+                        });
+                }
+
+                target.classList.remove("border-white/10", "text-white/60");
+                target.classList.add(
+                    "bg-[#D4AF37]",
+                    "text-black",
+                    "border-[#D4AF37]",
+                    "active-option",
+                );
+
+                updateCompositeState();
+            });
+        });
+
+        minusBtn?.addEventListener("click", () => {
+            if (qtyInput) {
+                let val = parseInt(qtyInput.value);
+                if (val > 1) qtyInput.value = (val - 1).toString();
+            }
+        });
+
+        plusBtn?.addEventListener("click", () => {
+            if (qtyInput) {
+                let val = parseInt(qtyInput.value);
+                qtyInput.value = (val + 1).toString();
+            }
+        });
+
+        addBtn?.addEventListener("click", () => {
+            if (!addBtn) return;
+            const qty = parseInt(qtyInput?.value || "1");
+            const variantSlug = state.selectedVariantName
+                .replace(/\s+/g, "-")
+                .toLowerCase();
+            const itemId = `${productData.id}-${variantSlug}`;
+
+            const item = {
+                id: itemId, // Unique ID for cart management (product + variant)
+                product_id: productData.id, // REAL Product ID for DB
+                title: `${productData.meta.title} (${state.selectedVariantName})`,
+                price: state.currentPrice,
+                image: state.currentImage,
+                variant_name: state.selectedVariantName,
+                // sku: ... (if available in state)
+            };
+
+            for (let i = 0; i < qty; i++) cartStore.add(item);
+
+            const originalText = addBtn.innerHTML;
+            addBtn.innerHTML = `<span class="flex items-center gap-2">Added!</span>`;
+            addBtn.classList.add("bg-white", "text-black");
+
+            setTimeout(() => {
+                addBtn.innerHTML = originalText;
+                addBtn.classList.remove("bg-white", "text-black");
+            }, 1000);
+        });
+
+        // --- Chat with Seller Logic ---
+        document
+            .getElementById("chat-seller-btn")
+            ?.addEventListener("click", async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const shopId = btn.dataset.shopId;
+                const productTitle = btn.dataset.productTitle;
+
+                // Check Auth
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href =
+                        "/login?redirect=" + window.location.pathname;
+                    return;
+                }
+
+                btn.innerText = "Starting...";
+
+                // 1. Get Shop Owner ID
+                const { data: shop } = await supabase
+                    .from("shops")
+                    .select("owner_id")
+                    .eq("id", shopId)
+                    .single();
+
+                if (!shop) {
+                    alert("Shop not found");
+                    return;
+                }
+
+                if (shop.owner_id === session.user.id) {
+                    alert("You cannot chat with yourself!");
+                    btn.innerHTML = "Chat";
+                    return;
+                }
+
+                // 2. Find existing P2P conversation
+                const { data: participations } = await supabase
+                    .from("conversation_participants")
+                    .select(
+                        "conversation_id, conversation:conversations!inner(id, metadata)",
+                    )
+                    .eq("user_id", session.user.id);
+
+                // @ts-ignore
+                const existing = participations?.find(
+                    (p) => p.conversation?.metadata?.shop_id === shopId,
+                );
+
+                let conversationId = existing?.conversation_id;
+
+                if (!conversationId) {
+                    // Create New
+                    const { data: newConv, error } = await supabase
+                        .from("conversations")
+                        .insert({
+                            type: "p2p",
+                            title: `Chat about ${productTitle}`,
+                            metadata: { shop_id: shopId },
+                        })
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error(error);
+                        alert("Error starting chat");
+                        return;
+                    }
+
+                    conversationId = newConv.id;
+
+                    // Add Participants
+                    await supabase.from("conversation_participants").insert([
+                        {
+                            conversation_id: conversationId,
+                            user_id: session.user.id,
+                        },
+                        {
+                            conversation_id: conversationId,
+                            user_id: shop.owner_id,
+                        },
+                    ]);
+                }
+
+                // Redirect
+                window.location.href = `/chat?id=${conversationId}`;
+            });
+    }
+
+    document.addEventListener("astro:page-load", initProductPage);
+    initProductPage();
+</script>
+
+<style>
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    #price-display {
+        transition: all 0.15s ease-out;
+    }
+</style>

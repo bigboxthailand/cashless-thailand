@@ -1,0 +1,50 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import AuthModal from "../components/AuthModal.jsx";
+---
+
+<Layout title="Login | Cashless Thailand">
+    <Navbar />
+    <main
+        class="bg-[#050505] min-h-screen pt-40 pb-20 px-6 flex items-center justify-center relative overflow-hidden"
+    >
+        {/* Background Elements */}
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none"
+        >
+        </div>
+
+        <div class="w-full max-w-md relative z-10">
+            <div id="login-container">
+                {
+                    /* Reusing AuthModal Logic but keeping it always open/visible style if needed, 
+                     or just mounting the modal. For this page, we'll just mount the Modal 'open' 
+                     but since AuthModal has a backdrop, it might look double-layered. 
+                     
+                     Better approach: Create a wrapper that forces the modal to be "inline" or just open.
+                     For simplicity, we will force the modal to be open.
+                 */
+                }
+                <AuthModal
+                    client:only="react"
+                    isOpen={true}
+                    onClose={() => (window.location.href = "/")}
+                />
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    import { supabase } from "../lib/supabase";
+
+    // Redirect if already logged in
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+    if (session) {
+        window.location.href = "/profile";
+    }
+</script>

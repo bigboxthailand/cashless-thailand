@@ -1,0 +1,139 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabase";
+import CustomerCharts from "../../components/admin/CustomerCharts";
+
+// 1. Fetch All Orders
+const { data: orders } = await supabase
+    .from("orders")
+    .select(
+        "customer_name, customer_email, customer_phone, province, total_price, created_at",
+    )
+    .order("created_at", { ascending: false });
+
+// 2. Aggregate Customers
+// We group by Email (or Name if email is placeholder/missing)
+const customerMap = new Map();
+
+orders?.forEach((order) => {
+    const key = order.customer_email || order.customer_name;
+    if (!customerMap.has(key)) {
+        customerMap.set(key, {
+            name: order.customer_name,
+            email: order.customer_email,
+            phone: order.customer_phone,
+            province: order.province,
+            totalSpent: 0,
+            orders: 0,
+            lastSeen: order.created_at,
+        });
+    }
+    const customer = customerMap.get(key);
+    customer.totalSpent += Number(order.total_price);
+    customer.orders += 1;
+    // Keep earliest or latest? Let's keep latest
+    if (new Date(order.created_at) > new Date(customer.lastSeen)) {
+        customer.lastSeen = order.created_at;
+    }
+});
+
+const customers: any[] = Array.from(customerMap.values()).sort(
+    (a, b) => b.totalSpent - a.totalSpent,
+); // Sort by Whale status
+const totalCustomers = customers.length;
+---
+
+<AdminLayout title="Customers">
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1
+                    class="text-3xl font-black text-white uppercase tracking-wider"
+                >
+                    Customers
+                </h1>
+                <p class="text-white/50 text-sm mt-1">
+                    {totalCustomers} Unique Customers found
+                </p>
+            </div>
+            <button
+                class="px-4 py-2 bg-[#D4AF37] text-black font-bold rounded text-sm hover:bg-white transition-colors"
+            >
+                Export CRM
+            </button>
+        </div>
+
+        <!-- CHARTS -->
+        <CustomerCharts client:load customers={customers} />
+
+        <!-- CUSTOMER TABLE -->
+        <div
+            class="bg-black/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden"
+        >
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-white/70">
+                    <thead
+                        class="bg-white/5 text-white font-bold uppercase text-xs tracking-wider"
+                    >
+                        <tr>
+                            <th class="p-4">Customer</th>
+                            <th class="p-4">Contact</th>
+                            <th class="p-4">Region</th>
+                            <th class="p-4 text-center">Orders</th>
+                            <th class="p-4 text-right">Lifetime Value (LTV)</th>
+                            <th class="p-4 text-right">Last Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {
+                            customers.map((c) => (
+                                <tr class="hover:bg-white/2 transition-colors">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-transparent p-0.5">
+                                            <div class="w-full h-full bg-black rounded-full overflow-hidden">
+                                                <img
+                                                    src={`https://unavatar.io/${c.email}?fallback=https://source.boringavatars.com/marble/120/${encodeURIComponent(c.name)}`}
+                                                    class="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="text-white font-bold">
+                                                {c.name}
+                                            </div>
+                                            <div class="text-[10px] text-[#D4AF37] uppercase tracking-wider font-bold">
+                                                {c.totalSpent > 100000
+                                                    ? "Whale"
+                                                    : c.totalSpent > 30000
+                                                      ? "Pro"
+                                                      : "User"}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-4">
+                                        <div class="text-white">{c.phone}</div>
+                                        <div class="text-xs text-white/40">
+                                            {c.email}
+                                        </div>
+                                    </td>
+                                    <td class="p-4">{c.province}</td>
+                                    <td class="p-4 text-center font-bold text-white">
+                                        {c.orders}
+                                    </td>
+                                    <td class="p-4 text-right font-black text-[#D4AF37]">
+                                        ฿{c.totalSpent.toLocaleString()}
+                                    </td>
+                                    <td class="p-4 text-right text-xs text-white/40">
+                                        {new Date(
+                                            c.lastSeen,
+                                        ).toLocaleDateString()}
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</AdminLayout>

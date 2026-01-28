@@ -525,7 +525,7 @@ import Footer from "../components/Footer.astro";
 
 <script>
     import { cartStore } from "../lib/cartStore.js";
-    import { supabase } from "../lib/supabaseClient";
+    import { supabase } from "../lib/supabase";
     import { ethers } from "ethers";
     import QRCode from "qrcode";
     import { generatePromptPayPayload } from "../lib/promptpay";
@@ -1437,9 +1437,26 @@ import Footer from "../components/Footer.astro";
 
             try {
                 // 1. Get Current User (if any)
-                const {
+                let {
                     data: { user },
                 } = await supabase.auth.getUser();
+
+                // 1.1 If no session, check for Wallet User
+                if (!user) {
+                    const wallet = localStorage.getItem("user_wallet");
+                    if (wallet) {
+                        const { data: profile } = await supabase
+                            .from("profiles")
+                            .select("id")
+                            .eq("wallet_address", wallet)
+                            .single();
+
+                        if (profile) {
+                            // Mock a user object with just the ID for the logic below
+                            user = { id: profile.id } as any;
+                        }
+                    }
+                }
 
                 // 2. Prepare Order Data for DB
                 // If Metamask was used, we might want to store the hash in slip_name or a note
@@ -1483,10 +1500,12 @@ import Footer from "../components/Footer.astro";
                 // 4. Insert Order Items
                 const dbItems = items.map((item: any) => ({
                     order_id: orderId,
+                    product_id: item.product_id, // Critical for stock deduction
                     title: item.title,
                     price: item.price,
                     quantity: item.quantity,
                     image_url: item.image,
+                    variant_name: item.variant_name || null, // Critical for variant stock
                 }));
 
                 const { error: itemsError } = await supabase

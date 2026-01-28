@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Blog Coming Soon | Cashless Thailand">
+    <Navbar />
+    <main class="relative z-10 bg-[#050505] min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="relative z-10 text-center flex flex-col items-center gap-8 px-6">
+            <div class="relative">
+                <div class="w-24 h-24 border border-[#D4AF37]/20 rounded-full flex items-center justify-center animate-spin-slow">
+                    <div class="w-20 h-20 border-t border-[#D4AF37] rounded-full"></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-3xl">✍️</span>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#D4AF37] to-[#8B6914] uppercase tracking-tighter leading-none">
+                    Blog <br/> Coming Soon
+                </h1>
+                <p class="text-white/40 text-lg font-light max-w-md mx-auto leading-relaxed">
+                    บทความความรู้เกี่ยวกับ Bitcoin และ Freedom Technology กำลังมาเร็วๆ นี้
+                </p>
+            </div>
+            <a href="/" class="px-8 py-3 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all">Back to Home</a>
+        </div>
+    </main>
+    <Footer />
+</Layout>
+<style>
+    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+</style>

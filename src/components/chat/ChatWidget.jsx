@@ -1,413 +1,226 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { AnimatePresence, motion } from 'framer-motion';
+import { supabase } from '../../lib/supabase';
 
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState("");
+    const [input, setInput] = useState("");
+    const [session, setSession] = useState(null);
     const [conversationId, setConversationId] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [hasUnread, setHasUnread] = useState(false);
     const messagesEndRef = useRef(null);
 
-    // Unread Count State
-    const [unreadCount, setUnreadCount] = useState(0);
-    const userRef = useRef(null);
-    const isOpenRef = useRef(isOpen);
-
     useEffect(() => {
-        userRef.current = user;
-    }, [user]);
+        const init = async () => {
+            // 1. Check Supabase Session
+            const { data: { session: sbSession } } = await supabase.auth.getSession();
+            let currentUser = sbSession?.user || null;
 
-    useEffect(() => {
-        isOpenRef.current = isOpen;
-    }, [isOpen]);
+            // 2. If no session, check Wallet
+            if (!currentUser) {
+                const walletAddress = localStorage.getItem('user_wallet');
+                if (walletAddress) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .eq('wallet_address', walletAddress)
+                        .single();
 
-    // New Feature States
-    const [orders, setOrders] = useState([]);
-    const [showOrderSelector, setShowOrderSelector] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const fileInputRef = useRef(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    // --- New Feature Handlers ---
-
-    const compressImage = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const MAX_HEIGHT = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    canvas.toBlob((blob) => {
-                        resolve(blob);
-                    }, 'image/jpeg', 0.8);
-                };
-            };
-        });
-    };
-
-    const handleFileUpload = async (e) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-
-        try {
-            // Compress and Show Preview Only
-            const compressedBlob = await compressImage(file);
-            const url = URL.createObjectURL(compressedBlob);
-
-            setSelectedFile(compressedBlob);
-            setPreviewUrl(url);
-
-            // Reset input so same file can be selected again if needed
-            e.target.value = '';
-        } catch (error) {
-            console.error("Compression failed", error);
-        }
-    };
-
-    const clearPreview = () => {
-        setSelectedFile(null);
-        setPreviewUrl(null);
-    };
-
-    const fetchOrders = async () => {
-        if (!user) return;
-        console.log("Fetching orders for user:", user.id);
-        setShowOrderSelector(true);
-        if (orders.length > 0) return; // Cache simple
-
-        const { data, error } = await supabase
-            .from('orders')
-            .select('id, total_price, order_items(title)')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(5);
-
-        console.log("Orders fetched:", data, "Error:", error);
-
-        if (data) setOrders(data);
-    };
-
-    const sendOrderLink = async (order) => {
-        await sendMessage({
-            content: `Linked Order #${order.id.slice(0, 8)}`,
-            metadata: { order_id: order.id }
-        });
-        setShowOrderSelector(false);
-    };
-
-    // Refactored sendMessage to accept overrides
-    const sendMessage = async ({ content, attachment_url = null, metadata = null }) => {
-        if (!conversationId || !user) return;
-
-        try {
-            const { error } = await supabase
-                .from('messages')
-                .insert([{
-                    conversation_id: conversationId,
-                    sender_id: user.id,
-                    content: content,
-                    attachment_url,
-                    metadata
-                }]);
-
-            if (error) throw error;
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
-
-    useEffect(() => {
-        checkUser();
-    }, []);
-
-    const checkUser = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-            setUser(session.user);
-            fetchConversation(session.user.id);
-        } else {
-            setLoading(false);
-        }
-    };
-
-    const fetchConversation = async (userId) => {
-        try {
-            // Find existing support conversation
-            const { data: convs } = await supabase
-                .from('conversation_participants')
-                .select('conversation_id, conversations(type)')
-                .eq('user_id', userId);
-
-            let activeConvId = null;
-
-            if (convs && convs.length > 0) {
-                for (let c of convs) {
-                    if (c.conversations?.type === 'support') {
-                        activeConvId = c.conversation_id;
-                        break;
+                    if (profile) {
+                        currentUser = { id: profile.id, role: 'authenticated' };
                     }
                 }
             }
 
-            if (activeConvId) {
-                setConversationId(activeConvId);
-                fetchMessages(activeConvId, userId);
-                subscribeToMessages(activeConvId);
+            if (currentUser) {
+                setSession({ user: currentUser });
+                fetchSupportConversation(currentUser.id);
             }
-        } catch (error) {
-            console.error("Error fetching conversation:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+        init();
+    }, []);
 
     useEffect(() => {
-        if (isOpen && conversationId) {
-            markMessagesAsRead();
+        if (conversationId) {
+            // Subscribe to real-time messages
+            const channel = supabase
+                .channel(`chat:${conversationId}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `conversation_id=eq.${conversationId}`
+                }, (payload) => {
+                    setMessages(prev => [...prev, payload.new]);
+                    scrollToBottom();
+                    if (!isOpen) {
+                        setHasUnread(true);
+                    }
+                })
+                .subscribe();
+
+            return () => { supabase.removeChannel(channel); }
         }
-        scrollToBottom();
-    }, [messages, isOpen]);
+    }, [conversationId, isOpen]);
 
-    const markMessagesAsRead = async () => {
-        if (!conversationId || !user) return;
-
-        // Optimistic update
-        setUnreadCount(0);
-
-        await supabase
-            .from('messages')
-            .update({ is_read: true })
-            .eq('conversation_id', conversationId)
-            .neq('sender_id', user.id) // Mark admins' messages as read
-            .eq('is_read', false);
+    const scrollToBottom = () => {
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     };
 
-    // Corrected fetchMessages to accept userId to avoid state race condition
-    const fetchMessages = async (convId, currentUserId = user?.id) => {
+    const fetchSupportConversation = async (userId) => {
+        // Find existing 'support' type conversation for this user
+        // Complex query: Join participants.
+        // For simplicity, we assume we store 'support_user_ID' in metadata or just query by type 'support' where I am participant
+
+        // Supabase Query: Conversations I am in AND type = 'support'
+        const { data: participations } = await supabase
+            .from('conversation_participants')
+            .select('conversation_id, conversation:conversations(id, type)')
+            .eq('user_id', userId);
+
+        // @ts-ignore
+        const supportConv = participations?.find(p => p.conversation?.type === 'support');
+
+        if (supportConv) {
+            // @ts-ignore
+            setConversationId(supportConv.conversation.id);
+            fetchMessages(supportConv.conversation.id);
+        }
+    };
+
+    const fetchMessages = async (convId) => {
         const { data } = await supabase
             .from('messages')
             .select('*')
             .eq('conversation_id', convId)
             .order('created_at', { ascending: true });
+        setMessages(data || []);
+        scrollToBottom();
+    };
 
-        if (data) {
-            setMessages(data);
-            if (currentUserId) {
-                const unread = data.filter(m => m.sender_id !== currentUserId && !m.is_read).length;
-                setUnreadCount(unread);
-            }
+    const startSupportChat = async () => {
+        if (!session) {
+            window.location.href = '/login';
+            return;
         }
+        setLoading(true);
+
+        // Create Conversation
+        const { data: conv, error } = await supabase
+            .from('conversations')
+            .insert({ type: 'support', title: 'Support Chat' })
+            .select()
+            .single();
+
+        if (conv) {
+            // Add Self
+            await supabase.from('conversation_participants').insert({
+                conversation_id: conv.id,
+                user_id: session.user.id
+            });
+            // Add Admin? (We don't know admin ID yet, maybe admin auto-joins or we have a "system" user)
+            // For now, just create meaningful room. Admin dashboard will list all support chats.
+
+            setConversationId(conv.id);
+            setMessages([]);
+        }
+        setLoading(false);
     };
 
-    const subscribeToMessages = (convId) => {
-        const channel = supabase
-            .channel(`chat:${convId}`)
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${convId}` },
-                (payload) => {
-                    setMessages(prev => [...prev, payload.new]);
-                    // Increment unread if chat is closed and message is NOT from me OR is from admin
-                    // Use refs to avoid stale closures
-                    if (!isOpenRef.current && (payload.new.sender_id !== userRef.current?.id || payload.new.is_admin)) {
-                        setUnreadCount(prev => prev + 1);
-                    }
-                }
-            )
-            .subscribe();
-
-        return () => supabase.removeChannel(channel);
-    };
-
-    const handleSendMessage = async (e) => {
+    const sendMessage = async (e) => {
         e.preventDefault();
-        // Allow sending if there is text OR a file
-        if ((!inputValue.trim() && !selectedFile) || !user) return;
+        if (!input.trim() || !conversationId || !session) return;
 
-        const content = inputValue.trim() || (selectedFile ? "Sent an image" : "");
-        setInputValue("");
+        const content = input.trim();
+        setInput(""); // Optimistic clear
 
-        let attachmentUrl = null;
+        const { error } = await supabase.from('messages').insert({
+            conversation_id: conversationId,
+            sender_id: session.user.id,
+            content: content
+        });
 
-        try {
-            if (selectedFile) {
-                setUploading(true);
-                const fileName = `${Date.now()}-img.jpg`;
-                const compressedFile = new File([selectedFile], fileName, { type: 'image/jpeg' });
-
-                const { error: uploadError } = await supabase.storage
-                    .from('chat-attachments')
-                    .upload(fileName, compressedFile);
-
-                if (uploadError) throw uploadError;
-
-                const { data } = supabase.storage.from('chat-attachments').getPublicUrl(fileName);
-                attachmentUrl = data.publicUrl;
-
-                clearPreview();
-            }
-
-            let currentConvId = conversationId;
-
-            // 0. Ensure Profile Exists (Self-Repair)
-            const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).single();
-            if (!profile) {
-                console.log("Profile missing, attempting to create...");
-                await supabase.from('profiles').insert([{
-                    id: user.id,
-                    email: user.email,
-                    full_name: user?.user_metadata?.full_name || 'User',
-                    created_at: new Date().toISOString()
-                }]);
-            }
-
-            // Create conversation if doesn't exist
-            if (!currentConvId) {
-                // 1. Create Conversation
-                const { data: newConv, error: convError } = await supabase
-                    .from('conversations')
-                    .insert([{ type: 'support' }])
-                    .select()
-                    .single();
-
-                if (convError) throw convError;
-                currentConvId = newConv.id;
-                setConversationId(currentConvId);
-
-                // 2. Add Participant
-                await supabase
-                    .from('conversation_participants')
-                    .insert([{ conversation_id: currentConvId, user_id: user.id }]);
-
-                // Subscribe now
-                subscribeToMessages(currentConvId);
-            }
-
-            // Send Message
-            const { error: msgError } = await supabase
-                .from('messages')
-                .insert([{
-                    conversation_id: currentConvId,
-                    sender_id: user.id,
-                    content: content,
-                    attachment_url: attachmentUrl
-                }]);
-
-            if (msgError) throw msgError;
-
-        } catch (error) {
-            console.error("Error sending message:", error);
-            alert(`Failed to send message: ${error.message || error.error_description || JSON.stringify(error)}`);
-        } finally {
-            setUploading(false);
+        if (error) {
+            console.error("Send failed", error);
+            // Optionally restore input
         }
     };
 
-    if (!user && !loading) {
-        // Option: Show nothing, or show "Login to Chat"
-        return (
-            <div className="fixed bottom-6 right-6 z-50">
-                {isOpen && (
-                    <div className="absolute bottom-16 right-0 w-80 bg-[#111] border border-white/10 rounded-xl shadow-2xl p-4 text-center">
-                        <p className="text-white mb-2">Please login to chat with us.</p>
-                        <a href="/login" className="block w-full py-2 bg-[#D4AF37] text-black font-bold rounded">Login</a>
-                    </div>
-                )}
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="w-14 h-14 bg-[#D4AF37] rounded-full flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform"
-                >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                </button>
-            </div>
-        );
-    }
+    if (!session) return null; // Or show "Login to Chat" button
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="mb-4 w-80 md:w-96 h-[500px] bg-[#111] border border-white/10 rounded-xl shadow-2xl flex flex-col overflow-hidden"
-                    >
-                        {/* Header */}
-                        <div className="bg-[#1A1A1A] p-4 border-b border-white/10 flex justify-between items-center">
-                            <div>
-                                <h3 className="font-bold text-white">Support Chat</h3>
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    <span className="text-xs text-white/50">We're online</span>
-                                </div>
-                            </div>
-                            <button onClick={() => setIsOpen(false)} className="text-white/50 hover:text-white">✕</button>
-                        </div>
+        <div className="fixed bottom-6 right-6 z-50">
+            {/* Toggle Button */}
+            {!isOpen && (
+                <button
+                    onClick={() => {
+                        setIsOpen(true);
+                        setHasUnread(false);
+                    }}
+                    className="w-14 h-14 bg-[#D4AF37] hover:bg-white rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-90 group relative"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/50">
-                            {messages.length === 0 ? (
-                                <div className="text-center text-white/30 mt-10">
-                                    <p>👋 Hello! How can we help you today?</p>
-                                </div>
+                    {/* Notification Badge */}
+                    {hasUnread && (
+                        <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                    )}
+                </button>
+            )}
+
+            {/* Chat Window */}
+            {isOpen && (
+                <div className="w-[350px] h-[500px] bg-[#111] border border-white/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in-up">
+                    {/* Header */}
+                    <div className="bg-[#0a0a0a] p-4 border-b border-white/10 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <h3 className="font-bold text-white">Support</h3>
+                        </div>
+                        <button onClick={() => setIsOpen(false)} className="text-white/50 hover:text-white">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    {/* Messages */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/50">
+                        {!conversationId ? (
+                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                                <p className="text-white/60 text-sm">Need help with an order?</p>
+                                <button
+                                    onClick={startSupportChat}
+                                    disabled={loading}
+                                    className="px-6 py-2 bg-[#D4AF37] text-black font-bold rounded-full hover:scale-105 transition-transform"
+                                >
+                                    {loading ? 'Starting...' : 'Start Chat'}
+                                </button>
+                            </div>
+                        ) : (
+                            messages.length === 0 ? (
+                                <p className="text-center text-white/30 text-xs mt-10">Start the conversation...</p>
                             ) : (
                                 messages.map((msg) => {
-                                    const isMe = msg.sender_id === user?.id; // Or if msg.is_admin is false and we are user
-                                    const isMyMessage = msg.sender_id === user?.id && !msg.is_admin;
-
+                                    const isMe = msg.sender_id === session.user.id;
                                     return (
-                                        <div key={msg.id} className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
-                                            <div className={`max-w-[80%] rounded-2xl p-3 text-sm ${isMyMessage
-                                                ? 'bg-[#D4AF37] text-black rounded-tr-none'
-                                                : 'bg-white/10 text-white rounded-tl-none'
-                                                }`}>
-
-                                                {/* Order Card Attachment */}
+                                        <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-[#D4AF37] text-black rounded-tr-none' : 'bg-white/10 text-white rounded-tl-none'}`}>
+                                                {/* Order Attachment */}
                                                 {msg.metadata?.order_id && (
-                                                    <div className="mb-2 bg-black/10 rounded p-2 flex items-center gap-2 cursor-pointer border border-black/5">
-                                                        <div className="w-8 h-8 bg-black/20 rounded flex items-center justify-center text-[10px] font-bold">
+                                                    <div className={`mb-2 rounded p-2 flex items-center gap-2 cursor-pointer transition-colors ${isMe ? 'bg-black/10 hover:bg-black/20' : 'bg-black/30 hover:bg-black/50'}`}
+                                                        onClick={() => window.open(`/profile?order=${msg.metadata.order_id}`, '_blank')}>
+                                                        <div className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold ${isMe ? 'bg-black text-[#D4AF37]' : 'bg-[#D4AF37] text-black'}`}>
                                                             ORD
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-xs">Order #{msg.metadata.order_id.slice(0, 8)}</p>
-                                                            <p className="text-[10px] opacity-70">Linked to chat</p>
+                                                            <p className="text-[10px] opacity-70">Click to view</p>
                                                         </div>
                                                     </div>
                                                 )}
@@ -415,161 +228,36 @@ export default function ChatWidget() {
                                                 {/* Image Attachment */}
                                                 {msg.attachment_url && (
                                                     <div className="mb-2 rounded-lg overflow-hidden border border-black/10">
-                                                        <img src={msg.attachment_url} alt="Attachment" className="max-w-[200px] max-h-[200px] object-cover" />
+                                                        <img src={msg.attachment_url} alt="Attachment" className="max-w-full h-auto object-cover" />
                                                     </div>
                                                 )}
 
-                                                <p>{msg.content}</p>
-                                                <div className={`text-[10px] mt-1 opacity-50 ${isMyMessage ? 'text-black' : 'text-white'}`}>
-                                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </div>
+                                                {msg.content}
                                             </div>
                                         </div>
                                     )
                                 })
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
+                            )
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
 
-                        {/* Order Selector Overlay */}
-                        <AnimatePresence>
-                            {showOrderSelector && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 50 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 50 }}
-                                    className="absolute inset-x-0 bottom-[70px] bg-[#1A1A1A] border-t border-white/10 rounded-t-xl p-4 shadow-xl z-50 max-h-[300px] overflow-y-auto"
-                                >
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h4 className="text-white font-bold text-xs uppercase tracking-wider">Select Order</h4>
-                                        <button onClick={() => setShowOrderSelector(false)} className="text-white/50 hover:text-white">✕</button>
-                                    </div>
-
-                                    {orders.length === 0 ? (
-                                        <div className="text-center py-8 text-white/30 text-xs">No recent orders found.</div>
-                                    ) : (
-                                        <div className="space-y-2">
-                                            {orders.map(order => (
-                                                <button
-                                                    key={order.id}
-                                                    onClick={() => sendOrderLink(order)}
-                                                    className="w-full text-left bg-white/5 hover:bg-white/10 p-3 rounded-lg border border-white/5 flex justify-between items-center group transition-colors"
-                                                >
-                                                    <div>
-                                                        <div className="text-[#D4AF37] font-bold text-xs">#{order.id.slice(0, 8)}...</div>
-                                                        <div className="text-[10px] text-white/50">{order.items?.[0]?.title} {order.items?.length > 1 ? `+${order.items.length - 1} more` : ''}</div>
-                                                    </div>
-                                                    <div className="text-xs font-bold text-white mb-0.5">{Number(order.total_price).toLocaleString()} ฿</div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        {/* Image Preview Overlay (Refactored to Inline Block) */}
-                        <AnimatePresence>
-                            {previewUrl && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: "auto", opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    className="w-full bg-[#1A1A1A] border-t border-white/10 px-4 pt-4 overflow-hidden"
-                                >
-                                    <div className="relative inline-block">
-                                        <img src={previewUrl} alt="Preview" className="h-24 rounded-lg border border-white/10" />
-                                        <button
-                                            type="button"
-                                            onClick={clearPreview}
-                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                    <div className="mt-2 text-[10px] text-white/50 mb-2">Image ready to send</div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-
-                        {/* Input */}
-                        <form onSubmit={handleSendMessage} className="p-4 bg-[#1A1A1A] border-t border-white/10 relative z-30">
-                            {uploading && (
-                                <div className="absolute top-0 left-0 right-0 -mt-8 text-center">
-                                    <span className="bg-black/80 text-white text-[10px] px-3 py-1 rounded-full border border-white/10">Uploading image...</span>
-                                </div>
-                            )}
-                            <div className="flex gap-2 items-center">
-                                {/* Extra Actions */}
-                                <div className="flex gap-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/50 hover:text-[#D4AF37] transition-colors"
-                                        title="Send Image"
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                                    </button>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleFileUpload}
-                                    />
-
-                                    <button
-                                        type="button"
-                                        onClick={() => !showOrderSelector ? fetchOrders() : setShowOrderSelector(false)}
-                                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showOrderSelector ? 'bg-[#D4AF37] text-black' : 'bg-white/5 text-white/50 hover:text-[#D4AF37] hover:bg-white/10'}`}
-                                        title="Link Order"
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                                    </button>
-                                </div>
-
-                                <input
-                                    type="text"
-                                    value={inputValue}
-                                    onChange={(e) => {
-                                        setInputValue(e.target.value);
-                                        if (e.target.value.endsWith('@')) {
-                                            fetchOrders();
-                                        }
-                                    }}
-                                    placeholder="Type a message... (Type @ to link order)"
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37]"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!inputValue.trim() && !selectedFile}
-                                    className="w-9 h-9 bg-[#D4AF37] rounded-full flex items-center justify-center text-black disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors"
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                                </button>
-                            </div>
+                    {/* Input */}
+                    {conversationId && (
+                        <form onSubmit={sendMessage} className="p-4 bg-[#0a0a0a] border-t border-white/10 flex gap-2">
+                            <input
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder="Type a message..."
+                                className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-white text-sm focus:border-[#D4AF37] outline-none"
+                            />
+                            <button type="submit" disabled={!input.trim()} className="bg-[#D4AF37] text-black p-2 rounded-full hover:scale-110 disabled:opacity-50 disabled:scale-100 transition-all">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                            </button>
                         </form>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-[#D4AF37] rounded-full flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform relative z-50"
-            >
-                {isOpen ? (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                ) : (
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                )}
-
-                {/* Notification Badge */}
-                {unreadCount > 0 && !isOpen && (
-                    <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-600 text-white text-[10px] font-bold rounded-full border-2 border-[#111] flex items-center justify-center animate-bounce">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                )}
-            </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

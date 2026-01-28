@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 
 const CARTOON_STYLES = [
     'adventurer', 'avataaars', 'big-ears', 'bottts', 'croodles',
@@ -13,6 +13,14 @@ export default function UserProfile() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'info' | 'addresses' | 'history'
     const [editingAddress, setEditingAddress] = useState(null);
+
+    // Dispute State
+    const [showDisputeModal, setShowDisputeModal] = useState(false);
+    const [disputeTarget, setDisputeTarget] = useState(null); // { orderId }
+    const [disputeReason, setDisputeReason] = useState('not_received');
+    const [disputeDescription, setDisputeDescription] = useState('');
+    const [disputeImages, setDisputeImages] = useState([]); // Array of URLs (Future: File upload)
+    const [uploadingDispute, setUploadingDispute] = useState(false);
 
     // Avatar State
     const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -124,6 +132,7 @@ export default function UserProfile() {
                 total: order.total_price,
                 status: order.payment_status,
                 shippingStatus: order.shipping_status || 'pending',
+                trackingNumber: order.tracking_number, // NEW
                 paymentMethod: order.payment_method?.toUpperCase() || 'UNKNOWN',
                 items: order.order_items.map(item => ({
                     productId: item.product_id,
@@ -192,6 +201,49 @@ export default function UserProfile() {
             alert('รีวิวสำเร็จ! (Review Submitted)');
             setShowReviewModal(false);
             fetchOrders();
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    };
+
+    const openDisputeModal = (orderId) => {
+        setDisputeTarget({ orderId });
+        setDisputeReason('not_received');
+        setDisputeDescription('');
+        setShowDisputeModal(true);
+    };
+
+    const submitDispute = async (e) => {
+        e.preventDefault();
+        if (!confirm('ยืนยันแจ้งปัญหา? (Submit Dispute)')) return;
+
+        try {
+            // 1. Create Dispute
+            const { error: disputeError } = await supabase
+                .from('disputes')
+                .insert({
+                    order_id: disputeTarget.orderId,
+                    user_id: profile.id,
+                    reason: disputeReason,
+                    description: disputeDescription,
+                    status: 'open',
+                    evidence_images: disputeImages
+                });
+
+            if (disputeError) throw disputeError;
+
+            // 2. Update Order Status
+            const { error: orderError } = await supabase
+                .from('orders')
+                .update({ shipping_status: 'dispute' })
+                .eq('id', disputeTarget.orderId);
+
+            if (orderError) throw orderError;
+
+            alert('แจ้งปัญหาเรียบร้อย เจ้าหน้าที่จะรีบตรวจสอบครับ');
+            setShowDisputeModal(false);
+            fetchOrders();
+
         } catch (error) {
             alert('Error: ' + error.message);
         }
@@ -435,6 +487,58 @@ export default function UserProfile() {
 
                             <button className="w-full bg-[#D4AF37] text-black font-bold py-4 rounded-xl hover:bg-[#b89530] transition-all shadow-[0_4px_20px_rgba(212,175,55,0.3)] uppercase tracking-widest">
                                 Submit Review
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* NEW: Dispute Modal */}
+            {showDisputeModal && (
+                <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/95 backdrop-blur-md" onClick={() => setShowDisputeModal(false)}></div>
+                    <div className="bg-[#1a1a1a] border border-red-500/30 rounded-3xl p-8 w-full max-w-lg relative z-10 shadow-[0_0_50px_rgba(239,68,68,0.2)] animate-fade-in-up">
+                        <div className="flex items-center gap-3 mb-6 justify-center text-red-500">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            <h3 className="text-2xl font-black uppercase tracking-widest">Report Issue</h3>
+                        </div>
+
+                        <form onSubmit={submitDispute} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-white/50 text-xs font-bold uppercase tracking-widest">Reason</label>
+                                <select
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:bg-black outline-none transition-all"
+                                    value={disputeReason}
+                                    onChange={e => setDisputeReason(e.target.value)}
+                                >
+                                    <option value="not_received">I did not receive the order</option>
+                                    <option value="damaged">Goods were damaged</option>
+                                    <option value="wrong_item">Received wrong item</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-white/50 text-xs font-bold uppercase tracking-widest">Description</label>
+                                <textarea
+                                    required
+                                    rows="4"
+                                    placeholder="Please describe the issue in detail..."
+                                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-red-500 focus:bg-black outline-none transition-all resize-none"
+                                    value={disputeDescription}
+                                    onChange={e => setDisputeDescription(e.target.value)}
+                                ></textarea>
+                            </div>
+
+                            <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20">
+                                <p className="text-red-400 text-xs flex gap-2">
+                                    <span className="font-bold">Note:</span>
+                                    Funds will be held by "Cashless Thailand" until the issue is resolved.
+                                </p>
+                            </div>
+
+                            <button className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-500 transition-all shadow-[0_4px_20px_rgba(220,38,38,0.3)] uppercase tracking-widest">
+                                Submit Report
                             </button>
                         </form>
                     </div>
@@ -812,7 +916,7 @@ export default function UserProfile() {
                                                 {/* Report Button */}
                                                 {['shipped', 'delivered'].includes(order.shippingStatus) && (
                                                     <button
-                                                        onClick={() => alert('ติดต่อ Support Line: @cashless (Feature Coming Soon)')}
+                                                        onClick={() => openDisputeModal(order.id)}
                                                         className="px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all"
                                                     >
                                                         Report Issue
@@ -855,6 +959,13 @@ export default function UserProfile() {
                                                 <div>
                                                     <p className="text-white/40 text-xs mb-1">Date: {order.date}</p>
                                                     <p className="text-white/40 text-xs">Payment: <span className="text-white font-bold">{order.paymentMethod}</span></p>
+
+                                                    {order.trackingNumber && (
+                                                        <div className="mt-2 inline-flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                                                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Tracking:</span>
+                                                            <span className="text-[#D4AF37] font-mono font-bold text-sm select-all">{order.trackingNumber}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <p className="text-2xl font-black text-[#D4AF37]">{order.total.toLocaleString()} ฿</p>
                                             </div>

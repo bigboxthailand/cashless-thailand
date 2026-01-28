@@ -1,0 +1,1 @@
+import{c as e}from"./index.DR2MMlUt.js";const s=e("https://euavftppzicwjhbugiys.supabase.co","sb_publishable_poJ-NobQZpARz_G4cWG96Q_vxIPZkrE"),n=document.getElementById("payout-form");n?.addEventListener("submit",async t=>{t.preventDefault();const a=new FormData(t.target);a.get("amount"),a.get("bank_info"),(await s.auth.getSession()).data.session?.user});

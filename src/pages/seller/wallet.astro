@@ -1,0 +1,281 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+    import.meta.env.PUBLIC_SUPABASE_URL,
+    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+);
+
+// Auth & Shop Check
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+if (!session) return Astro.redirect("/login");
+
+const { data: shop } = await supabase
+    .from("shops")
+    .select("id, name")
+    .eq("owner_id", session.user.id)
+    .single();
+if (!shop) return Astro.redirect("/seller/register");
+
+// Fetch Finance View
+// Note: If view doesn't exist yet, this will error. User needs to run migration.
+// We'll wrap in try/catch or handle error gracefully.
+let stats = {
+    total_sales: 0,
+    pending_payouts: 0,
+    paid_payouts: 0,
+    available_balance: 0,
+};
+
+const { data: financeData, error: viewError } = await supabase
+    .from("shop_finance_view")
+    .select("*")
+    .eq("shop_id", shop.id)
+    .single();
+
+if (financeData) {
+    stats.total_sales = financeData.total_sales || 0;
+    stats.pending_payouts = financeData.pending_payouts || 0;
+    stats.paid_payouts = financeData.paid_payouts || 0;
+    stats.available_balance =
+        stats.total_sales - (stats.pending_payouts + stats.paid_payouts);
+}
+
+// Fetch Payout History
+const { data: payouts } = await supabase
+    .from("payouts")
+    .select("*")
+    .eq("shop_id", shop.id)
+    .order("created_at", { ascending: false });
+
+const thb = new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
+});
+---
+
+<Layout title="Seller Wallet">
+    <Navbar />
+    <main class="min-h-screen bg-[#050505] pt-32 pb-20 px-6">
+        <div class="max-w-5xl mx-auto space-y-8">
+            <header class="flex justify-between items-center">
+                <div>
+                    <h1
+                        class="text-3xl font-black text-white uppercase tracking-wider"
+                    >
+                        My Wallet
+                    </h1>
+                    <p class="text-white/50">{shop.name}</p>
+                </div>
+            </header>
+
+            {/* Stats Cards */}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Available Balance */}
+                <div
+                    class="p-6 rounded-2xl bg-gradient-to-br from-[#D4AF37]/20 to-black border border-[#D4AF37]/30"
+                >
+                    <h3
+                        class="text-[#D4AF37] uppercase text-xs font-bold tracking-widest mb-2"
+                    >
+                        Available Balance
+                    </h3>
+                    <p class="text-4xl font-black text-white">
+                        {thb.format(stats.available_balance)}
+                    </p>
+                    <p class="text-xs text-white/40 mt-2">Ready to withdraw</p>
+                </div>
+
+                {/* Total Sales */}
+                <div class="p-6 rounded-2xl bg-[#111] border border-white/10">
+                    <h3
+                        class="text-white/50 uppercase text-xs font-bold tracking-widest mb-2"
+                    >
+                        Total Earnings
+                    </h3>
+                    <p class="text-3xl font-bold text-white">
+                        {thb.format(stats.total_sales)}
+                    </p>
+                    <p class="text-xs text-white/40 mt-2">
+                        Gross Revenue (Paid Orders)
+                    </p>
+                </div>
+
+                {/* Pending */}
+                <div class="p-6 rounded-2xl bg-[#111] border border-white/10">
+                    <h3
+                        class="text-white/50 uppercase text-xs font-bold tracking-widest mb-2"
+                    >
+                        Pending Payout
+                    </h3>
+                    <p class="text-3xl font-bold text-orange-400">
+                        {thb.format(stats.pending_payouts)}
+                    </p>
+                    <p class="text-xs text-white/40 mt-2">Processing</p>
+                </div>
+            </div>
+
+            {/* Withdraw Section */}
+            <div class="grid lg:grid-cols-2 gap-8">
+                {/* Request Form */}
+                <div class="bg-[#111] p-8 rounded-2xl border border-white/10">
+                    <h2 class="text-xl font-bold text-white mb-6">
+                        Request Payout
+                    </h2>
+                    <form id="payout-form" class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-xs uppercase font-bold text-white/50 mb-2"
+                                >Amount (THB)</label
+                            >
+                            <input
+                                type="number"
+                                name="amount"
+                                min="100"
+                                max={stats.available_balance}
+                                placeholder="Min 100 THB"
+                                class="w-full bg-black border border-white/10 p-3 rounded-xl text-white outline-none focus:border-[#D4AF37]"
+                                required
+                            />
+                            <p class="text-xs text-white/30 mt-1">
+                                Maximum: {stats.available_balance} THB
+                            </p>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs uppercase font-bold text-white/50 mb-2"
+                                >Bank Details</label
+                            >
+                            <textarea
+                                name="bank_info"
+                                rows="3"
+                                placeholder="Bank Name, Account Number, Account Name"
+                                class="w-full bg-black border border-white/10 p-3 rounded-xl text-white outline-none focus:border-[#D4AF37]"
+                                required></textarea>
+                        </div>
+                        <button
+                            type="submit"
+                            class="w-full py-3 bg-[#D4AF37] text-black font-bold uppercase tracking-wider rounded-xl hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Submit Request
+                        </button>
+                    </form>
+                </div>
+
+                {/* History */}
+                <div class="bg-[#111] p-8 rounded-2xl border border-white/10">
+                    <h2 class="text-xl font-bold text-white mb-6">
+                        Payout History
+                    </h2>
+                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                        {
+                            (payouts || []).map((payout) => (
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                                    <div>
+                                        <p class="font-bold text-white">
+                                            {thb.format(payout.amount)}
+                                        </p>
+                                        <p class="text-xs text-white/40">
+                                            {new Date(
+                                                payout.created_at,
+                                            ).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span
+                                            class={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider 
+                                        ${
+                                            payout.status === "paid"
+                                                ? "bg-green-500/20 text-green-400"
+                                                : payout.status === "rejected"
+                                                  ? "bg-red-500/20 text-red-400"
+                                                  : "bg-orange-500/20 text-orange-400"
+                                        }`}
+                                        >
+                                            {payout.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <Footer />
+</Layout>
+
+<script>
+    import { createClient } from "@supabase/supabase-js";
+    const supabase = createClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    );
+
+    const form = document.getElementById("payout-form");
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target as HTMLFormElement);
+        const amount = formData.get("amount");
+        const bank_info = formData.get("bank_info"); // Send as generic json
+
+        // @ts-ignore
+        const shopId = (await supabase.auth.getSession()).data.session?.user
+            ? null
+            : null; // Logic handled in API usually but we need shopId.
+        // Wait, on client side we can't easily get shop ID unless we fetch again or embedded in DOM.
+        // Let's re-fetch shop ID is safest or use the RLS which forces us to pass shop_id?
+        // Actually RLS checks "shop_id IN (SELECT id from shops where owner_id = uid)".
+        // So we MUST pass the correct shop_id in the INSERT.
+
+        // We need to pass shop ID from server to client.
+        // Let's grab it via API call or Data Attribute.
+    });
+</script>
+
+{/* Fix: Pass shopId to client logic safely */}
+<script define:vars={{ initialShopId: shop.id }}>
+    import { createClient } from "@supabase/supabase-js";
+    const supabase = createClient(
+        import.meta.env.PUBLIC_SUPABASE_URL,
+        import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    );
+
+    const form = document.getElementById("payout-form");
+    form?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector("button");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+        }
+
+        const formData = new FormData(e.target);
+        const amount = parseFloat(formData.get("amount").toString());
+        const bankInfo = { details: formData.get("bank_info") };
+
+        const { error } = await supabase.from("payouts").insert({
+            shop_id: initialShopId,
+            amount: amount,
+            bank_info: bankInfo,
+            status: "pending",
+        });
+
+        if (error) {
+            alert("Request failed: " + error.message);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Submit Request";
+            }
+        } else {
+            alert("Payout requested successfully!");
+            window.location.reload();
+        }
+    });
+</script>

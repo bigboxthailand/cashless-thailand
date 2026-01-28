@@ -1,0 +1,25 @@
+import { e as createComponent, m as maybeRenderHead, r as renderTemplate } from './astro/server_Bu8JVBjn.mjs';
+import 'piccolore';
+import 'clsx';
+
+const $$Footer = createComponent(($$result, $$props, $$slots) => {
+  return renderTemplate`${maybeRenderHead()}<footer class="bg-black pt-32 pb-10 border-t border-[#D4AF37]/10 relative overflow-hidden"> <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[300px] bg-[#D4AF37]/5 blur-[150px] rounded-full pointer-events-none"></div> <div class="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10"> <div class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-24"> <div class="md:col-span-4 space-y-8"> <div class="eng text-4xl font-black tracking-tighter text-white">
+CASHLESS<span class="text-[#D4AF37]">.</span>TH
+</div> <p class="text-white/40 leading-relaxed font-light max-w-sm">
+ยกระดับมาตรฐานความปลอดภัยสินทรัพย์ดิจิทัลไทย
+                    ด้วยความรู้ที่ถูกต้องและเครื่องมือ Hardware Wallet
+                    ระดับโลกที่เราคัดสรรมาเพื่อคุณ
+</p> <div class="flex gap-4"> ${["Facebook", "Twitter", "Line", "YouTube"].map(
+    (social) => renderTemplate`<a href="#" class="w-10 h-10 border border-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all duration-300"> <span class="sr-only">${social}</span> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="10"></circle> </svg>${" "} </a>`
+  )} </div> </div> <div class="md:col-span-2 md:col-start-6 space-y-6"> <h4 class="eng text-xs font-black text-[#D4AF37] tracking-[0.2em] uppercase">
+Menu
+</h4> <ul class="space-y-4 eng text-sm text-white/60"> <li> <a href="/" class="hover:text-white transition-colors">Home</a> </li> <li> <a href="/shop" class="hover:text-white transition-colors">Shop</a> </li> <li> <a href="/course" class="hover:text-white transition-colors">Courses</a> </li> <li> <a href="/blog" class="hover:text-white transition-colors">Knowledge</a> </li> </ul> </div> <div class="md:col-span-2 space-y-6"> <h4 class="eng text-xs font-black text-[#D4AF37] tracking-[0.2em] uppercase">
+Products
+</h4> <ul class="space-y-4 eng text-sm text-white/60"> <li> <a href="/shop#clock" class="hover:text-white transition-colors">CryptoClock</a> </li> <li> <a href="/shop#kiosk" class="hover:text-white transition-colors">BiTTerm</a> </li> <li> <a href="/shop#pos" class="hover:text-white transition-colors">BiTPos</a> </li> <li> <a href="/shop#node" class="hover:text-white transition-colors">BiTNode</a> </li> </ul> </div> <div class="md:col-span-2 space-y-6"> <h4 class="eng text-xs font-black text-[#D4AF37] tracking-[0.2em] uppercase">
+Policies & Support
+</h4> <ul class="space-y-4 eng text-sm text-white/60"> <li> <a href="/policies/refund" class="hover:text-white transition-colors">Refund Policy</a> </li> <li> <a href="/policies/privacy" class="hover:text-white transition-colors">Privacy Policy</a> </li> <li> <a href="/policies/terms" class="hover:text-white transition-colors">Terms of Service</a> </li> <li> <a href="/policies/shipping" class="hover:text-white transition-colors">Shipping Policy</a> </li> <li> <a href="/support/contact" class="hover:text-white transition-colors">Contact Us</a> </li> </ul> </div> </div> <div class="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6"> <p class="eng text-[10px] text-white/20 tracking-widest uppercase font-bold">
+&copy; 2026 Cashless Thailand. Design by Pro Dev & Gemini.
+</p> <div class="flex items-center gap-6 opacity-30 grayscale hover:grayscale-0 transition-all duration-500"> <span class="eng font-black text-white text-xs">BITCOIN</span> <span class="eng font-black text-white text-xs">LIGHTNING</span> <span class="eng font-black text-white text-xs">PROMPTPAY</span> </div> </div> </div> </footer>`;
+}, "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/components/Footer.astro", void 0);
+
+export { $$Footer as $ };

@@ -1,17 +1,16 @@
 ---
+import { supabase } from "../../lib/supabase";
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import CartDrawer from "../../components/CartDrawer.astro";
 import Reviews from "../../components/Reviews.jsx";
-import { supabase } from "../../lib/supabase";
-
 const { id } = Astro.params;
 
 // Fetch product from Supabase
 const { data: productData, error } = await supabase
     .from("products")
-    .select("*")
+    .select("*, shop:shops(name, slug, logo_url, is_verified)")
     .eq("id", id)
     .single();
 
@@ -153,9 +152,11 @@ const productJson = JSON.stringify(product);
                 <div class="animate-fade-in">
                     <div class="flex items-center gap-4 mb-6">
                         <a
-                            href="/shop"
+                            href={product.shop
+                                ? `/shop/${product.shop.slug}`
+                                : "/shop"}
                             class="text-xs font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors"
-                            >Shop</a
+                            >{product.shop ? product.shop.name : "Shop"}</a
                         >
                         <span class="text-white/20">/</span>
                         <span
@@ -265,7 +266,7 @@ const productJson = JSON.stringify(product);
                                 <div class="md:mb-10 md:p-6 md:bg-[#111] md:rounded-3xl md:border md:border-white/5 space-y-6">
                                     {/* @ts-ignore */}
                                     {product.config.options.map(
-                                        (option, groupIdx) => (
+                                        (option: any, groupIdx: any) => (
                                             <div>
                                                 <span class="block text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-4">
                                                     Select {option.name}
@@ -276,7 +277,10 @@ const productJson = JSON.stringify(product);
                                                 >
                                                     {/* @ts-ignore */}
                                                     {option.values.map(
-                                                        (val, valIdx) => (
+                                                        (
+                                                            val: any,
+                                                            valIdx: any,
+                                                        ) => (
                                                             <button
                                                                 class={`option-btn px-4 py-2 md:px-6 md:py-3 rounded-xl border-2 text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${valIdx === 0 ? "border-[#D4AF37] bg-[#D4AF37] text-black active-option" : "border-white/10 text-white/60 hover:border-white hover:text-white"}`}
                                                                 data-group-index={
@@ -544,7 +548,9 @@ const productJson = JSON.stringify(product);
 </Layout>
 
 <script>
+    // @ts-nocheck
     import { cartStore } from "../../lib/cartStore.js";
+    import { supabase } from "../../lib/supabase";
 
     function initProductPage() {
         const container = document.getElementById("product-page-container");
@@ -577,34 +583,30 @@ const productJson = JSON.stringify(product);
             selectedVariantName: initialVariantName,
             currentPrice: initialPrice,
             // New: For composite options
-            compositeSelection: {} as Record<number, number>, // groupIndex -> valueIndex
+            compositeSelection: {}, // groupIndex -> valueIndex
         };
 
         // Initialize composite selection if needed
         if (productData.config?.variantType === "composite") {
-            productData.config.options.forEach((_: any, idx: number) => {
+            productData.config.options.forEach((_, idx) => {
                 state.compositeSelection[idx] = 0;
             });
             // Recalculate initial price/name for composite
             // ... (Logic will be handled in updateCompositeState)
         }
 
-        const getCleanElement = (id: string) => {
+        const getCleanElement = (id) => {
             const el = document.getElementById(id);
             if (!el) return null;
-            const newEl = el.cloneNode(true) as HTMLElement;
+            const newEl = el.cloneNode(true);
             if (el.parentNode) el.parentNode.replaceChild(newEl, el);
             return newEl;
         };
 
         const imageContainer = document.getElementById("image-container");
-        const mainImage = document.getElementById(
-            "main-image",
-        ) as HTMLImageElement;
+        const mainImage = document.getElementById("main-image");
         const priceDisplay = document.getElementById("price-display");
-        const qtyInput = document.getElementById(
-            "qty-input",
-        ) as HTMLInputElement;
+        const qtyInput = document.getElementById("qty-input");
         const minusBtn = getCleanElement("qty-minus");
         const plusBtn = getCleanElement("qty-plus");
         const addBtn = getCleanElement("add-to-cart-btn");
@@ -612,7 +614,7 @@ const productJson = JSON.stringify(product);
         const variantBtns = document.querySelectorAll(".variant-btn");
         const thumbBtns = document.querySelectorAll(".thumbnail-btn");
 
-        const changeImage = (src: string) => {
+        const changeImage = (src) => {
             if (!mainImage || !src || state.currentImage === src) return;
             mainImage.style.opacity = "0";
             mainImage.style.transform = "scale(0.95)";
@@ -626,9 +628,9 @@ const productJson = JSON.stringify(product);
             }, 200);
         };
 
-        const updateThumbnails = (activeSrc: string) => {
+        const updateThumbnails = (activeSrc) => {
             document.querySelectorAll(".thumbnail-btn").forEach((b) => {
-                const btn = b as HTMLElement;
+                const btn = b;
                 const isActive = btn.dataset.src === activeSrc;
                 const img = btn.querySelector("img");
 
@@ -692,7 +694,7 @@ const productJson = JSON.stringify(product);
             const newBtn = btn.cloneNode(true);
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener("click", (e) => {
-                const target = e.currentTarget as HTMLElement;
+                const target = e.currentTarget;
                 if (target.dataset.src) {
                     changeImage(target.dataset.src);
                 }
@@ -700,7 +702,7 @@ const productJson = JSON.stringify(product);
         });
 
         variantBtns.forEach((btn, index) => {
-            const newBtn = btn.cloneNode(true) as HTMLElement;
+            const newBtn = btn.cloneNode(true);
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
             if (index === 0) {
@@ -723,7 +725,7 @@ const productJson = JSON.stringify(product);
             }
 
             newBtn.addEventListener("click", (e) => {
-                const target = e.currentTarget as HTMLElement;
+                const target = e.currentTarget;
                 const name = target.dataset.name || "";
                 const img = target.dataset.image;
                 const priceStr = target.dataset.price || "0";
@@ -747,7 +749,7 @@ const productJson = JSON.stringify(product);
                 }
 
                 document.querySelectorAll(".variant-btn").forEach((b) => {
-                    const btnEl = b as HTMLElement;
+                    const btnEl = b;
                     if (btnEl.classList.contains("rounded-full")) {
                         btnEl.classList.remove(
                             "border-[#D4AF37]",
@@ -791,9 +793,9 @@ const productJson = JSON.stringify(product);
         // --- Composite Logic (Exact Lookup) ---
         const updateCompositeState = () => {
             // 1. Build current selection array [0, 1]
-            const currentIndices: number[] = [];
+            const currentIndices = [];
             // @ts-ignore
-            productData.config.options.forEach((_: any, idx: number) => {
+            productData.config.options.forEach((_, idx) => {
                 currentIndices.push(state.compositeSelection[idx] || 0);
             });
 
@@ -803,7 +805,7 @@ const productJson = JSON.stringify(product);
             if (productData.config.combinations) {
                 // @ts-ignore
                 matchedCombo = productData.config.combinations.find(
-                    (c: any) =>
+                    (c) =>
                         JSON.stringify(c.indices) ===
                         JSON.stringify(currentIndices),
                 );
@@ -816,10 +818,10 @@ const productJson = JSON.stringify(product);
                 : productData.pricing?.basePrice || 0;
 
             // 4. Update Names & Image
-            let names: string[] = [];
+            let names = [];
             let newImage = "";
             // @ts-ignore
-            productData.config.options.forEach((opt: any, groupIdx: number) => {
+            productData.config.options.forEach((opt, groupIdx) => {
                 const selectedValIdx = state.compositeSelection[groupIdx] || 0;
                 const selectedVal = opt.values[selectedValIdx];
                 names.push(selectedVal.name);
@@ -858,11 +860,11 @@ const productJson = JSON.stringify(product);
 
         optionBtns.forEach((btn) => {
             // Clone to remove old listeners if any
-            const newBtn = btn.cloneNode(true) as HTMLElement;
+            const newBtn = btn.cloneNode(true);
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
             newBtn.addEventListener("click", (e) => {
-                const target = e.currentTarget as HTMLElement;
+                const target = e.currentTarget;
                 const groupIdx = parseInt(target.dataset.groupIndex || "0");
                 const valIdx = parseInt(target.dataset.valueIndex || "0");
 
@@ -922,10 +924,13 @@ const productJson = JSON.stringify(product);
             const itemId = `${productData.id}-${variantSlug}`;
 
             const item = {
-                id: itemId,
+                id: itemId, // Unique ID for cart management (product + variant)
+                product_id: productData.id, // REAL Product ID for DB
                 title: `${productData.meta.title} (${state.selectedVariantName})`,
                 price: state.currentPrice,
                 image: state.currentImage,
+                variant_name: state.selectedVariantName,
+                // sku: ... (if available in state)
             };
 
             for (let i = 0; i < qty; i++) cartStore.add(item);
@@ -939,6 +944,98 @@ const productJson = JSON.stringify(product);
                 addBtn.classList.remove("bg-white", "text-black");
             }, 1000);
         });
+
+        // --- Chat with Seller Logic ---
+        document
+            .getElementById("chat-seller-btn")
+            ?.addEventListener("click", async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const btn = e.currentTarget;
+                const shopId = btn.dataset.shopId;
+                const productTitle = btn.dataset.productTitle;
+
+                // Check Auth
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href =
+                        "/login?redirect=" + window.location.pathname;
+                    return;
+                }
+
+                btn.innerText = "Starting...";
+
+                // 1. Get Shop Owner ID
+                const { data: shop } = await supabase
+                    .from("shops")
+                    .select("owner_id")
+                    .eq("id", shopId)
+                    .single();
+
+                if (!shop) {
+                    alert("Shop not found");
+                    return;
+                }
+
+                if (shop.owner_id === session.user.id) {
+                    alert("You cannot chat with yourself!");
+                    btn.innerHTML = "Chat";
+                    return;
+                }
+
+                // 2. Find existing P2P conversation
+                const { data: participations } = await supabase
+                    .from("conversation_participants")
+                    .select(
+                        "conversation_id, conversation:conversations!inner(id, metadata)",
+                    )
+                    .eq("user_id", session.user.id);
+
+                // @ts-ignore
+                const existing = participations?.find(
+                    (p) => p.conversation?.metadata?.shop_id === shopId,
+                );
+
+                let conversationId = existing?.conversation_id;
+
+                if (!conversationId) {
+                    // Create New
+                    const { data: newConv, error } = await supabase
+                        .from("conversations")
+                        .insert({
+                            type: "p2p",
+                            title: `Chat about ${productTitle}`,
+                            metadata: { shop_id: shopId },
+                        })
+                        .select()
+                        .single();
+
+                    if (error) {
+                        console.error(error);
+                        alert("Error starting chat");
+                        return;
+                    }
+
+                    conversationId = newConv.id;
+
+                    // Add Participants
+                    await supabase.from("conversation_participants").insert([
+                        {
+                            conversation_id: conversationId,
+                            user_id: session.user.id,
+                        },
+                        {
+                            conversation_id: conversationId,
+                            user_id: shop.owner_id,
+                        },
+                    ]);
+                }
+
+                // Redirect
+                window.location.href = `/chat?id=${conversationId}`;
+            });
     }
 
     document.addEventListener("astro:page-load", initProductPage);

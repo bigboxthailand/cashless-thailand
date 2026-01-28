@@ -1,25 +1,45 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
-const Reviews = ({ productId }) => {
+const Reviews = ({ productId = null, shopId = null }) => {
     const [reviews, setReviews] = useState([]);
     const [stats, setStats] = useState({ average: 0, total: 0, counts: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (productId) fetchReviews();
-    }, [productId]);
+        if (productId || shopId) fetchReviews();
+    }, [productId, shopId]);
 
     const fetchReviews = async () => {
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('reviews')
                 .select(`
                     *,
-                    profile:user_id (full_name, avatar_url)
+                    profile:user_id (full_name, avatar_url),
+                    product:product_id (name, media)
                 `)
-                .ilike('product_id', `${productId}%`)
                 .order('created_at', { ascending: false });
+
+            if (productId) {
+                query = query.ilike('product_id', `${productId}%`);
+            } else if (shopId) {
+                // For Shop: Get products first or use join logic.
+                // Simpler: Fetch all reviews and filter or use join if capable.
+                // Supabase join filter syntax:
+                // product!inner(shop_id) eq shopId
+                query = supabase
+                    .from('reviews')
+                    .select(`
+                        *,
+                        profile:user_id (full_name, avatar_url),
+                        product:product_id!inner (name, media, shop_id)
+                    `)
+                    .eq('product.shop_id', shopId)
+                    .order('created_at', { ascending: false });
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -128,9 +148,17 @@ const Reviews = ({ productId }) => {
                                         </div>
                                     </div>
                                 </div>
-                                <span className="text-white/20 text-[10px] font-bold uppercase tracking-widest">
-                                    {new Date(review.created_at).toLocaleDateString('th-TH')}
-                                </span>
+                                <div className="text-right">
+                                    <span className="block text-white/20 text-[10px] font-bold uppercase tracking-widest">
+                                        {new Date(review.created_at).toLocaleDateString('th-TH')}
+                                    </span>
+                                    {/* Show Product Name if browsing shop-wide */}
+                                    {shopId && review.product && (
+                                        <span className="block text-white/40 text-[10px] mt-1 line-clamp-1 max-w-[150px]">
+                                            {review.product.name}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <p className="text-white/70 font-light leading-relaxed">
                                 {review.comment}

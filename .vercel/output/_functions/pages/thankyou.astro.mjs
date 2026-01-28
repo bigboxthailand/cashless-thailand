@@ -1,0 +1,28 @@
+import { e as createComponent, k as renderComponent, l as renderScript, r as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_Bu8JVBjn.mjs';
+import 'piccolore';
+import { $ as $$Layout } from '../chunks/Layout_BPO4vhqY.mjs';
+import { $ as $$Navbar } from '../chunks/Navbar_BK4zBr0V.mjs';
+/* empty css                                    */
+export { renderers } from '../renderers.mjs';
+
+const $$Thankyou = createComponent(($$result, $$props, $$slots) => {
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": "Order Confirmed | Cashless Thailand", "data-astro-cid-zgdhwzdv": true }, { "default": ($$result2) => renderTemplate` ${renderComponent($$result2, "Navbar", $$Navbar, { "data-astro-cid-zgdhwzdv": true })} ${maybeRenderHead()}<main class="relative z-10 bg-[#050505] min-h-screen flex items-center justify-center pt-32 pb-20" data-astro-cid-zgdhwzdv> <div class="absolute inset-0 overflow-hidden pointer-events-none" data-astro-cid-zgdhwzdv> <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4AF37]/10 blur-[150px] rounded-full" data-astro-cid-zgdhwzdv></div> </div> <div class="max-w-2xl w-full mx-6 text-center space-y-8 relative z-10" data-astro-cid-zgdhwzdv> <div class="w-24 h-24 bg-gradient-to-br from-[#D4AF37] to-[#8B6914] rounded-full mx-auto flex items-center justify-center shadow-[0_0_50px_-10px_rgba(212,175,55,0.5)] mb-8 animate-bounce-in" data-astro-cid-zgdhwzdv> <svg class="w-12 h-12 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" data-astro-cid-zgdhwzdv><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" data-astro-cid-zgdhwzdv></path></svg> </div> <div class="space-y-4" data-astro-cid-zgdhwzdv> <h1 class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none" data-astro-cid-zgdhwzdv>
+Order <span class="text-[#D4AF37]" data-astro-cid-zgdhwzdv>Confirmed!</span> </h1> <p class="text-white/60 text-lg font-light max-w-lg mx-auto" data-astro-cid-zgdhwzdv>
+ขอบคุณสำหรับการสั่งซื้อ ข้อมูลและสลิปถูกส่งเข้าสู่ระบบแล้ว <br data-astro-cid-zgdhwzdv> <span class="text-[#D4AF37] font-bold block mt-2 animate-pulse" data-astro-cid-zgdhwzdv>⚠️ กรุณาแคปหน้าจอนี้ไว้เพื่อใช้ตรวจสอบเลข Order ⚠️</span> </p> </div> <div class="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-md mx-auto mt-8 text-left space-y-4 shadow-2xl relative overflow-hidden" data-astro-cid-zgdhwzdv> <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5 font-black text-9xl -rotate-12 pointer-events-none select-none" data-astro-cid-zgdhwzdv>PAID</div> <div class="flex justify-between items-center border-b border-white/10 pb-4 relative z-10" data-astro-cid-zgdhwzdv> <span class="text-xs text-white/40 uppercase tracking-widest" data-astro-cid-zgdhwzdv>Order Ref</span> <span class="text-xl font-black text-white eng tracking-widest" id="order-ref" data-astro-cid-zgdhwzdv>...</span> </div> <div id="order-items-list" class="space-y-2 text-sm text-white/80 max-h-40 overflow-y-auto pr-2 custom-scrollbar relative z-10" data-astro-cid-zgdhwzdv></div> <div class="flex justify-between items-center pt-4 border-t border-white/10 relative z-10" data-astro-cid-zgdhwzdv> <span class="text-white/60" data-astro-cid-zgdhwzdv>Total Amount</span> <span class="text-2xl font-black text-[#D4AF37]" id="order-total" data-astro-cid-zgdhwzdv>0.00 ฿</span> </div> </div> <div class="flex flex-col items-center gap-6 mt-12" data-astro-cid-zgdhwzdv> <a href="https://lin.ee/EKxf7zl" target="_blank" class="px-8 py-4 bg-[#06C755] rounded-xl text-white font-bold uppercase tracking-wider hover:bg-[#05b64d] transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-900/20 transform hover:scale-105 duration-200 min-w-[280px]" data-astro-cid-zgdhwzdv> <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" data-astro-cid-zgdhwzdv><path d="M21.155 8.39c-.582-3.8-4.225-6.195-8.482-6.386-4.99-.214-9.52 2.63-9.664 7.625-.138 4.773 2.87 8.358 7.37 9.54l.583 2.766c.07.33.456.467.728.25l3.96-3.053c3.784.076 7.408-3.033 7.828-6.95.215-2.007-.463-3.86-2.323-3.792zm-4.73 6.05c-.17.3-.64.385-.94.135-1.12-.935-3.32-2.735-4.525-4.475-.15-.245.035-.61.35-.66l.72-.11c.265-.04.495.14.565.405.155.57.37 1.135.64 1.665.115.3.005.65-.24.84l-.325.25c.675 1.07 1.645 1.94 2.825 2.51l.29-.31c.21-.225.565-.305.85-.16.51.255 1.06.445 1.615.575.265.06.44.29.385.555l-.215.78z" data-astro-cid-zgdhwzdv></path></svg>
+เพิ่มเพื่อนเพื่อติดตามสินค้า
+</a> <div class="bg-white p-2 rounded-xl" data-astro-cid-zgdhwzdv> <img src="https://qr-official.line.me/gs/M_224sjsun_GW.png" alt="Add Line Friend" class="w-32 h-32" data-astro-cid-zgdhwzdv> </div> <p class="text-white/40 text-xs" data-astro-cid-zgdhwzdv>หรือแอดไลน์ ID: @224sjsun</p> <a href="/" class="text-white/40 hover:text-white underline text-sm mt-4" data-astro-cid-zgdhwzdv>กลับหน้าหลัก</a> </div> </div> </main> ` })} ${renderScript($$result, "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/thankyou.astro?astro&type=script&index=0&lang.ts")} `;
+}, "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/thankyou.astro", void 0);
+
+const $$file = "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/thankyou.astro";
+const $$url = "/thankyou";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+    __proto__: null,
+    default: $$Thankyou,
+    file: $$file,
+    url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 
 export default function AuthModal({ isOpen, onClose }) {
     const [isLogin, setIsLogin] = useState(true);
@@ -23,7 +23,11 @@ export default function AuthModal({ isOpen, onClose }) {
                     password,
                 });
                 if (error) throw error;
-                window.location.reload(); // Refresh to update UI state
+
+                // Check for redirect parameter in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectTo = urlParams.get('redirect') || '/profile';
+                window.location.href = redirectTo;
             } else {
                 const { error } = await supabase.auth.signUp({
                     email,
@@ -42,10 +46,13 @@ export default function AuthModal({ isOpen, onClose }) {
 
     const handleSocialLogin = async (provider) => {
         try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectTo = urlParams.get('redirect') || '/profile';
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
                 options: {
-                    redirectTo: window.location.origin,
+                    redirectTo: `${window.location.origin}${redirectTo}`,
                 }
             });
             if (error) throw error;

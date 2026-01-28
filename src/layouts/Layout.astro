@@ -191,12 +191,8 @@ const {
                 splitElements.forEach((el) => observer.observe(el));
             });
         </script>
-        <script>
-            import { cartStore } from "../lib/cartStore.js";
-            // ... (rest of script)
-        </script>
-        <ChatWidget client:load />
         <CartDrawer />
+        <ChatWidget client:load />
     </body>
 </html>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../lib/supabase';
 
 export default function AdminChat() {
     const [conversations, setConversations] = useState([]);
@@ -7,11 +7,17 @@ export default function AdminChat() {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
     const [loading, setLoading] = useState(true);
+    const [currentUserId, setCurrentUserId] = useState(null);
     const messagesEndRef = useRef(null);
 
     // 1. Fetch Conversations
     useEffect(() => {
-        fetchConversations();
+        const init = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setCurrentUserId(session?.user?.id);
+            fetchConversations();
+        };
+        init();
 
         // Subscribe to NEW conversations (optional, for realtime list update)
         const channel = supabase.channel('admin_conversations')
@@ -57,9 +63,10 @@ export default function AdminChat() {
                     id, updated_at, type,
                     conversation_participants (
                         user_id,
-                        profiles ( full_name, email )
+                        profiles ( full_name, email, wallet_address )
                     )
                 `)
+                // ... (omitting intermediate lines, doing separate chunks might be safer if lines are far part, but here I can use REPLACE tool for the query and then another for the function if needed. Actually let's use MULTI_REPLACE for safety).
                 .eq('type', 'support')
                 .order('updated_at', { ascending: false });
 
@@ -176,8 +183,14 @@ export default function AdminChat() {
     // Helper to get customer name
     const getCustomerName = (conv) => {
         if (!conv || !conv.conversation_participants) return 'Unknown User';
-        const customerParticipant = conv.conversation_participants.find(p => p.user_id !== null); // Assuming admin user_id is known or null
-        return customerParticipant?.profiles?.full_name || customerParticipant?.profiles?.email || 'Unknown User';
+        // Filter out the current admin user to find the OTHER participant (the customer)
+        const customerParticipant = conv.conversation_participants.find(p => p.user_id !== currentUserId);
+
+        if (!customerParticipant?.profiles) return 'Unknown User';
+
+        const { full_name, email, wallet_address } = customerParticipant.profiles;
+
+        return full_name || email || (wallet_address ? "Meta Mask's Shop" : 'Unknown User');
     };
 
     return (
@@ -255,23 +268,25 @@ export default function AdminChat() {
                                             }`}>
 
                                             {/* Order Card Attachment */}
-                                            {msg.metadata?.order_id && (
+                                            {(msg.order_id || msg.metadata?.order_id) && (
                                                 <div className="mb-2 bg-black/20 rounded p-2 flex items-center gap-2 cursor-pointer hover:bg-black/40 transition-colors"
-                                                    onClick={() => window.open(`/admin/orders?search=${msg.metadata.order_id}`, '_blank')}>
+                                                    onClick={() => window.open(`/admin/orders?search=${msg.order_id || msg.metadata?.order_id}`, '_blank')}>
                                                     <div className="w-8 h-8 bg-[#D4AF37] rounded flex items-center justify-center text-black font-bold text-xs">
                                                         ORD
                                                     </div>
                                                     <div>
-                                                        <p className="font-bold text-xs">Order #{msg.metadata.order_id.slice(0, 8)}</p>
+                                                        <p className="font-bold text-xs">Order #{(msg.order_id || msg.metadata?.order_id || '').slice(0, 8)}</p>
                                                         <p className="text-[10px] opacity-70">Click to view details</p>
                                                     </div>
                                                 </div>
                                             )}
 
                                             {/* Image Attachment */}
-                                            {msg.attachment_url && (
+                                            {(msg.image_url || msg.attachment_url) && (
                                                 <div className="mb-2 rounded-lg overflow-hidden border border-black/10">
-                                                    <img src={msg.attachment_url} alt="Attachment" className="max-w-[200px] max-h-[200px] object-cover" />
+                                                    <a href={msg.image_url || msg.attachment_url} target="_blank" rel="noopener noreferrer">
+                                                        <img src={msg.image_url || msg.attachment_url} alt="Attachment" className="max-w-[200px] max-h-[200px] object-cover hover:scale-105 transition-transform" />
+                                                    </a>
                                                 </div>
                                             )}
 

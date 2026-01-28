@@ -1,0 +1,14 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import ChatCenter from "../../components/chat/ChatCenter.jsx";
+---
+
+<Layout title="Messages | Cashless Thailand">
+    <Navbar />
+
+    <main class="pt-20">
+        {/* Offset for Navbar */}
+        <ChatCenter client:only="react" />
+    </main>
+</Layout>

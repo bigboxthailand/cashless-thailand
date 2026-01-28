@@ -2,6 +2,7 @@
 // src/components/Navbar.astro
 import UserMenu from "./UserMenu";
 import MobileUserMenu from "./MobileUserMenu";
+import SellerCTA from "./SellerCTA";
 ---
 
 <nav
@@ -201,6 +202,8 @@ import MobileUserMenu from "./MobileUserMenu";
         </div>
 
         <div class="flex items-center gap-4 md:gap-6 pointer-events-auto">
+            <SellerCTA client:load />
+
             <div class="hidden md:block">
                 <UserMenu client:load />
             </div>
