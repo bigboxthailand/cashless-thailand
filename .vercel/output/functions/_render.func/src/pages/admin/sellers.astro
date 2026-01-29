@@ -161,13 +161,25 @@ const suspendedShops = shops?.filter((s) => s.status === "suspended") || [];
                                         ).toLocaleDateString()}
                                     </td>
                                     <td class="p-4 text-right">
-                                        <button
-                                            data-id={shop.id}
-                                            data-action="suspend"
-                                            class="action-btn text-red-500 text-xs hover:underline"
-                                        >
-                                            Suspend
-                                        </button>
+                                        <div class="flex items-center gap-3 justify-end">
+                                            <button
+                                                data-id={shop.id}
+                                                data-action="suspend"
+                                                class="action-btn text-orange-500 text-xs hover:underline font-bold"
+                                                title="Pause Shop Temporarily"
+                                            >
+                                                Suspend
+                                            </button>
+                                            <span class="text-white/10">|</span>
+                                            <button
+                                                data-id={shop.id}
+                                                data-action="delete"
+                                                class="action-btn text-red-500 text-xs hover:underline font-bold"
+                                                title="Delete Shop Permanently"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -211,15 +223,29 @@ const suspendedShops = shops?.filter((s) => s.status === "suspended") || [];
             el.innerHTML = "...";
 
             let updates = {};
+            let isDelete = false;
+
             if (action === "approve") updates = { status: "active" };
-            if (action === "reject") updates = { status: "rejected" }; // Or delete?
+            if (action === "reject") updates = { status: "rejected" };
             if (action === "suspend") updates = { status: "suspended" };
             if (action === "restore") updates = { status: "active" };
+            if (action === "delete") isDelete = true;
 
-            const { error } = await supabase
-                .from("shops")
-                .update(updates)
-                .eq("id", shopId);
+            let error;
+
+            if (isDelete) {
+                const { error: err } = await supabase
+                    .from("shops")
+                    .delete()
+                    .eq("id", shopId);
+                error = err;
+            } else {
+                const { error: err } = await supabase
+                    .from("shops")
+                    .update(updates)
+                    .eq("id", shopId);
+                error = err;
+            }
 
             if (error) {
                 alert("Action failed: " + error.message);

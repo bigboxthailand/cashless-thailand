@@ -1,8 +1,7 @@
 import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_Bu8JVBjn.mjs';
 import 'piccolore';
-import { $ as $$Layout } from '../../chunks/Layout_BPO4vhqY.mjs';
-import { $ as $$Navbar } from '../../chunks/Navbar_BK4zBr0V.mjs';
-import { $ as $$Footer } from '../../chunks/Footer_BDifea0a.mjs';
+import { $ as $$Layout, a as $$Navbar } from '../../chunks/Navbar_DWavSQqS.mjs';
+import { $ as $$Footer } from '../../chunks/Footer_BP6qeS3w.mjs';
 export { renderers } from '../../renderers.mjs';
 
 const $$Contact = createComponent(($$result, $$props, $$slots) => {

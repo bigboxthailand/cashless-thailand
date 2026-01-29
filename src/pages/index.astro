@@ -1,32 +1,45 @@
 ---
 // src/pages/index.astro
-import Layout from '../layouts/Layout.astro';
-import Navbar from '../components/Navbar.astro';
-import Hero from '../components/Hero.astro';
-import Marquee from '../components/Marquee.astro';
-import Features from '../components/Features.astro'; // Ecosystem
-import ProductGallery from '../components/ProductGallery.astro';
-import FeaturedGrid from '../components/FeaturedGrid.astro'; // Shop
-import Partners from '../components/Partners.astro';
-import Testimonials from '../components/Testimonials.astro';
-import CommunityEvents from '../components/CommunityEvents.astro';
-import BlogSection from '../components/BlogSection.astro';
-import FAQ from '../components/FAQ.astro';
-import Footer from '../components/Footer.astro';
-import CartDrawer from '../components/CartDrawer.astro';
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Hero from "../components/Hero.astro";
+import Marquee from "../components/Marquee.astro";
+import Features from "../components/Features.astro"; // Ecosystem
+import ProductGallery from "../components/ProductGallery.astro";
+import ShopExplorer from "../components/ShopExplorer.astro";
+import FeaturedGrid from "../components/FeaturedGrid.astro"; // Shop
+import Partners from "../components/Partners.astro";
+import Testimonials from "../components/Testimonials.astro";
+import CommunityEvents from "../components/CommunityEvents.astro";
+import BlogSection from "../components/BlogSection.astro";
+import FAQ from "../components/FAQ.astro";
+import Footer from "../components/Footer.astro";
+import CartDrawer from "../components/CartDrawer.astro";
 
 const pageTitle = "Cashless Thailand | Bitcoin & Crypto Innovation Devices";
-const pageDesc = "สถาบันสอนและจัดจำหน่าย ศูนย์รวมนวัตกรรม Bitcoin: CryptoClock, ตู้ BiTTerm, เครื่อง BiTPos และ BiTNode อุปกรณ์รันโหนดส่วนตัว ฝีมือคนไทย";
+const pageDesc =
+    "สถาบันสอนและจัดจำหน่าย ศูนย์รวมนวัตกรรม Bitcoin: CryptoClock, ตู้ BiTTerm, เครื่อง BiTPos และ BiTNode อุปกรณ์รันโหนดส่วนตัว ฝีมือคนไทย";
 ---
 
 <Layout title={pageTitle} description={pageDesc}>
-    
-    <div id="loader" class="fixed inset-0 bg-[#050505] z-[100000] flex items-center justify-center transition-opacity duration-500">
+    <div
+        id="loader"
+        class="fixed inset-0 bg-[#050505] z-[100000] flex items-center justify-center transition-opacity duration-500"
+    >
         <div class="relative flex flex-col items-center gap-6">
-            <div class="w-20 h-20 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin"></div>
+            <div
+                class="w-20 h-20 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin"
+            >
+            </div>
             <div class="flex flex-col items-center">
-                <span class="eng text-white font-black text-2xl tracking-tighter">CASHLESS<span class="text-[#D4AF37]">.</span>TH</span>
-                <span class="eng text-[#D4AF37] text-[10px] font-bold tracking-[0.5em] animate-pulse mt-2">INITIALIZING</span>
+                <span
+                    class="eng text-white font-black text-2xl tracking-tighter"
+                    >CASHLESS<span class="text-[#D4AF37]">.</span>TH</span
+                >
+                <span
+                    class="eng text-[#D4AF37] text-[10px] font-bold tracking-[0.5em] animate-pulse mt-2"
+                    >INITIALIZING</span
+                >
             </div>
         </div>
     </div>
@@ -35,18 +48,22 @@ const pageDesc = "สถาบันสอนและจัดจำหน่�
     <Navbar />
 
     <main class="relative z-10 bg-[#050505] overflow-hidden">
-        
         <div id="home" class="relative z-10">
             <Hero />
         </div>
 
-        <div class="relative z-20 -mt-8 md:-mt-10 transform -rotate-1 origin-center pointer-events-none">
+        <div
+            class="relative z-20 -mt-8 md:-mt-10 transform -rotate-1 origin-center pointer-events-none"
+        >
             <div class="shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-sm">
                 <Marquee />
             </div>
         </div>
 
-        <div id="features" class="relative z-10 bg-gradient-to-b from-[#050505] via-[#0a0a0a] to-[#050505]">
+        <div
+            id="features"
+            class="relative z-10 bg-gradient-to-b from-[#050505] via-[#0a0a0a] to-[#050505]"
+        >
             <Features />
         </div>
 
@@ -54,8 +71,15 @@ const pageDesc = "สถาบันสอนและจัดจำหน่�
             <ProductGallery />
         </div>
 
+        <div class="relative z-10">
+            <ShopExplorer />
+        </div>
+
         <div id="shop" class="relative pt-32 pb-10 z-10">
-            <div class="absolute top-0 right-0 w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[180px] rounded-full pointer-events-none"></div>
+            <div
+                class="absolute top-0 right-0 w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[180px] rounded-full pointer-events-none"
+            >
+            </div>
             <FeaturedGrid />
         </div>
 
@@ -72,50 +96,51 @@ const pageDesc = "สถาบันสอนและจัดจำหน่�
         </div>
 
         <div id="articles" class="relative z-10 border-t border-[#D4AF37]/10">
-            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent opacity-50"></div>
+            <div
+                class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/50 to-transparent opacity-50"
+            >
+            </div>
             <BlogSection />
         </div>
 
         <div class="relative z-10 border-b border-[#D4AF37]/10 bg-[#050505]">
             <FAQ />
         </div>
-
     </main>
 
     <Footer />
-
 </Layout>
 
 <script>
     // Loader Logic
-    document.addEventListener('astro:page-load', () => {
-        const loader = document.getElementById('loader');
-        
+    document.addEventListener("astro:page-load", () => {
+        const loader = document.getElementById("loader");
+
         if (loader) {
             setTimeout(() => {
-                loader.classList.add('opacity-0');
+                loader.classList.add("opacity-0");
                 setTimeout(() => {
-                    loader.style.display = 'none'; 
+                    loader.style.display = "none";
                 }, 500);
             }, 500);
         }
     });
 
     // Smooth Scroll Logic
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
             // @ts-ignore
-            const href = this.getAttribute('href');
-            if (href === '#') return;
-            
+            const href = this.getAttribute("href");
+            if (href === "#") return;
+
             e.preventDefault();
             const targetId = href?.substring(1);
-            if(!targetId) return;
-            
+            if (!targetId) return;
+
             const targetElement = document.getElementById(targetId);
             if (targetElement) {
                 targetElement.scrollIntoView({
-                    behavior: 'smooth'
+                    behavior: "smooth",
                 });
             }
         });
@@ -134,6 +159,6 @@ const pageDesc = "สถาบันสอนและจัดจำหน่�
         border-radius: 4px;
     }
     html::-webkit-scrollbar-thumb:hover {
-        background: #D4AF37;
+        background: #d4af37;
     }
 </style>

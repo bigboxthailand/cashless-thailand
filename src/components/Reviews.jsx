@@ -12,31 +12,30 @@ const Reviews = ({ productId = null, shopId = null }) => {
 
     const fetchReviews = async () => {
         try {
-            let query = supabase
-                .from('reviews')
-                .select(`
-                    *,
-                    profile:user_id (full_name, avatar_url),
-                    product:product_id (name, media)
-                `)
-                .order('created_at', { ascending: false });
+            let query;
 
             if (productId) {
-                query = query.ilike('product_id', `${productId}%`);
-            } else if (shopId) {
-                // For Shop: Get products first or use join logic.
-                // Simpler: Fetch all reviews and filter or use join if capable.
-                // Supabase join filter syntax:
-                // product!inner(shop_id) eq shopId
                 query = supabase
                     .from('reviews')
                     .select(`
                         *,
-                        profile:user_id (full_name, avatar_url),
-                        product:product_id!inner (name, media, shop_id)
+                        profile:profiles (full_name, avatar_url),
+                        product:products (name, media)
                     `)
-                    .eq('product.shop_id', shopId)
+                    .eq('product_id', productId)
                     .order('created_at', { ascending: false });
+            } else if (shopId) {
+                query = supabase
+                    .from('reviews')
+                    .select(`
+                        *,
+                        profile:profiles (full_name, avatar_url),
+                        product:products!inner (name, media, shop_id)
+                    `)
+                    .eq('products.shop_id', shopId)
+                    .order('created_at', { ascending: false });
+            } else {
+                return;
             }
 
             const { data, error } = await query;

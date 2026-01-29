@@ -44,7 +44,10 @@ import AuthModal from "../components/AuthModal.jsx";
     const {
         data: { session },
     } = await supabase.auth.getSession();
+
     if (session) {
-        window.location.href = "/profile";
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get("redirect") || "/profile";
+        window.location.href = redirectTo;
     }
 </script>

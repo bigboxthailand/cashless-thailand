@@ -14,21 +14,33 @@ export default function SellerDashboardStats({ shopId: propShopId }) {
 
     // 1. Resolve Shop ID (Session vs Wallet)
     useEffect(() => {
-        if (propShopId) {
-            setShopId(propShopId);
-        } else {
-            const resolveShop = async () => {
-                const wallet = localStorage.getItem('user_wallet');
-                if (wallet) {
+        const resolve = async () => {
+            if (propShopId) {
+                setShopId(propShopId);
+                return;
+            }
+
+            // Wallet user fallback
+            const wallet = localStorage.getItem('user_wallet');
+            if (wallet) {
+                try {
                     const { data: profile } = await supabase.from('profiles').select('id').eq('wallet_address', wallet).single();
                     if (profile) {
                         const { data: shop } = await supabase.from('shops').select('id').eq('owner_id', profile.id).single();
-                        if (shop) setShopId(shop.id);
+                        if (shop) {
+                            setShopId(shop.id);
+                            return;
+                        }
                     }
+                } catch (e) {
+                    console.error("Wallet shop resolution fail", e);
                 }
-            };
-            resolveShop();
-        }
+            }
+
+            // If we reach here, no shop was found
+            setLoading(false);
+        };
+        resolve();
     }, [propShopId]);
 
     // 2. Fetch Data
@@ -38,7 +50,7 @@ export default function SellerDashboardStats({ shopId: propShopId }) {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // A. Get Products & Count
+                // A. Get Products
                 const { data: products, count: productCount, error: prodError } = await supabase
                     .from('products')
                     .select('id', { count: 'exact' })
@@ -46,47 +58,51 @@ export default function SellerDashboardStats({ shopId: propShopId }) {
 
                 if (prodError) throw prodError;
 
-                const productIds = products.map(p => p.id);
+                const productIds = products?.map(p => p.id) || [];
 
                 if (productIds.length === 0) {
                     setStats({ sales: 0, orders: 0, products: 0, rating: 0 });
-                    setLoading(false);
                     return;
                 }
 
-                // B. Get Order Items (for Sales & Orders)
+                // B. Get Order Items (Joined with Orders to check status)
                 const { data: items, error: itemsError } = await supabase
                     .from('order_items')
-                    .select('price, quantity, order_id')
+                    .select(`
+                        price, 
+                        quantity, 
+                        order:order_id (payment_status, id)
+                    `)
                     .in('product_id', productIds);
 
                 if (itemsError) throw itemsError;
 
-                // Calc Sales & Unique Orders
-                const totalSales = items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
-                const uniqueOrders = new Set(items.map(i => i.order_id)).size;
+                // Calc Sales & Unique Orders (Only PAID/SHIPPED/DELIVERED)
+                let totalSales = 0;
+                const uniqueOrders = new Set();
+
+                items?.forEach(item => {
+                    if (item.order && ['paid', 'shipped', 'delivered'].includes(item.order.payment_status)) {
+                        totalSales += (Number(item.price) * (item.quantity || 1));
+                        uniqueOrders.add(item.order.id);
+                    }
+                });
 
                 // C. Get Reviews (for Rating)
-                // Check if reviews table exists first by simple query (or assume exists based on user request)
-                // We'll wrap in try/catch to be safe if table missing
-                let avgRating = 5.0; // Default
-                try {
-                    const { data: reviews, error: reviewError } = await supabase
-                        .from('reviews')
-                        .select('rating')
-                        .in('product_id', productIds);
+                let avgRating = 5.0;
+                const { data: reviews, error: reviewError } = await supabase
+                    .from('reviews')
+                    .select('rating')
+                    .in('product_id', productIds);
 
-                    if (!reviewError && reviews.length > 0) {
-                        const sumRating = reviews.reduce((sum, r) => sum + r.rating, 0);
-                        avgRating = sumRating / reviews.length;
-                    }
-                } catch (err) {
-                    console.warn("Review fetch failed (table might be missing), defaulting 5.0");
+                if (!reviewError && reviews?.length > 0) {
+                    const sumRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+                    avgRating = sumRating / reviews.length;
                 }
 
                 setStats({
                     sales: totalSales,
-                    orders: uniqueOrders,
+                    orders: uniqueOrders.size,
                     products: productCount || 0,
                     rating: avgRating
                 });

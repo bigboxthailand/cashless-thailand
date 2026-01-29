@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
-export default function ChatOrderSelector({ userId, onSelect, onClose }) {
+export default function ChatOrderSelector({ userId, shopId, onSelect, onClose }) {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (userId) fetchOrders();
-    }, [userId]);
+    }, [userId, shopId]);
 
     const fetchOrders = async () => {
         try {
-            const { data, error } = await supabase
-                .from('orders')
-                .select('*')
-                .eq('user_id', userId)
+            let query = supabase.from('orders').select('*');
+
+            if (shopId) {
+                // If shopId is provided, the user is likely the seller
+                query = query.eq('shop_id', shopId);
+            } else {
+                // Otherwise fetch user's personal orders
+                query = query.eq('user_id', userId);
+            }
+
+            const { data, error } = await query
                 .order('created_at', { ascending: false })
                 .limit(20);
 

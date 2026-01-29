@@ -144,11 +144,19 @@
 			"dest": "_render"
 		},
 		{
+			"src": "^/seller/pending/?$",
+			"dest": "_render"
+		},
+		{
 			"src": "^/seller/products/?$",
 			"dest": "_render"
 		},
 		{
 			"src": "^/seller/register/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/seller/settings/?$",
 			"dest": "_render"
 		},
 		{
@@ -161,6 +169,10 @@
 		},
 		{
 			"src": "^/shop/?$",
+			"dest": "_render"
+		},
+		{
+			"src": "^/shops/?$",
 			"dest": "_render"
 		},
 		{

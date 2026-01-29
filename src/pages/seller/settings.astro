@@ -2,9 +2,10 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import { supabase } from "../../lib/supabase";
+import SellerSidebar from "../../components/seller/SellerSidebar.astro";
 import SellerSettings from "../../components/seller/SellerSettings";
 
-// Server-side: Only check Supabase session
+// Server-side Check (Lenient for wallet users)
 const {
     data: { session },
 } = await supabase.auth.getSession();
@@ -17,14 +18,21 @@ if (session) {
         .eq("owner_id", session.user.id)
         .single();
     shop = data;
+
+    // Server-side redirect if shop is pending
+    if (shop && shop.status !== "active") {
+        return Astro.redirect("/seller/pending");
+    }
 }
+// If no session, we don't redirect here.
+// The initSellerAuth script (via SellerSidebar or sellerAuthGuard) will handle redirection if no wallet is found either.
 ---
 
 <!-- Loading overlay for wallet users -->
 <div
     id="wallet-loading"
     style="display: none;"
-    class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center"
+    class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center pointer-events-none"
 >
     <div class="text-center">
         <div
@@ -35,66 +43,10 @@ if (session) {
     </div>
 </div>
 
-<Layout title={`Settings | ${shop?.name || "My Shop"}`}>
+<Layout title={`Settings | ${shop?.name || "Seller Center"}`}>
     <Navbar />
     <div class="flex h-screen bg-[#050505] overflow-hidden pt-24">
-        <!-- Sidebar -->
-        <aside
-            class="w-64 bg-[#111] border-r border-white/10 hidden md:flex flex-col"
-        >
-            <div class="p-6 border-b border-white/10">
-                <h2
-                    class="text-[#D4AF37] font-black uppercase tracking-widest text-lg"
-                >
-                    Seller Center
-                </h2>
-                <p class="text-white/40 text-xs mt-1 truncate">
-                    {shop?.name || "Loading..."}
-                </p>
-            </div>
-
-            <nav class="flex-1 p-4 space-y-2">
-                <a
-                    href="/seller/dashboard"
-                    class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl font-bold text-sm transition-all"
-                >
-                    <span>📊</span> Dashboard
-                </a>
-                <a
-                    href="/seller/orders"
-                    class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl font-bold text-sm transition-all"
-                >
-                    <span>📦</span> Orders
-                </a>
-                <a
-                    href="/chat"
-                    class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl font-bold text-sm transition-all"
-                >
-                    <span>💬</span> Messages
-                </a>
-                <a
-                    href="/seller/products"
-                    class="flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl font-bold text-sm transition-all"
-                >
-                    <span>🏷️</span> Products
-                </a>
-                <a
-                    href="/seller/settings"
-                    class="flex items-center gap-3 px-4 py-3 bg-[#D4AF37]/10 text-[#D4AF37] rounded-xl font-bold text-sm"
-                >
-                    <span>⚙️</span> Settings
-                </a>
-            </nav>
-
-            <div class="p-4 border-t border-white/10">
-                <a
-                    href="/"
-                    class="flex items-center gap-2 text-white/40 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors"
-                >
-                    ← Back to Market
-                </a>
-            </div>
-        </aside>
+        <SellerSidebar activeTab="settings" shop={shop} />
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto relative bg-[#050505]">

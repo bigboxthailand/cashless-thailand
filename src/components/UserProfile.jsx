@@ -46,68 +46,77 @@ export default function UserProfile() {
 
     const fetchProfile = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
+            let userId = null;
+            let wallet = localStorage.getItem('user_wallet');
 
+            // 1. Try Supabase Auth
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                userId = user.id;
+            } else if (wallet) {
+                // 2. Try Wallet lookup
+                const { data: walletProfile } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('wallet_address', wallet.toLowerCase())
+                    .single();
+                if (walletProfile) userId = walletProfile.id;
+            }
+
+            if (!userId) {
+                setLoading(false);
+                return;
+            }
+
+            // 3. Fetch full profile data
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', user.id)
+                .eq('id', userId)
                 .single();
 
-            if (error && error.code !== 'PGRST116') console.error(error);
-
-            setProfile(data ? {
-                ...data,
-                first_name: data.full_name?.split(' ')[0] || '',
-                last_name: data.full_name?.split(' ').slice(1).join(' ') || ''
-            } : {
-                id: user.id,
-                first_name: user.user_metadata.full_name?.split(' ')[0] || '',
-                last_name: user.user_metadata.full_name?.split(' ').slice(1).join(' ') || '',
-                email: user.email,
-                avatar_url: null
-            });
+            if (data) {
+                const p = {
+                    ...data,
+                    first_name: data.full_name?.split(' ')[0] || '',
+                    last_name: data.full_name?.split(' ').slice(1).join(' ') || '',
+                    email: data.email || (wallet ? wallet.substring(0, 6) + '...' + wallet.substring(38) : '')
+                };
+                setProfile(p);
+                // Fetch related data after profile is set
+                fetchAddresses(userId);
+                fetchOrders(userId);
+            }
 
         } catch (error) {
             console.error('Error loading profile:', error);
         } finally {
-            // [NEW] Check for Metamask Wallet if no profile loaded (or even if loaded)
-            const wallet = localStorage.getItem('user_wallet');
-            if (wallet && !profile) {
-                setProfile(prev => prev || {
-                    first_name: 'Wallet',
-                    last_name: 'User',
-                    email: wallet.substring(0, 6) + '...' + wallet.substring(38),
-                    avatar_url: `https://api.dicebear.com/7.x/identicon/svg?seed=${wallet}`
-                });
-            }
             setLoading(false);
         }
     };
 
-    const fetchAddresses = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const { data } = await supabase.from('addresses').select('*').eq('user_id', user.id).order('is_default', { ascending: false });
+    const fetchAddresses = async (userId) => {
+        if (!userId) return;
+        const { data } = await supabase
+            .from('addresses')
+            .select('*')
+            .eq('user_id', userId)
+            .order('is_default', { ascending: false });
 
-        // Map DB fields to UI fields
         const formatted = (data || []).map(addr => ({
             ...addr,
             first_name: addr.full_name ? addr.full_name.split(' ')[0] : '',
             last_name: addr.full_name ? addr.full_name.split(' ').slice(1).join(' ') : '',
             zip_code: addr.zipcode,
-            label: 'Home' // DB doesn't have label, default to Home
+            label: 'Home'
         }));
         setAddresses(formatted);
     };
 
-    const fetchOrders = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    const fetchOrders = async (userId) => {
+        if (!userId) return;
 
         try {
-            // Trigger Automation
             await supabase.rpc('check_order_automations');
 
             const { data, error } = await supabase
@@ -121,7 +130,7 @@ export default function UserProfile() {
                         product:product_id (meta, media)
                     )
                 `)
-                .eq('user_id', user.id)
+                .eq('user_id', userId)
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -251,9 +260,7 @@ export default function UserProfile() {
 
     const saveAddress = async (e) => {
         e.preventDefault();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
+        if (!profile?.id) {
             alert('กรุณา login ก่อนบันทึกที่อยู่');
             return;
         }
@@ -261,7 +268,7 @@ export default function UserProfile() {
         const fullName = `${form.first_name.value} ${form.last_name.value}`.trim();
 
         const newAddress = {
-            user_id: user.id,
+            user_id: profile.id,
             full_name: fullName,
             phone: form.phone.value,
             address_line1: form.address_line1.value,
@@ -297,11 +304,10 @@ export default function UserProfile() {
         if (e) e.preventDefault();
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('No user found');
+            if (!profile?.id) throw new Error('No profile loaded');
 
             const updates = {
-                id: user.id,
+                id: profile.id,
                 full_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
                 phone: profile.phone,
                 tax_id: profile.tax_id,

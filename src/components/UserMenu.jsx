@@ -53,14 +53,18 @@ export default function UserMenu() {
     };
 
     const handleLogout = async () => {
+        // Clear Supabase session if it exists
         if (session) {
             await supabase.auth.signOut();
-        } else if (wallet) {
-            localStorage.removeItem('user_wallet');
-            setWallet(null);
-            setProfile(null);
-            window.location.reload();
         }
+
+        // Always clear wallet and profile state
+        localStorage.removeItem('user_wallet');
+        setWallet(null);
+        setProfile(null);
+
+        // Force redirect to home to refresh all states
+        window.location.href = '/';
     };
 
     // Helper to truncate address

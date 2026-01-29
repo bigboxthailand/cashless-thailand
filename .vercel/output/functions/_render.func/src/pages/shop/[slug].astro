@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import ProductCard from "../../components/ProductCard.astro";
+import Reviews from "../../components/Reviews.jsx";
 import { supabase } from "../../lib/supabase";
 
 const { slug } = Astro.params;
@@ -53,7 +54,14 @@ const productItems = (products || []).map((product) => {
         image: image,
         hoverImage: hoverImage,
         category: product.category || "Product",
-        status: product.config?.inventory?.stock > 0 ? "In Stock" : "Sold Out",
+        status:
+            product.config?.inventory?.stock > 0 ||
+            (product.config?.variants || []).reduce(
+                (acc: number, v: any) => acc + (parseInt(v.stock) || 0),
+                0,
+            ) > 0
+                ? "In Stock"
+                : "Sold Out",
     };
 });
 
@@ -168,6 +176,9 @@ const pageDesc =
                         */
                         }
                         <button
+                            id="contact-seller-btn"
+                            data-shop-id={shop.id}
+                            data-shop-name={shop.name}
                             class="px-6 py-2 rounded-full bg-[#D4AF37] text-black font-bold text-sm uppercase tracking-wider hover:bg-[#b08d26] transition-colors"
                         >
                             Contact Seller
@@ -215,7 +226,34 @@ const pageDesc =
                 )
             }
         </section>
+
+        {/* Reviews Section (Shop-Wide) */}
+        <Reviews shopId={shop.id} client:visible />
     </main>
 
     <Footer />
+
+    <script>
+        import { supabase } from "../../lib/supabase";
+
+        const contactBtn = document.getElementById("contact-seller-btn");
+
+        contactBtn?.addEventListener("click", async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (!session) {
+                alert("Please login to contact the seller.");
+                window.location.href = "/login";
+                return;
+            }
+
+            const shopId = contactBtn.dataset.shopId;
+            const shopName = contactBtn.dataset.shopName || "";
+
+            // Redirect to chat with query params
+            window.location.href = `/chat?shop_id=${shopId}&shop_name=${encodeURIComponent(shopName)}`;
+        });
+    </script>
 </Layout>

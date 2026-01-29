@@ -1,6 +1,6 @@
 import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../../chunks/astro/server_Bu8JVBjn.mjs';
 import 'piccolore';
-import { $ as $$AdminLayout } from '../../chunks/AdminLayout_B-ZiSxXY.mjs';
+import { $ as $$AdminLayout } from '../../chunks/AdminLayout_CY66lzGI.mjs';
 import { s as supabase } from '../../chunks/supabase_BcyI2ayE.mjs';
 import { jsxs, jsx } from 'react/jsx-runtime';
 import { useMemo } from 'react';

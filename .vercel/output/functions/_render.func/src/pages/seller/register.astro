@@ -2,31 +2,6 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
-import { supabase } from "../../lib/supabase";
-
-// Server-side Logic (Check Auth & Existing Shop)
-let user = null;
-let existingShop = null;
-
-const {
-    data: { session },
-} = await supabase.auth.getSession();
-if (session) {
-    user = session.user;
-
-    // Check if user already has a shop
-    const { data: shop } = await supabase
-        .from("shops")
-        .select("*")
-        .eq("owner_id", user.id)
-        .single();
-
-    if (shop) {
-        return Astro.redirect("/seller/dashboard");
-    }
-} else {
-    return Astro.redirect("/login?redirect=/seller/register");
-}
 ---
 
 <Layout title="Register Shop | Cashless Thailand">
@@ -40,6 +15,8 @@ if (session) {
             class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[120px] pointer-events-none"
         >
         </div>
+
+        <!-- Auth check will be done by form submission -->
 
         <div class="max-w-xl mx-auto relative z-10">
             <div class="text-center mb-12">
@@ -101,6 +78,61 @@ if (session) {
                         ></textarea>
                     </div>
 
+                    <!-- Payment Methods Section -->
+                    <div class="space-y-4 pt-4 border-t border-white/10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold text-white/60"
+                                >💰</span
+                            >
+                            <h3
+                                class="text-sm font-bold text-white/60 uppercase tracking-widest"
+                            >
+                                Payment Methods (Optional)
+                            </h3>
+                        </div>
+                        <p class="text-xs text-white/40 -mt-2">
+                            Add payment details to receive payouts from admin
+                        </p>
+
+                        <!-- PromptPay Field -->
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2"
+                            >
+                                <span>🇹🇭</span> PromptPay ID
+                            </label>
+                            <input
+                                type="text"
+                                name="promptpay_id"
+                                id="promptpay-input"
+                                placeholder="เบอร์โทร (10 หลัก) หรือ เลขบัตรประชาชน (13 หลัก)"
+                                pattern="[0-9]{10}|[0-9]{13}"
+                                class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] focus:bg-black outline-none transition-all placeholder:text-white/20"
+                            />
+                            <p class="text-[10px] text-white/30">
+                                ตัวอย่าง: 0812345678 หรือ 1234567890123
+                            </p>
+                        </div>
+
+                        <!-- Lightning Address Field -->
+                        <div class="space-y-2">
+                            <label
+                                class="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-2"
+                            >
+                                <span>⚡</span> Lightning Wallet Address
+                            </label>
+                            <input
+                                type="text"
+                                name="lightning_address"
+                                placeholder="yourname@getalby.com or lnbc1..."
+                                class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] focus:bg-black outline-none transition-all placeholder:text-white/20 font-mono text-sm"
+                            />
+                            <p class="text-[10px] text-white/30">
+                                Lightning Address or Invoice Address
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="pt-4">
                         <button
                             type="submit"
@@ -159,20 +191,127 @@ if (session) {
                 .replace(/[^a-z0-9]+/g, "-")
                 .replace(/(^-|-$)+/g, "");
 
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
+            console.log("🔄 Checking authentication...");
 
-            if (!user) throw new Error("Not authenticated");
+            // Check both Supabase session AND wallet login
+            let {
+                data: { user },
+                error: authError,
+            } = await supabase.auth.getUser();
+            const walletAddress = localStorage.getItem("user_wallet");
+
+            console.log("👤 Supabase User:", user ? user.email : "None");
+            console.log(
+                "💼 Wallet Address:",
+                walletAddress ? walletAddress : "None",
+            );
+            console.log("❌ Auth error:", authError);
+
+            let userId = null;
+
+            if (user) {
+                // Supabase authentication
+                userId = user.id;
+                console.log("✅ Using Supabase auth with ID:", userId);
+            } else if (walletAddress) {
+                console.log(
+                    "🔄 Wallet user detected - checking/creating profile...",
+                );
+
+                // For wallet users, we need to find or create a profile record
+                // because owner_id must be a UUID that references profiles.id
+                const { data: existingProfile } = await supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("wallet_address", walletAddress)
+                    .single();
+
+                if (existingProfile) {
+                    userId = existingProfile.id;
+                    console.log("✅ Found existing profile:", userId);
+                } else {
+                    // Create a new profile for this wallet
+                    const { data: newProfile, error: profileError } =
+                        await supabase
+                            .from("profiles")
+                            .insert({
+                                wallet_address: walletAddress,
+                                full_name: `Wallet User ${walletAddress.slice(0, 6)}`,
+                            })
+                            .select("id")
+                            .single();
+
+                    if (profileError) {
+                        console.error(
+                            "❌ Failed to create profile:",
+                            profileError,
+                        );
+                        alert("Failed to create profile. Please try again.");
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                        return;
+                    }
+
+                    userId = newProfile.id;
+                    console.log("✅ Created new profile:", userId);
+                }
+            } else {
+                // Try getting session as fallback
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                console.log(
+                    "📋 Session fallback:",
+                    session ? session.user.email : "None",
+                );
+
+                if (session && session.user) {
+                    userId = session.user.id;
+                    user = session.user;
+                    console.log("✅ Using Session fallback with ID:", userId);
+                } else {
+                    alert(
+                        "Please log in first. You will be redirected to the login page.",
+                    );
+                    window.location.href = "/login?redirect=/seller/register";
+                    return;
+                }
+            }
+
+            console.log("🆔 Final userId for shop creation:", userId);
+
+            // Get payment method values (optional fields)
+            const promptpayId =
+                formData.get("promptpay_id")?.toString().trim() || null;
+            const lightningAddress =
+                formData.get("lightning_address")?.toString().trim() || null;
+
+            // Validate PromptPay format if provided
+            if (promptpayId) {
+                const isValid = /^[0-9]{10}$|^[0-9]{13}$/.test(promptpayId);
+                if (!isValid) {
+                    alert("PromptPay ID must be 10 or 13 digits");
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
+                }
+            }
+
+            console.log("💰 Payment methods:", {
+                promptpayId,
+                lightningAddress,
+            });
 
             const { data, error } = await supabase
                 .from("shops")
                 .insert({
-                    owner_id: user.id,
+                    owner_id: userId, // Use userId variable (works for both Supabase and wallet)
                     name,
                     slug,
                     description,
-                    status: "active", // Auto-activate for MVP, typically 'pending'
+                    promptpay_id: promptpayId,
+                    lightning_address: lightningAddress,
+                    status: "pending", // Changed to pending - requires admin approval
                 })
                 .select()
                 .single();
@@ -184,12 +323,61 @@ if (session) {
             }
 
             // Success
-            alert("Shop Created! Redirecting to Dashboard...");
-            window.location.href = "/seller/dashboard";
+            alert(
+                "Shop Application Submitted! Please wait for admin approval.",
+            );
+            window.location.href = "/seller/pending";
         } catch (err) {
             alert(err.message);
             btn.disabled = false;
             btn.innerText = originalText;
+        }
+    });
+</script>
+
+<script>
+    // @ts-nocheck
+    import { supabase } from "../../lib/supabase";
+
+    // Auto-redirect if wallet user already has a shop
+    document.addEventListener("DOMContentLoaded", async () => {
+        if (session || walletAddress) {
+            try {
+                let userId = session?.user.id;
+
+                if (!userId && walletAddress) {
+                    // Find profile for wallet user
+                    const { data: profile } = await supabase
+                        .from("profiles")
+                        .select("id")
+                        .eq("wallet_address", walletAddress)
+                        .single();
+                    if (profile) userId = profile.id;
+                }
+
+                if (userId) {
+                    // Check for existing shop
+                    const { data: shop } = await supabase
+                        .from("shops")
+                        .select("status")
+                        .eq("owner_id", userId)
+                        .single();
+
+                    if (shop) {
+                        console.log(
+                            "✅ User already has a shop, redirecting...",
+                        );
+                        // Redirect based on status
+                        if (shop.status === "active") {
+                            window.location.href = "/seller/dashboard";
+                        } else {
+                            window.location.href = "/seller/pending";
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log("Checking existing shop...", error);
+            }
         }
     });
 </script>

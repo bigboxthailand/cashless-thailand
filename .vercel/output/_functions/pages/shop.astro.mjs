@@ -1,8 +1,7 @@
 import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../chunks/astro/server_Bu8JVBjn.mjs';
 import 'piccolore';
-import { $ as $$Layout, a as $$CartDrawer } from '../chunks/Layout_BPO4vhqY.mjs';
-import { $ as $$Navbar } from '../chunks/Navbar_BK4zBr0V.mjs';
-import { $ as $$Footer } from '../chunks/Footer_BDifea0a.mjs';
+import { $ as $$Layout, a as $$Navbar, b as $$CartDrawer } from '../chunks/Navbar_DWavSQqS.mjs';
+import { $ as $$Footer } from '../chunks/Footer_BP6qeS3w.mjs';
 import { s as supabase } from '../chunks/supabase_BcyI2ayE.mjs';
 /* empty css                                */
 export { renderers } from '../renderers.mjs';

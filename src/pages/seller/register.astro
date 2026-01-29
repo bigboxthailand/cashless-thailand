@@ -323,8 +323,10 @@ import Footer from "../../components/Footer.astro";
             }
 
             // Success
-            alert("Shop Created! Redirecting to Dashboard...");
-            window.location.href = "/seller/dashboard";
+            alert(
+                "Shop Application Submitted! Please wait for admin approval.",
+            );
+            window.location.href = "/seller/pending";
         } catch (err) {
             alert(err.message);
             btn.disabled = false;
@@ -339,28 +341,31 @@ import Footer from "../../components/Footer.astro";
 
     // Auto-redirect if wallet user already has a shop
     document.addEventListener("DOMContentLoaded", async () => {
-        const walletAddress = localStorage.getItem("user_wallet");
-
-        if (walletAddress) {
+        if (session || walletAddress) {
             try {
-                // Find profile
-                const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("id")
-                    .eq("wallet_address", walletAddress)
-                    .single();
+                let userId = session?.user.id;
 
-                if (profile) {
+                if (!userId && walletAddress) {
+                    // Find profile for wallet user
+                    const { data: profile } = await supabase
+                        .from("profiles")
+                        .select("id")
+                        .eq("wallet_address", walletAddress)
+                        .single();
+                    if (profile) userId = profile.id;
+                }
+
+                if (userId) {
                     // Check for existing shop
                     const { data: shop } = await supabase
                         .from("shops")
                         .select("status")
-                        .eq("owner_id", profile.id)
+                        .eq("owner_id", userId)
                         .single();
 
                     if (shop) {
                         console.log(
-                            "✅ Wallet user already has a shop, redirecting...",
+                            "✅ User already has a shop, redirecting...",
                         );
                         // Redirect based on status
                         if (shop.status === "active") {
@@ -371,7 +376,6 @@ import Footer from "../../components/Footer.astro";
                     }
                 }
             } catch (error) {
-                // Ignore errors here, just checking
                 console.log("Checking existing shop...", error);
             }
         }

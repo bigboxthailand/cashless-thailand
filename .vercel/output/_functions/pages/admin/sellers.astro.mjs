@@ -1,6 +1,6 @@
 import { e as createComponent, k as renderComponent, l as renderScript, r as renderTemplate, m as maybeRenderHead, h as addAttribute } from '../../chunks/astro/server_Bu8JVBjn.mjs';
 import 'piccolore';
-import { $ as $$AdminLayout } from '../../chunks/AdminLayout_B-ZiSxXY.mjs';
+import { $ as $$AdminLayout } from '../../chunks/AdminLayout_CY66lzGI.mjs';
 import { createClient } from '@supabase/supabase-js';
 export { renderers } from '../../renderers.mjs';
 
@@ -32,9 +32,11 @@ Reject
 Active Shops (${activeShops.length})
 </h2> <div class="overflow-x-auto"> <table class="w-full text-left border-collapse"> <thead> <tr class="text-white/40 text-xs uppercase tracking-wider border-b border-white/10"> <th class="p-4">Shop</th> <th class="p-4">Owner</th> <th class="p-4">Joined</th> <th class="p-4 text-right">Action</th> </tr> </thead> <tbody class="divide-y divide-white/5"> ${activeShops.map((shop) => renderTemplate`<tr class="hover:bg-white/5 transition-colors"> <td class="p-4"> <div class="flex items-center gap-3"> <div class="w-8 h-8 rounded-full bg-[#222] overflow-hidden"> ${shop.logo_url && renderTemplate`<img${addAttribute(shop.logo_url, "src")} class="w-full h-full object-cover">`} </div> <a${addAttribute(`/shop/${shop.slug}`, "href")} target="_blank" class="text-white font-bold hover:text-[#D4AF37]"> ${shop.name} </a> </div> </td> <td class="p-4 text-white/70 text-sm"> ${shop.profile?.email} </td> <td class="p-4 text-white/50 text-xs"> ${new Date(
     shop.created_at
-  ).toLocaleDateString()} </td> <td class="p-4 text-right"> <button${addAttribute(shop.id, "data-id")} data-action="suspend" class="action-btn text-red-500 text-xs hover:underline">
+  ).toLocaleDateString()} </td> <td class="p-4 text-right"> <div class="flex items-center gap-3 justify-end"> <button${addAttribute(shop.id, "data-id")} data-action="suspend" class="action-btn text-orange-500 text-xs hover:underline font-bold" title="Pause Shop Temporarily">
 Suspend
-</button> </td> </tr>`)} </tbody> </table> </div> </section>  ${suspendedShops.length > 0 && renderTemplate`<section class="opacity-70 grayscale hover:grayscale-0 transition-all"> <h2 class="text-xl font-bold text-red-500 mb-4">
+</button> <span class="text-white/10">|</span> <button${addAttribute(shop.id, "data-id")} data-action="delete" class="action-btn text-red-500 text-xs hover:underline font-bold" title="Delete Shop Permanently">
+Delete
+</button> </div> </td> </tr>`)} </tbody> </table> </div> </section>  ${suspendedShops.length > 0 && renderTemplate`<section class="opacity-70 grayscale hover:grayscale-0 transition-all"> <h2 class="text-xl font-bold text-red-500 mb-4">
 Suspended (${suspendedShops.length})
 </h2>  </section>`} </div> ` })} ${renderScript($$result, "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/admin/sellers.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/Users/natthapongsuwanjit/Desktop/CashlessThailand/cashlessthailand/src/pages/admin/sellers.astro", void 0);

@@ -26,6 +26,7 @@ const SellerSettings = ({ shopId: propShopId }) => {
         } else {
             const wallet = localStorage.getItem('user_wallet');
             if (wallet) resolveWalletShop(wallet);
+            else setLoading(false);
         }
     }, [propShopId]);
 
@@ -35,13 +36,21 @@ const SellerSettings = ({ shopId: propShopId }) => {
 
     const resolveWalletShop = async (wallet) => {
         try {
+            setLoading(true);
             const { data: profile } = await supabase.from('profiles').select('id').eq('wallet_address', wallet).single();
             if (profile) {
-                const { data: shop } = await supabase.from('shops').select('id').eq('owner_id', profile.id).single();
-                if (shop) setShopId(shop.id);
+                const { data: shopData } = await supabase.from('shops').select('id').eq('owner_id', profile.id).single();
+                if (shopData) {
+                    setShopId(shopData.id);
+                } else {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
             }
         } catch (e) {
             console.error("Error resolving shop:", e);
+            setLoading(false);
         }
     };
 

@@ -311,7 +311,7 @@ export default function ChatCenter() {
     const activeConv = conversations.find(c => c.id === activeConvId);
 
     return (
-        <div className="flex h-[calc(100vh-80px)] bg-[#050505] overflow-hidden">
+        <div className="flex h-full bg-[#050505] overflow-hidden">
             {/* Sidebar */}
             <div className={`w-full md:w-80 bg-[#111] border-r border-white/10 flex flex-col ${activeConvId ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-6 border-b border-white/10">
@@ -573,6 +573,7 @@ export default function ChatCenter() {
                         {isOrderModalOpen && session && (
                             <ChatOrderSelector
                                 userId={session.user.id}
+                                shopId={activeConv?.metadata?.shop_id}
                                 onSelect={handleOrderSelect}
                                 onClose={() => setIsOrderModalOpen(false)}
                             />

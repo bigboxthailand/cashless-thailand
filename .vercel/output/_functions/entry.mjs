@@ -1,6 +1,6 @@
 import { renderers } from './renderers.mjs';
 import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_CspEtgUd.mjs';
-import { manifest } from './manifest_Dei9LMcH.mjs';
+import { manifest } from './manifest_CNv5sDT8.mjs';
 
 const serverIslandMap = new Map();;
 
@@ -36,14 +36,17 @@ const _page28 = () => import('./pages/products/_id_.astro.mjs');
 const _page29 = () => import('./pages/profile.astro.mjs');
 const _page30 = () => import('./pages/seller/dashboard.astro.mjs');
 const _page31 = () => import('./pages/seller/orders.astro.mjs');
-const _page32 = () => import('./pages/seller/products.astro.mjs');
-const _page33 = () => import('./pages/seller/register.astro.mjs');
-const _page34 = () => import('./pages/seller/wallet.astro.mjs');
-const _page35 = () => import('./pages/shop/_slug_.astro.mjs');
-const _page36 = () => import('./pages/shop.astro.mjs');
-const _page37 = () => import('./pages/support/contact.astro.mjs');
-const _page38 = () => import('./pages/thankyou.astro.mjs');
-const _page39 = () => import('./pages/index.astro.mjs');
+const _page32 = () => import('./pages/seller/pending.astro.mjs');
+const _page33 = () => import('./pages/seller/products.astro.mjs');
+const _page34 = () => import('./pages/seller/register.astro.mjs');
+const _page35 = () => import('./pages/seller/settings.astro.mjs');
+const _page36 = () => import('./pages/seller/wallet.astro.mjs');
+const _page37 = () => import('./pages/shop/_slug_.astro.mjs');
+const _page38 = () => import('./pages/shop.astro.mjs');
+const _page39 = () => import('./pages/shops.astro.mjs');
+const _page40 = () => import('./pages/support/contact.astro.mjs');
+const _page41 = () => import('./pages/thankyou.astro.mjs');
+const _page42 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
     ["src/pages/404.astro", _page1],
@@ -77,14 +80,17 @@ const pageMap = new Map([
     ["src/pages/profile.astro", _page29],
     ["src/pages/seller/dashboard.astro", _page30],
     ["src/pages/seller/orders.astro", _page31],
-    ["src/pages/seller/products.astro", _page32],
-    ["src/pages/seller/register.astro", _page33],
-    ["src/pages/seller/wallet.astro", _page34],
-    ["src/pages/shop/[slug].astro", _page35],
-    ["src/pages/shop.astro", _page36],
-    ["src/pages/support/contact.astro", _page37],
-    ["src/pages/thankyou.astro", _page38],
-    ["src/pages/index.astro", _page39]
+    ["src/pages/seller/pending.astro", _page32],
+    ["src/pages/seller/products.astro", _page33],
+    ["src/pages/seller/register.astro", _page34],
+    ["src/pages/seller/settings.astro", _page35],
+    ["src/pages/seller/wallet.astro", _page36],
+    ["src/pages/shop/[slug].astro", _page37],
+    ["src/pages/shop.astro", _page38],
+    ["src/pages/shops.astro", _page39],
+    ["src/pages/support/contact.astro", _page40],
+    ["src/pages/thankyou.astro", _page41],
+    ["src/pages/index.astro", _page42]
 ]);
 
 const _manifest = Object.assign(manifest, {
@@ -95,7 +101,7 @@ const _manifest = Object.assign(manifest, {
     middleware: () => import('./_noop-middleware.mjs')
 });
 const _args = {
-    "middlewareSecret": "99c63450-c3b2-4656-882f-cd1af1699de4",
+    "middlewareSecret": "48017e1b-1293-42d6-be45-d5852f9902df",
     "skewProtection": false
 };
 const _exports = createExports(_manifest, _args);

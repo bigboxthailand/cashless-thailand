@@ -116,19 +116,50 @@ export default function AuthModal({ isOpen, onClose }) {
                             if (typeof window.ethereum !== 'undefined') {
                                 try {
                                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                                    localStorage.setItem('user_wallet', accounts[0]);
-                                    window.location.reload();
+                                    const wallet = accounts[0].toLowerCase();
+                                    setLoading(true);
+
+                                    // 1. Check if profile exists
+                                    const { data: existingProfile, error: fetchError } = await supabase
+                                        .from('profiles')
+                                        .select('id')
+                                        .eq('wallet_address', wallet)
+                                        .single();
+
+                                    if (!existingProfile) {
+                                        // 2. Create new profile for wallet
+                                        const { error: insertError } = await supabase
+                                            .from('profiles')
+                                            .insert({
+                                                wallet_address: wallet,
+                                                full_name: 'Wallet User',
+                                                avatar_url: `https://api.dicebear.com/7.x/identicon/svg?seed=${wallet}`
+                                            });
+                                        if (insertError) throw insertError;
+                                    }
+
+                                    localStorage.setItem('user_wallet', wallet);
+
+                                    // Check for redirect parameter in URL
+                                    const urlParams = new URLSearchParams(window.location.search);
+                                    const redirectTo = urlParams.get('redirect') || '/profile';
+                                    window.location.href = redirectTo;
+
                                 } catch (err) {
-                                    alert('ไม่สามารถเชื่อมต่อกระเป๋าเงินได้: ' + err.message);
+                                    console.error('Wallet Error:', err);
+                                    setError('ไม่สามารถเชื่อมต่อกระเป๋าเงินได้: ' + err.message);
+                                } finally {
+                                    setLoading(false);
                                 }
                             } else {
                                 alert('กรุณาติดตั้ง Metamask ก่อนใช้งาน!');
                             }
                         }}
-                        className="w-full bg-[#F6851B] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-[#e27613] transition-colors"
+                        disabled={loading}
+                        className="w-full bg-[#F6851B] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-[#e27613] transition-colors disabled:opacity-50"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M21.378 11.232l-2.07-5.06-2.528-1.127.351-1.408c.14-.528.07-.845-.14-.986-.176-.14-.563-.07-1.02.14l-4.116 1.83-4.116-1.83c-.457-.21-1.23-.281-1.02.14l.351 1.408-2.528 1.127-2.07 5.06c-.317.774-.14 1.83.42 2.393l4.742 4.083.493 2.076c.14.634.704 1.126 1.337 1.126h5.836c.633 0 1.196-.492 1.337-1.126l.492-2.076 4.742-4.083c.563-.563.738-1.62.42-2.393zM10.865 7.185l1.09-1.09 1.09 1.09.281 1.9-1.372 1.548-1.371-1.548.282-1.9zm-4.36 4.962l-.774-3.098 3.378-1.513-1.02 4.152-1.584.458zm5.451 7.214l-.387-1.62h3.905l-.386 1.62H11.956zm2.815-3.026l-1.337 1.373-1.442-1.302-1.442 1.302-1.337-1.373-.633-3.414 1.97-2.217h3.378l1.97 2.217-.633 3.414zm.81-4.645l-1.02-4.152 3.378 1.513-.775 3.097-1.583-.458z" /></svg>
-                        เข้าสู่ระบบด้วย Metamask
+                        {loading ? 'Connecting...' : 'เข้าสู่ระบบด้วย Metamask'}
                     </button>
                 </div>
 

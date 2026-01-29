@@ -1,0 +1,249 @@
+---
+interface Props {
+    activeTab:
+        | "dashboard"
+        | "orders"
+        | "messages"
+        | "products"
+        | "settings"
+        | "wallet";
+    shop?: any;
+    show?: boolean;
+}
+
+const { activeTab, shop, show = true } = Astro.props;
+
+const menuItems = [
+    {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: "📊",
+        href: "/seller/dashboard",
+    },
+    { id: "orders", label: "Orders", icon: "📦", href: "/seller/orders" },
+    { id: "messages", label: "Messages", icon: "💬", href: "/chat" },
+    { id: "products", label: "Products", icon: "🏷️", href: "/seller/products" },
+    {
+        id: "wallet",
+        label: "Wallet & Payout",
+        icon: "💰",
+        href: "/seller/wallet",
+    },
+    { id: "settings", label: "Settings", icon: "⚙️", href: "/seller/settings" },
+];
+---
+
+<!-- Mobile Bottom Toggle (Visible only on mobile) -->
+<div class="md:hidden fixed bottom-6 right-6 z-[60] animate-bounce">
+    <button
+        id="mobile-menu-toggle"
+        class="w-14 h-14 bg-[#D4AF37] text-black rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)] flex items-center justify-center text-2xl"
+    >
+        ☰
+    </button>
+</div>
+
+<!-- Mobile Overlay -->
+<div
+    id="seller-mobile-overlay"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] hidden md:hidden opacity-0 transition-opacity duration-300"
+>
+    <div
+        id="seller-mobile-menu"
+        class="absolute left-0 top-0 h-full w-[80%] max-w-xs bg-[#111] border-r border-white/10 -translate-x-full transition-transform duration-300 flex flex-col"
+    >
+        <div
+            class="p-6 border-b border-white/10 flex justify-between items-center"
+        >
+            <h2
+                class="text-[#D4AF37] font-black uppercase tracking-widest text-lg"
+            >
+                Seller
+            </h2>
+            <button
+                id="mobile-menu-close"
+                class="text-white/50 hover:text-white text-xl">✕</button
+            >
+        </div>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            {
+                menuItems.map((item) => (
+                    <a
+                        href={item.href}
+                        class={`flex items-center gap-3 px-4 py-4 rounded-xl font-bold text-base transition-all ${
+                            activeTab === item.id
+                                ? "bg-[#D4AF37]/10 text-[#D4AF37]"
+                                : "text-white/60 hover:text-white"
+                        }`}
+                    >
+                        <span class="text-xl">{item.icon}</span> {item.label}
+                    </a>
+                ))
+            }
+        </nav>
+        <div class="p-6 border-t border-white/10">
+            <a
+                href="/"
+                class="text-white/40 font-bold uppercase tracking-tighter text-sm"
+                >← Back to Market</a
+            >
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Sidebar -->
+<aside
+    id="seller-sidebar-root"
+    class={`group/sidebar sticky top-0 h-full bg-[#111] border-r border-white/10 hidden md:flex flex-col shrink-0 transition-all duration-300 w-64 ${show ? "" : "lg:hidden"}`}
+    style={show ? "" : "display: none;"}
+>
+    <!-- Branding & Toggle -->
+    <div
+        class="p-6 border-b border-white/10 flex items-center justify-between overflow-hidden"
+    >
+        <div class="sidebar-full-content transition-opacity duration-200">
+            <h2
+                class="text-[#D4AF37] font-black uppercase tracking-widest text-lg whitespace-nowrap"
+            >
+                Seller Center
+            </h2>
+            <p
+                id="shop-name-sidebar"
+                class="text-white/40 text-[10px] mt-1 truncate max-w-[140px]"
+            >
+                {shop?.name || "Loading..."}
+            </p>
+        </div>
+        <button
+            id="sidebar-desktop-toggle"
+            class="p-2 hover:bg-white/5 rounded-lg text-white/30 hover:text-[#D4AF37] transition-colors"
+            title="Toggle Sidebar"
+        >
+            <svg
+                class="w-5 h-5 toggle-icon transition-transform duration-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto overflow-x-hidden">
+        {
+            menuItems.map((item) => (
+                <a
+                    href={item.href}
+                    class={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all group ${
+                        activeTab === item.id
+                            ? "bg-[#D4AF37]/10 text-[#D4AF37]"
+                            : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                    title={item.label}
+                >
+                    <span class="text-lg shrink-0">{item.icon}</span>
+                    <span class="sidebar-full-content transition-opacity duration-200 whitespace-nowrap">
+                        {item.label}
+                    </span>
+                </a>
+            ))
+        }
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-white/10 overflow-hidden">
+        <a
+            href="/"
+            class="flex items-center gap-2 text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors whitespace-nowrap"
+        >
+            <span class="shrink-0 text-xs">←</span>
+            <span class="sidebar-full-content transition-opacity duration-200"
+                >Back to Market</span
+            >
+        </a>
+    </div>
+</aside>
+
+<style>
+    /* Minimized Desktop State Classes */
+    :global(.sidebar-minimized) {
+        width: 80px !important;
+    }
+    :global(.sidebar-minimized) .sidebar-full-content {
+        opacity: 0;
+        pointer-events: none;
+        width: 0;
+    }
+    :global(.sidebar-minimized) .toggle-icon {
+        transform: rotate(180deg);
+    }
+    :global(.sidebar-minimized) nav {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    /* Mobile Overlay Animation */
+    .mobile-menu-open {
+        display: block !important;
+        opacity: 1 !important;
+    }
+    .mobile-menu-open #seller-mobile-menu {
+        transform: translateX(0) !important;
+    }
+</style>
+
+<script>
+    function initSidebar() {
+        const desktopToggle = document.getElementById("sidebar-desktop-toggle");
+        const sidebar = document.getElementById("seller-sidebar-root");
+
+        // Mobile elements
+        const mobileToggle = document.getElementById("mobile-menu-toggle");
+        const mobileClose = document.getElementById("mobile-menu-close");
+        const mobileOverlay = document.getElementById("seller-mobile-overlay");
+
+        // Restore Desktop State
+        const isMinimized =
+            localStorage.getItem("seller_sidebar_minimized") === "true";
+        if (isMinimized && sidebar) {
+            sidebar.classList.add("sidebar-minimized");
+        }
+
+        // Desktop Toggle Logic
+        desktopToggle?.addEventListener("click", () => {
+            if (!sidebar) return;
+            const nowMinimized = sidebar.classList.toggle("sidebar-minimized");
+            localStorage.setItem(
+                "seller_sidebar_minimized",
+                nowMinimized ? "true" : "false",
+            );
+        });
+
+        // Mobile Menu Logic
+        function openMobile() {
+            mobileOverlay?.classList.add("mobile-menu-open");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeMobile() {
+            mobileOverlay?.classList.remove("mobile-menu-open");
+            document.body.style.overflow = "";
+        }
+
+        mobileToggle?.addEventListener("click", openMobile);
+        mobileClose?.addEventListener("click", closeMobile);
+        mobileOverlay?.addEventListener("click", (e) => {
+            if (e.target === mobileOverlay) closeMobile();
+        });
+    }
+
+    // Run on page load and navigation
+    initSidebar();
+    document.addEventListener("astro:page-load", initSidebar);
+</script>

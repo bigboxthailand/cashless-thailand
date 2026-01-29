@@ -1,6 +1,6 @@
 import { e as createComponent, k as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../../chunks/astro/server_Bu8JVBjn.mjs';
 import 'piccolore';
-import { $ as $$AdminLayout } from '../../chunks/AdminLayout_B-ZiSxXY.mjs';
+import { $ as $$AdminLayout } from '../../chunks/AdminLayout_CY66lzGI.mjs';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 import { useState, useRef, useEffect } from 'react';
 import { s as supabase } from '../../chunks/supabase_BcyI2ayE.mjs';
@@ -12,9 +12,15 @@ function AdminChat() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const messagesEndRef = useRef(null);
   useEffect(() => {
-    fetchConversations();
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setCurrentUserId(session?.user?.id);
+      fetchConversations();
+    };
+    init();
     const channel = supabase.channel("admin_conversations").on(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "conversations" },
@@ -44,7 +50,7 @@ function AdminChat() {
                     id, updated_at, type,
                     conversation_participants (
                         user_id,
-                        profiles ( full_name, email )
+                        profiles ( full_name, email, wallet_address )
                     )
                 `).eq("type", "support").order("updated_at", { ascending: false });
       if (error) throw error;
@@ -119,8 +125,10 @@ function AdminChat() {
   };
   const getCustomerName = (conv) => {
     if (!conv || !conv.conversation_participants) return "Unknown User";
-    const customerParticipant = conv.conversation_participants.find((p) => p.user_id !== null);
-    return customerParticipant?.profiles?.full_name || customerParticipant?.profiles?.email || "Unknown User";
+    const customerParticipant = conv.conversation_participants.find((p) => p.user_id !== currentUserId);
+    if (!customerParticipant?.profiles) return "Unknown User";
+    const { full_name, email, wallet_address } = customerParticipant.profiles;
+    return full_name || email || (wallet_address ? "Meta Mask's Shop" : "Unknown User");
   };
   return /* @__PURE__ */ jsxs("div", { className: "flex h-[calc(100vh-120px)] bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-2xl", children: [
     /* @__PURE__ */ jsxs("div", { className: "w-1/3 border-r border-white/10 bg-[#0A0A0A] flex flex-col", children: [
@@ -167,24 +175,24 @@ function AdminChat() {
         messages.map((msg) => {
           const isAdmin = msg.is_admin;
           return /* @__PURE__ */ jsx("div", { className: `flex ${isAdmin ? "justify-end" : "justify-start"}`, children: /* @__PURE__ */ jsxs("div", { className: `max-w-[70%] rounded-2xl p-3 text-sm ${isAdmin ? "bg-[#D4AF37] text-black rounded-tr-none" : "bg-white/10 text-white rounded-tl-none"}`, children: [
-            msg.metadata?.order_id && /* @__PURE__ */ jsxs(
+            (msg.order_id || msg.metadata?.order_id) && /* @__PURE__ */ jsxs(
               "div",
               {
                 className: "mb-2 bg-black/20 rounded p-2 flex items-center gap-2 cursor-pointer hover:bg-black/40 transition-colors",
-                onClick: () => window.open(`/admin/orders?search=${msg.metadata.order_id}`, "_blank"),
+                onClick: () => window.open(`/admin/orders?search=${msg.order_id || msg.metadata?.order_id}`, "_blank"),
                 children: [
                   /* @__PURE__ */ jsx("div", { className: "w-8 h-8 bg-[#D4AF37] rounded flex items-center justify-center text-black font-bold text-xs", children: "ORD" }),
                   /* @__PURE__ */ jsxs("div", { children: [
                     /* @__PURE__ */ jsxs("p", { className: "font-bold text-xs", children: [
                       "Order #",
-                      msg.metadata.order_id.slice(0, 8)
+                      (msg.order_id || msg.metadata?.order_id || "").slice(0, 8)
                     ] }),
                     /* @__PURE__ */ jsx("p", { className: "text-[10px] opacity-70", children: "Click to view details" })
                   ] })
                 ]
               }
             ),
-            msg.attachment_url && /* @__PURE__ */ jsx("div", { className: "mb-2 rounded-lg overflow-hidden border border-black/10", children: /* @__PURE__ */ jsx("img", { src: msg.attachment_url, alt: "Attachment", className: "max-w-[200px] max-h-[200px] object-cover" }) }),
+            (msg.image_url || msg.attachment_url) && /* @__PURE__ */ jsx("div", { className: "mb-2 rounded-lg overflow-hidden border border-black/10", children: /* @__PURE__ */ jsx("a", { href: msg.image_url || msg.attachment_url, target: "_blank", rel: "noopener noreferrer", children: /* @__PURE__ */ jsx("img", { src: msg.image_url || msg.attachment_url, alt: "Attachment", className: "max-w-[200px] max-h-[200px] object-cover hover:scale-105 transition-transform" }) }) }),
             /* @__PURE__ */ jsx("p", { children: msg.content }),
             /* @__PURE__ */ jsx("div", { className: `text-[10px] mt-1 opacity-50 ${isAdmin ? "text-black" : "text-white"}`, children: new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) })
           ] }) }, msg.id);
