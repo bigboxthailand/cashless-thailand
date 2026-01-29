@@ -67,7 +67,7 @@ export default function SellerCTA() {
         }
     };
 
-    if (status === 'loading') return null;
+    if (status === 'loading' || status === 'guest') return null;
 
     if (status === 'seller') {
         return (
