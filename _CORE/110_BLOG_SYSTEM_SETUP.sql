@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.blog_posts (
     tags TEXT[] DEFAULT '{}',
     author_id UUID REFERENCES auth.users(id),
     is_published BOOLEAN DEFAULT FALSE,
+    view_count INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -72,3 +73,13 @@ CREATE POLICY "Authenticated users can vote" ON public.blog_votes
 GRANT ALL ON TABLE public.blog_posts TO anon, authenticated;
 GRANT ALL ON TABLE public.blog_comments TO anon, authenticated;
 GRANT ALL ON TABLE public.blog_votes TO anon, authenticated;
+
+-- 9. Function to increment view count
+CREATE OR REPLACE FUNCTION public.increment_view_count(post_id UUID)
+RETURNS void AS $$
+BEGIN
+    UPDATE public.blog_posts
+    SET view_count = view_count + 1
+    WHERE id = post_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

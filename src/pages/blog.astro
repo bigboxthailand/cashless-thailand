@@ -80,7 +80,7 @@ const displayPosts = posts || [];
                                     <span class="text-white/70 text-sm font-bold">Admin</span>
                                 </div>
 
-                                <a href={`/blog/${post.slug}`} class="text-[#D4AF37] text-xs font-black uppercase tracking-widest flex items-center gap-2 group/link">
+                                <a href={`/blog/${post.slug}`} class="text-[#D4AF37] text-xs font-black uppercase tracking-widest flex items-center gap-2 group/link after:content-[''] after:absolute after:inset-0 after:z-10">
                                     อ่านเพิ่มเติม
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover/link:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                 </a>
@@ -96,34 +96,7 @@ const displayPosts = posts || [];
             <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"></div>
             
             <h2 class="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">
-                ติดตาม <span class="text-gold">ข่าวสารล่าสุด</span>
-            </h2>
-            <p class="text-white/50 text-lg mb-12 max-w-xl mx-auto">
-                สมัครรับข่าวสารเพื่อรับข้อมูลล่าสุด เทคโนโลยีใหม่ๆ และข้อเสนอพิเศษส่งตรงถึงอีเมลของคุณ
-            </p>
-
-            <form class="flex flex-col md:flex-row gap-4 max-w-xl mx-auto relative z-10">
-                <input 
-                    type="email" 
-                    placeholder="ใส่อีเมลของคุณ" 
-                    class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
-                />
-                <button class="bg-[#D4AF37] text-black font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:bg-white transition-all transform active:scale-95">
-                    สมัครรับข่าวสาร
-                </button>
-            </form>
-        </section>
-    </main>
-
-    <Footer />
-</Layout>
-
-        <!-- NEWSLETTER -->
-        <section class="mt-32 p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-[#0A0A0A] to-[#111] border border-white/5 text-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"></div>
-            
-            <h2 class="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">
-                DON'T MISS <span class="text-gold">A UPDATE</span>
+                DON'T MISS <span class="text-gold">AN UPDATE</span>
             </h2>
             <p class="text-white/50 text-lg mb-12 max-w-xl mx-auto">
                 Join our newsletter to receive the latest news, updates and exclusive offers directly in your inbox.
