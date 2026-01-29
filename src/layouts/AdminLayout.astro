@@ -30,7 +30,7 @@ const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
         <!-- MAIN CONTENT -->
         <main class="flex-1 overflow-auto bg-[#050505] relative pt-0">
             <!-- Background Image -->
-            <div class="fixed inset-0 z-0">
+            <div class="fixed inset-0 z-0 pointer-events-none">
                 <div
                     class="absolute inset-0 bg-[url('/bg-crypto.webp')] bg-cover bg-center opacity-40 mix-blend-luminosity"
                 >
