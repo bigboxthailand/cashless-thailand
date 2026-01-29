@@ -1,36 +1,144 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Navbar from '../components/Navbar.astro';
-import Footer from '../components/Footer.astro';
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+const posts = [
+    {
+        title: "The Future of Digital Finance in Thailand",
+        excerpt: "Exploring how the transition to a cashless society is transforming the economic landscape of Thailand and what it means for everyday consumers.",
+        image: "/blog_thai_market_future.png",
+        date: "2024-03-25",
+        author: "Natthapong S.",
+        category: "Economy",
+        readTime: "5 min read"
+    },
+    {
+        title: "Crypto Security: Protecting Your Digital Assets",
+        excerpt: "Essential tips and best practices for keeping your cryptocurrency wallets and digital payments secure in an increasingly digital world.",
+        image: "/blog_crypto_security.png",
+        date: "2024-03-20",
+        author: "Tech Team",
+        category: "Security",
+        readTime: "8 min read"
+    },
+    {
+        title: "Bitcoin and the Lightning Network Revolution",
+        excerpt: "A deep dive into how the Lightning Network is making Bitcoin transactions faster and cheaper than ever before, enabling real-world payments.",
+        image: "/blog_bitcoin_lightning.png",
+        date: "2024-03-15",
+        author: "Crypto Expert",
+        category: "Bitcoin",
+        readTime: "6 min read"
+    },
+    {
+        title: "The Modern Lifestyle: Paying with a Touch",
+        excerpt: "From smart rings to mobile wallets, discover the latest innovations in NFC technology that are making payments a seamless part of our daily lives.",
+        image: "/blog_nfc_payment_lifestyle.png",
+        date: "2024-03-10",
+        author: "Lifestyle Blogger",
+        category: "Lifestyle",
+        readTime: "4 min read"
+    }
+];
 ---
 
-<Layout title="Blog Coming Soon | Cashless Thailand">
+<Layout title="Blog | Cashless Thailand" description="Stay updated with the latest trends in digital finance and technology.">
     <Navbar />
-    <main class="relative z-10 bg-[#050505] min-h-screen flex items-center justify-center overflow-hidden">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none"></div>
-        <div class="relative z-10 text-center flex flex-col items-center gap-8 px-6">
-            <div class="relative">
-                <div class="w-24 h-24 border border-[#D4AF37]/20 rounded-full flex items-center justify-center animate-spin-slow">
-                    <div class="w-20 h-20 border-t border-[#D4AF37] rounded-full"></div>
-                </div>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-3xl">✍️</span>
-                </div>
-            </div>
-            <div class="space-y-4">
-                <h1 class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#D4AF37] to-[#8B6914] uppercase tracking-tighter leading-none">
-                    Blog <br/> Coming Soon
-                </h1>
-                <p class="text-white/40 text-lg font-light max-w-md mx-auto leading-relaxed">
-                    บทความความรู้เกี่ยวกับ Bitcoin และ Freedom Technology กำลังมาเร็วๆ นี้
-                </p>
-            </div>
-            <a href="/" class="px-8 py-3 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all">Back to Home</a>
+    
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <header class="text-center mb-20">
+            <h1 class="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 split-text">
+                <span>INSIGHTS</span> <span class="text-gold">&</span> <span>BLOG</span>
+            </h1>
+            <p class="text-white/50 text-xl max-w-2xl mx-auto">
+                Explore the stories, technology, and people behind the cashless revolution in Thailand.
+            </p>
+        </header>
+
+        <!-- ARTICLES GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {posts.map((post, index) => (
+                <article class="group relative bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 shadow-2xl">
+                    <!-- Image Container -->
+                    <div class="relative aspect-[16/9] overflow-hidden">
+                        <img 
+                            src={post.image} 
+                            alt={post.title}
+                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80"></div>
+                        
+                        <!-- Category Tag -->
+                        <span class="absolute top-6 left-6 px-4 py-1.5 bg-[#D4AF37] text-black text-xs font-black uppercase tracking-widest rounded-full">
+                            {post.category}
+                        </span>
+                    </div>
+
+                    <!-- content -->
+                    <div class="p-8 md:p-10">
+                        <div class="flex items-center gap-4 text-white/30 text-xs mb-4 font-bold uppercase tracking-widest">
+                            <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                            <span class="w-1 h-1 bg-white/20 rounded-full"></span>
+                            <span>{post.readTime}</span>
+                        </div>
+
+                        <h2 class="text-2xl md:text-3xl font-black text-white mb-4 group-hover:text-gold transition-colors leading-tight">
+                            {post.title}
+                        </h2>
+
+                        <p class="text-white/50 leading-relaxed mb-8 line-clamp-3">
+                            {post.excerpt}
+                        </p>
+
+                        <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#996515] flex items-center justify-center text-black font-black text-[10px]">
+                                    {post.author[0]}
+                                </div>
+                                <span class="text-white/70 text-sm font-bold">{post.author}</span>
+                            </div>
+
+                            <a href="#" class="text-[#D4AF37] text-xs font-black uppercase tracking-widest flex items-center gap-2 group/link">
+                                Read More
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover/link:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            ))}
         </div>
+
+        <!-- NEWSLETTER -->
+        <section class="mt-32 p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-[#0A0A0A] to-[#111] border border-white/5 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"></div>
+            
+            <h2 class="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">
+                DON'T MISS <span class="text-gold">A UPDATE</span>
+            </h2>
+            <p class="text-white/50 text-lg mb-12 max-w-xl mx-auto">
+                Join our newsletter to receive the latest news, updates and exclusive offers directly in your inbox.
+            </p>
+
+            <form class="flex flex-col md:flex-row gap-4 max-w-xl mx-auto relative z-10">
+                <input 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                />
+                <button class="bg-[#D4AF37] text-black font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:bg-white transition-all transform active:scale-95">
+                    Subscribe
+                </button>
+            </form>
+        </section>
     </main>
+
     <Footer />
 </Layout>
+
 <style>
-    @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+    .split-text span {
+        display: inline-block;
+    }
 </style>
