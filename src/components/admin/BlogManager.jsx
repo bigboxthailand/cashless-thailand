@@ -1,9 +1,145 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import Underline from '@tiptap/extension-underline';
+import {
+    Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
+    Quote, Image as ImageIcon, Link as LinkIcon, Heading1, Heading2,
+    Heading3, Undo, Redo, Eraser, AlignLeft, AlignCenter, AlignRight
+} from 'lucide-react';
 
 const CATEGORIES = ["ข่าวกระแส", "ความรู้คริปโต", "ความปลอดภัย", "ไลฟ์สไตล์", "ประกาศ"];
+
+const MenuBar = ({ editor }) => {
+    if (!editor) return null;
+
+    const addImage = () => {
+        const url = window.prompt('ใส่ URL รูปภาพ:');
+        if (url) {
+            editor.chain().focus().setImage({ src: url }).run();
+        }
+    };
+
+    const setLink = () => {
+        const url = window.prompt('ใส่ URL ลิงก์:');
+        if (url) {
+            editor.chain().focus().setLink({ href: url }).run();
+        }
+    };
+
+    return (
+        <div className="flex flex-wrap gap-1 p-2 border-b border-white/10 bg-white/5 sticky top-0 z-10 backdrop-blur-md">
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('bold') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+                title="Bold"
+            >
+                <Bold size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('italic') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <Italic size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('underline') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <UnderlineIcon size={18} />
+            </button>
+            <div className="w-px h-6 bg-white/10 mx-1 self-center" />
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('heading', { level: 1 }) ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <Heading1 size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('heading', { level: 2 }) ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <Heading2 size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('heading', { level: 3 }) ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <Heading3 size={18} />
+            </button>
+            <div className="w-px h-6 bg-white/10 mx-1 self-center" />
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('bulletList') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <List size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('orderedList') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <ListOrdered size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('blockquote') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <Quote size={18} />
+            </button>
+            <div className="w-px h-6 bg-white/10 mx-1 self-center" />
+            <button
+                type="button"
+                onClick={addImage}
+                className="p-2 rounded hover:bg-white/10 text-white/60"
+            >
+                <ImageIcon size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={setLink}
+                className={`p-2 rounded hover:bg-white/10 ${editor.isActive('link') ? 'text-[#D4AF37] bg-white/10' : 'text-white/60'}`}
+            >
+                <LinkIcon size={18} />
+            </button>
+            <div className="w-px h-6 bg-white/10 mx-1 self-center" />
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().undo().run()}
+                disabled={!editor.can().undo()}
+                className="p-2 rounded hover:bg-white/10 text-white/60 disabled:opacity-20"
+            >
+                <Undo size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().redo().run()}
+                disabled={!editor.can().redo()}
+                className="p-2 rounded hover:bg-white/10 text-white/60 disabled:opacity-20"
+            >
+                <Redo size={18} />
+            </button>
+            <button
+                type="button"
+                onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+                className="p-2 rounded hover:bg-white/10 text-white/60"
+            >
+                <Eraser size={18} />
+            </button>
+        </div>
+    );
+};
 
 export default function BlogManager() {
     const [posts, setPosts] = useState([]);
@@ -13,11 +149,25 @@ export default function BlogManager() {
         title: '',
         slug: '',
         short_description: '',
-        content: '',
         image_url: '',
         category: 'ข่าวกระแส',
         tags: '',
         is_published: false
+    });
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Link.configure({ openOnClick: false }),
+            Image,
+            Underline,
+        ],
+        content: '',
+        editorProps: {
+            attributes: {
+                class: 'prose prose-invert prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[400px] text-white',
+            },
+        },
     });
 
     useEffect(() => {
@@ -31,8 +181,11 @@ export default function BlogManager() {
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (error) console.error("Error fetching posts:", error);
-        else setPosts(data || []);
+        if (error) {
+            console.error("Error fetching posts:", error);
+        } else {
+            setPosts(data || []);
+        }
         setLoading(false);
     };
 
@@ -42,12 +195,12 @@ export default function BlogManager() {
             title: post.title,
             slug: post.slug,
             short_description: post.short_description || '',
-            content: post.content || '',
             image_url: post.image_url || '',
             category: post.category || 'ข่าวกระแส',
             tags: (post.tags || []).join(', '),
             is_published: post.is_published
         });
+        editor?.commands.setContent(post.content || '');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -61,12 +214,12 @@ export default function BlogManager() {
             title: '',
             slug: '',
             short_description: '',
-            content: '',
             image_url: '',
             category: 'ข่าวกระแส',
             tags: '',
             is_published: false
         });
+        editor?.commands.setContent('');
     };
 
     const handleSubmit = async (e) => {
@@ -74,6 +227,7 @@ export default function BlogManager() {
 
         const postData = {
             ...formData,
+            content: editor?.getHTML() || '',
             tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
         };
 
@@ -108,24 +262,12 @@ export default function BlogManager() {
     };
 
     const generateSlug = () => {
+        if (formData.slug) return;
         const slug = formData.title
             .toLowerCase()
             .replace(/[^\u0E00-\u0E7Fa-z0-9 ]/g, '')
             .replace(/\s+/g, '-');
         setFormData({ ...formData, slug });
-    };
-
-    // Quill settings
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-            ['link', 'image', 'video'],
-            ['clean'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'align': [] }]
-        ],
     };
 
     return (
@@ -152,7 +294,7 @@ export default function BlogManager() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-white/50 text-xs font-bold uppercase tracking-widest pl-1">URL Slug (Auto)</label>
+                            <label className="text-white/50 text-xs font-bold uppercase tracking-widest pl-1">URL Slug</label>
                             <input
                                 type="text"
                                 value={formData.slug}
@@ -198,15 +340,10 @@ export default function BlogManager() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-white/50 text-xs font-bold uppercase tracking-widest pl-1">เนื้อหาบทความ (Long Description / Content)</label>
-                        <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden min-h-[400px]">
-                            <ReactQuill
-                                theme="snow"
-                                value={formData.content}
-                                onChange={content => setFormData({ ...formData, content })}
-                                modules={modules}
-                                className="text-white"
-                            />
+                        <label className="text-white/50 text-xs font-bold uppercase tracking-widest pl-1">เนื้อหาบทความ (Professional Content Editor)</label>
+                        <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden min-h-[500px] flex flex-col">
+                            <MenuBar editor={editor} />
+                            <EditorContent editor={editor} className="flex-1 overflow-y-auto" />
                         </div>
                     </div>
 
@@ -335,42 +472,20 @@ export default function BlogManager() {
 
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .ql-container.ql-snow {
-                    border: none !important;
-                    font-family: 'Anuphan', sans-serif !important;
-                    font-size: 16px !important;
+                .ProseMirror {
+                    padding: 2rem;
+                    outline: none !important;
+                    min-height: 400px;
                 }
-                .ql-toolbar.ql-snow {
-                    border: none !important;
-                    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-                    background: rgba(255,255,255,0.02) !important;
-                }
-                .ql-toolbar .ql-stroke {
-                    stroke: rgba(255,255,255,0.6) !important;
-                }
-                .ql-toolbar .ql-fill {
-                    fill: rgba(255,255,255,0.6) !important;
-                }
-                .ql-toolbar .ql-picker {
-                    color: rgba(255,255,255,0.6) !important;
-                }
-                .ql-editor {
-                    min-height: 350px !important;
-                    padding: 20px !important;
-                }
-                .ql-editor.ql-blank::before {
-                    color: rgba(255,255,255,0.2) !important;
-                    font-style: normal !important;
-                }
-                .ql-editor h1, .ql-editor h2, .ql-editor h3 {
-                    color: white !important;
-                    font-weight: 800 !important;
-                    margin-top: 1em !important;
-                }
-                .ql-editor p {
-                    color: rgba(255,255,255,0.8) !important;
-                    line-height: 1.8 !important;
-                }
+                .ProseMirror h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: white; }
+                .ProseMirror h2 { font-size: 2rem; font-weight: 800; margin-top: 2rem; margin-bottom: 1rem; color: white; border-left: 4px solid #D4AF37; padding-left: 1rem; }
+                .ProseMirror h3 { font-size: 1.5rem; font-weight: 800; margin-top: 1.5rem; margin-bottom: 1rem; color: white; }
+                .ProseMirror p { margin-bottom: 1.25rem; line-height: 1.8; color: rgba(255,255,255,0.8); }
+                .ProseMirror ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+                .ProseMirror ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+                .ProseMirror blockquote { border-left: 3px solid #D4AF37; padding-left: 1.5rem; font-style: italic; color: #D4AF37; margin: 2rem 0; }
+                .ProseMirror img { max-width: 100%; border-radius: 1rem; margin: 2rem 0; border: 1px solid rgba(255,255,255,0.1); }
+                .ProseMirror a { color: #D4AF37; text-decoration: underline; font-weight: bold; }
             ` }} />
         </div>
     );
