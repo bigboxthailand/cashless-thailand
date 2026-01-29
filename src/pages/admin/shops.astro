@@ -8,10 +8,14 @@ const supabase = createClient(
 );
 
 // Fetch Shops
-const { data: shops, error } = await supabase
+const { data: shops, error: shopsError } = await supabase
     .from("shops")
-    .select("*, profile:profiles(email, full_name, phone)")
+    .select("*, profile:profiles(email, full_name)")
     .order("created_at", { ascending: false });
+
+if (shopsError) {
+    console.error("Error fetching shops:", shopsError);
+}
 
 const pendingShops = shops?.filter((s) => s.status === "pending") || [];
 const activeShops = shops?.filter((s) => s.status === "active") || [];

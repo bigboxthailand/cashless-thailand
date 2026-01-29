@@ -213,21 +213,27 @@ export default function AdminChat() {
                                 className={`relative w-full text-left p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group ${selectedConvId === conv.id ? 'bg-[#D4AF37]/10 border-l-4 border-l-[#D4AF37]' : ''
                                     }`}
                             >
-                                <div className="flex justify-between items-start mb-1 pr-6">
-                                    <span className={`font-bold text-sm ${selectedConvId === conv.id ? 'text-[#D4AF37]' : 'text-white'}`}>
-                                        {getCustomerName(conv)}
-                                    </span>
-                                    {/* Unread Badge */}
-                                    {unreadCounts[conv.id] > 0 && (
-                                        <span className="ml-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                            {unreadCounts[conv.id]}
+                                <div className="flex flex-col mb-1 pr-6">
+                                    <div className="flex justify-between items-start w-full gap-2">
+                                        <div className="flex items-center gap-2 overflow-hidden">
+                                            <span className={`font-bold text-sm truncate ${selectedConvId === conv.id ? 'text-[#D4AF37]' : 'text-white'}`}>
+                                                {getCustomerName(conv)}
+                                            </span>
+                                            {unreadCounts[conv.id] > 0 && (
+                                                <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0">
+                                                    {unreadCounts[conv.id]}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className="text-[10px] text-white/30 shrink-0">
+                                            {new Date(conv.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
-                                    )}
-                                    <span className="text-[10px] text-white/30 ml-auto">
-                                        {new Date(conv.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                    <span className="text-[9px] text-white/20 font-mono truncate">
+                                        ID: {conv.conversation_participants.find(p => p.user_id !== currentUserId)?.user_id || 'Unknown'}
                                     </span>
                                 </div>
-                                <div className="text-xs text-white/50 truncate">
+                                <div className="text-[10px] text-white/40 truncate italic mt-1">
                                     Click to view conversation
                                 </div>
 
