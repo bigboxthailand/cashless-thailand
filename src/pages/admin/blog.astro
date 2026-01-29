@@ -1,0 +1,19 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import BlogManager from "../../components/admin/BlogManager.jsx";
+---
+
+<AdminLayout title="Blog Management">
+    <div class="space-y-8">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-wider">
+                Blog Management
+            </h1>
+            <p class="text-white/50 text-sm mt-1">
+                สร้างและจัดการบทความสำนักงาน (ภาษาไทย)
+            </p>
+        </div>
+
+        <BlogManager client:only="react" />
+    </div>
+</AdminLayout>

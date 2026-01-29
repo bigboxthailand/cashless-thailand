@@ -2,48 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
+import { supabase } from "../lib/supabase";
 
-const posts = [
-    {
-        title: "The Future of Digital Finance in Thailand",
-        excerpt: "Exploring how the transition to a cashless society is transforming the economic landscape of Thailand and what it means for everyday consumers.",
-        image: "/blog_thai_market_future.png",
-        date: "2024-03-25",
-        author: "Natthapong S.",
-        category: "Economy",
-        readTime: "5 min read"
-    },
-    {
-        title: "Crypto Security: Protecting Your Digital Assets",
-        excerpt: "Essential tips and best practices for keeping your cryptocurrency wallets and digital payments secure in an increasingly digital world.",
-        image: "/blog_crypto_security.png",
-        date: "2024-03-20",
-        author: "Tech Team",
-        category: "Security",
-        readTime: "8 min read"
-    },
-    {
-        title: "Bitcoin and the Lightning Network Revolution",
-        excerpt: "A deep dive into how the Lightning Network is making Bitcoin transactions faster and cheaper than ever before, enabling real-world payments.",
-        image: "/blog_bitcoin_lightning.png",
-        date: "2024-03-15",
-        author: "Crypto Expert",
-        category: "Bitcoin",
-        readTime: "6 min read"
-    },
-    {
-        title: "The Modern Lifestyle: Paying with a Touch",
-        excerpt: "From smart rings to mobile wallets, discover the latest innovations in NFC technology that are making payments a seamless part of our daily lives.",
-        image: "/blog_nfc_payment_lifestyle.png",
-        date: "2024-03-10",
-        author: "Lifestyle Blogger",
-        category: "Lifestyle",
-        readTime: "4 min read"
-    }
-];
+// Fetch Dynamic Posts from DB
+const { data: posts, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("is_published", true)
+    .order("created_at", { ascending: false });
+
+if (error) {
+    console.error("Error fetching blog posts:", error);
+}
+
+const displayPosts = posts || [];
 ---
 
-<Layout title="Blog | Cashless Thailand" description="Stay updated with the latest trends in digital finance and technology.">
+<Layout title="บล็อกและข่าวสาร | Cashless Thailand" description="ติดตามเทรนการเงินดิจิทัลและเทคโนโลยีล่าสุดในไทย">
     <Navbar />
     
     <main class="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
@@ -53,62 +28,95 @@ const posts = [
                 <span>INSIGHTS</span> <span class="text-gold">&</span> <span>BLOG</span>
             </h1>
             <p class="text-white/50 text-xl max-w-2xl mx-auto">
-                Explore the stories, technology, and people behind the cashless revolution in Thailand.
+                เจาะลึกเรื่องราว เทคโนโลยี และผู้คนเบื้องหลังการปฏิวัติสังคมไร้เงินสดในประเทศไทย
             </p>
         </header>
 
         <!-- ARTICLES GRID -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {posts.map((post, index) => (
-                <article class="group relative bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 shadow-2xl">
-                    <!-- Image Container -->
-                    <div class="relative aspect-[16/9] overflow-hidden">
-                        <img 
-                            src={post.image} 
-                            alt={post.title}
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80"></div>
-                        
-                        <!-- Category Tag -->
-                        <span class="absolute top-6 left-6 px-4 py-1.5 bg-[#D4AF37] text-black text-xs font-black uppercase tracking-widest rounded-full">
-                            {post.category}
-                        </span>
-                    </div>
-
-                    <!-- content -->
-                    <div class="p-8 md:p-10">
-                        <div class="flex items-center gap-4 text-white/30 text-xs mb-4 font-bold uppercase tracking-widest">
-                            <span>{new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                            <span class="w-1 h-1 bg-white/20 rounded-full"></span>
-                            <span>{post.readTime}</span>
+            {displayPosts.length === 0 ? (
+                <div class="col-span-full py-20 text-center border border-white/5 rounded-3xl bg-white/5">
+                    <p class="text-white/30 italic">ยังไม่มีบทความในขณะนี้...</p>
+                </div>
+            ) : (
+                displayPosts.map((post) => (
+                    <article class="group relative bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden hover:border-[#D4AF37]/30 transition-all duration-500 hover:-translate-y-2 shadow-2xl">
+                        <!-- Image Container -->
+                        <div class="relative aspect-[16/9] overflow-hidden">
+                            <img 
+                                src={post.image_url || "/images/ui/post-placeholder.jpg"} 
+                                alt={post.title}
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-80"></div>
+                            
+                            <!-- Category Tag -->
+                            <span class="absolute top-6 left-6 px-4 py-1.5 bg-[#D4AF37] text-black text-[10px] font-black uppercase tracking-widest rounded-full">
+                                {post.category || "ทั่วไป"}
+                            </span>
                         </div>
 
-                        <h2 class="text-2xl md:text-3xl font-black text-white mb-4 group-hover:text-gold transition-colors leading-tight">
-                            {post.title}
-                        </h2>
-
-                        <p class="text-white/50 leading-relaxed mb-8 line-clamp-3">
-                            {post.excerpt}
-                        </p>
-
-                        <div class="flex items-center justify-between border-t border-white/5 pt-6">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#996515] flex items-center justify-center text-black font-black text-[10px]">
-                                    {post.author[0]}
-                                </div>
-                                <span class="text-white/70 text-sm font-bold">{post.author}</span>
+                        <!-- content -->
+                        <div class="p-8 md:p-10">
+                            <div class="flex items-center gap-4 text-white/30 text-[10px] mb-4 font-bold uppercase tracking-widest">
+                                <span>{new Date(post.created_at).toLocaleDateString('th-TH', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                                <span class="w-1 h-1 bg-white/20 rounded-full"></span>
+                                <span>บทความ</span>
                             </div>
 
-                            <a href="#" class="text-[#D4AF37] text-xs font-black uppercase tracking-widest flex items-center gap-2 group/link">
-                                Read More
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover/link:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                            </a>
+                            <h2 class="text-2xl md:text-3xl font-black text-white mb-4 group-hover:text-gold transition-colors leading-tight">
+                                {post.title}
+                            </h2>
+
+                            <p class="text-white/50 leading-relaxed mb-8 line-clamp-3 text-sm">
+                                {post.short_description}
+                            </p>
+
+                            <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#996515] flex items-center justify-center text-black font-black text-[10px]">
+                                        A
+                                    </div>
+                                    <span class="text-white/70 text-sm font-bold">Admin</span>
+                                </div>
+
+                                <a href={`/blog/${post.slug}`} class="text-[#D4AF37] text-xs font-black uppercase tracking-widest flex items-center gap-2 group/link">
+                                    อ่านเพิ่มเติม
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover/link:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </article>
-            ))}
+                    </article>
+                ))
+            )}
         </div>
+
+        <!-- NEWSLETTER -->
+        <section class="mt-32 p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-[#0A0A0A] to-[#111] border border-white/5 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"></div>
+            
+            <h2 class="text-4xl md:text-6xl font-black text-white mb-6 uppercase tracking-tighter">
+                ติดตาม <span class="text-gold">ข่าวสารล่าสุด</span>
+            </h2>
+            <p class="text-white/50 text-lg mb-12 max-w-xl mx-auto">
+                สมัครรับข่าวสารเพื่อรับข้อมูลล่าสุด เทคโนโลยีใหม่ๆ และข้อเสนอพิเศษส่งตรงถึงอีเมลของคุณ
+            </p>
+
+            <form class="flex flex-col md:flex-row gap-4 max-w-xl mx-auto relative z-10">
+                <input 
+                    type="email" 
+                    placeholder="ใส่อีเมลของคุณ" 
+                    class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-[#D4AF37] transition-colors"
+                />
+                <button class="bg-[#D4AF37] text-black font-black uppercase tracking-widest px-10 py-4 rounded-2xl hover:bg-white transition-all transform active:scale-95">
+                    สมัครรับข่าวสาร
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <Footer />
+</Layout>
 
         <!-- NEWSLETTER -->
         <section class="mt-32 p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-[#0A0A0A] to-[#111] border border-white/5 text-center relative overflow-hidden">

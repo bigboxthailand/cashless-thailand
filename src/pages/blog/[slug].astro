@@ -1,0 +1,259 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import BlogInteractions from "../../components/blog/BlogInteractions.jsx";
+import { supabase } from "../../lib/supabase";
+
+export async function getStaticPaths() {
+    const { data: posts } = await supabase.from("blog_posts").select("slug");
+    return (posts || []).map((post) => ({
+        params: { slug: post.slug },
+    }));
+}
+
+const { slug } = Astro.params;
+
+// Fetch full post content
+const { data: post, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+if (error || !post) {
+    return Astro.redirect("/404");
+}
+
+// Fetch user session for interactions
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+const user = session?.user || null;
+
+// SEO Metadata
+const title = `${post.title} | Cashless Thailand`;
+const description = post.short_description;
+const ogImage = post.image_url;
+---
+
+<Layout title={title} description={description}>
+    <Navbar />
+
+    <main class="pt-32 pb-20 px-4 md:px-8 max-w-4xl mx-auto">
+        <!-- Breadcrumbs -->
+        <nav
+            class="flex items-center gap-2 text-white/30 text-xs mb-8 font-bold uppercase tracking-widest"
+        >
+            <a href="/blog" class="hover:text-[#D4AF37]">บทความ</a>
+            <span>/</span>
+            <span class="text-[#D4AF37]">{post.category}</span>
+        </nav>
+
+        <!-- Article Header -->
+        <header class="mb-12 space-y-6">
+            <h1
+                class="text-4xl md:text-6xl font-black text-white leading-tight"
+            >
+                {post.title}
+            </h1>
+
+            <div
+                class="flex flex-wrap items-center gap-6 pt-4 border-t border-white/5"
+            >
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#996515] flex items-center justify-center text-black font-black text-xs"
+                    >
+                        A
+                    </div>
+                    <div>
+                        <p class="text-white font-bold text-sm">แอดมิน</p>
+                        <p
+                            class="text-white/30 text-[10px] font-bold uppercase"
+                        >
+                            ทีมงานพัฒนาระบบ
+                        </p>
+                    </div>
+                </div>
+
+                <div class="h-8 w-px bg-white/5 hidden md:block"></div>
+
+                <div>
+                    <p class="text-white/30 text-[10px] font-bold uppercase">
+                        วันที่เผยแพร่
+                    </p>
+                    <p class="text-white font-bold text-sm">
+                        {
+                            new Date(post.created_at).toLocaleDateString(
+                                "th-TH",
+                                {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                },
+                            )
+                        }
+                    </p>
+                </div>
+
+                <div class="h-8 w-px bg-white/5 hidden md:block"></div>
+
+                <div>
+                    <p class="text-white/30 text-[10px] font-bold uppercase">
+                        หมวดหมู่
+                    </p>
+                    <p
+                        class="text-[#D4AF37] font-bold text-sm uppercase tracking-widest"
+                    >
+                        {post.category}
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Featured Image -->
+        {
+            post.image_url && (
+                <div class="mb-16 rounded-[2rem] overflow-hidden border border-white/5 aspect-[16/9] shadow-2xl">
+                    <img
+                        src={post.image_url}
+                        alt={post.title}
+                        class="w-full h-full object-cover"
+                    />
+                </div>
+            )
+        }
+
+        <!-- Content Area (Render Rich Text) -->
+        <article class="prose-container">
+            <div class="blog-content" set:html={post.content} />
+        </article>
+
+        <!-- Tags -->
+        {
+            post.tags && post.tags.length > 0 && (
+                <div class="mt-16 flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                        <span class="px-4 py-2 bg-white/5 rounded-full text-xs text-white/50 border border-white/10 hover:border-[#D4AF37]/50 hover:text-[#D4AF37] transition-all cursor-default">
+                            #{tag}
+                        </span>
+                    ))}
+                </div>
+            )
+        }
+
+        <!-- Interactions (Comments & Voting) -->
+        <BlogInteractions client:load postId={post.id} user={user} />
+
+        <!-- Back Link -->
+        <div class="mt-20 pt-12 border-t border-white/5">
+            <a
+                href="/blog"
+                class="flex items-center gap-3 text-white/30 hover:text-[#D4AF37] font-black uppercase tracking-widest text-xs transition-all group"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5 transition-transform group-hover:-translate-x-1"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><line x1="19" y1="12" x2="5" y2="12"></line><polyline
+                        points="12 19 5 12 12 5"></polyline></svg
+                >
+                กลับไปที่หน้าบทความ
+            </a>
+        </div>
+    </main>
+
+    <Footer />
+</Layout>
+
+<style is:global>
+    /* Professional Blog Styling */
+    .blog-content {
+        font-family: "Anuphan", sans-serif;
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .blog-content h1,
+    .blog-content h2,
+    .blog-content h3 {
+        color: white;
+        font-weight: 800;
+        margin-top: 2.5rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.3;
+        text-transform: uppercase;
+        letter-spacing: -0.025em;
+    }
+
+    .blog-content h1 {
+        font-size: 2.5rem;
+    }
+    .blog-content h2 {
+        font-size: 2rem;
+        border-left: 4px solid #d4af37;
+        padding-left: 1.5rem;
+    }
+    .blog-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .blog-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .blog-content img {
+        border-radius: 1.5rem;
+        margin: 3rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .blog-content blockquote {
+        margin: 2.5rem 0;
+        padding: 2rem;
+        background: rgba(212, 175, 55, 0.05);
+        border-left: 2px solid #d4af37;
+        font-style: italic;
+        color: #d4af37;
+        border-radius: 0 1.5rem 1.5rem 0;
+    }
+
+    .blog-content ul,
+    .blog-content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 1.5rem;
+    }
+
+    .blog-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .blog-content a {
+        color: #d4af37;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+        font-weight: bold;
+    }
+
+    .blog-content a:hover {
+        color: white;
+    }
+
+    /* Fix for ReactQuill classes */
+    .ql-align-center {
+        text-align: center;
+    }
+    .ql-align-right {
+        text-align: right;
+    }
+    .ql-align-justify {
+        text-align: justify;
+    }
+</style>
