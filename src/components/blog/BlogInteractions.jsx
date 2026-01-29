@@ -8,12 +8,30 @@ export default function BlogInteractions({ postId, user }) {
     const [userVote, setUserVote] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [currentUser, setCurrentUser] = useState(user);
+
+    useEffect(() => {
+        // If user prop is not provided (e.g. SSR mismatch or new login), fetch client-side
+        if (!currentUser) {
+            supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session?.user) setCurrentUser(session.user);
+            });
+        }
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setCurrentUser(session?.user || null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [user]);
+
     useEffect(() => {
         if (postId) {
             fetchComments();
             fetchVotes();
         }
-    }, [postId, user]);
+    }, [postId, currentUser]);
 
     const fetchComments = async () => {
         const { data, error } = await supabase
@@ -41,15 +59,15 @@ export default function BlogInteractions({ postId, user }) {
         const down = data.filter(v => v.vote_type === -1).length;
         setVotes({ up, down });
 
-        if (user) {
-            const myVote = data.find(v => v.user_id === user.id);
+        if (currentUser) {
+            const myVote = data.find(v => v.user_id === currentUser.id);
             setUserVote(myVote ? myVote.vote_type : null);
         }
     };
 
     const handleComment = async (e) => {
         e.preventDefault();
-        if (!user) {
+        if (!currentUser) {
             alert("กรุณาเข้าสู่ระบบเพื่อแสดงความคิดเห็น");
             return;
         }
@@ -59,7 +77,7 @@ export default function BlogInteractions({ postId, user }) {
             .from('blog_comments')
             .insert([{
                 post_id: postId,
-                user_id: user.id,
+                user_id: currentUser.id,
                 content: newComment.trim()
             }]);
 
@@ -71,19 +89,19 @@ export default function BlogInteractions({ postId, user }) {
     };
 
     const handleVote = async (type) => {
-        if (!user) {
+        if (!currentUser) {
             alert("กรุณาเข้าสู่ระบบเพื่อลงคะแนน");
             return;
         }
 
         if (userVote === type) {
             // Unvote
-            await supabase.from('blog_votes').delete().eq('post_id', postId).eq('user_id', user.id);
+            await supabase.from('blog_votes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
         } else {
             // Vote or Switch
             await supabase.from('blog_votes').upsert({
                 post_id: postId,
-                user_id: user.id,
+                user_id: currentUser.id,
                 vote_type: type
             });
         }
@@ -118,10 +136,10 @@ export default function BlogInteractions({ postId, user }) {
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">ความคิดเห็น ({comments.length})</h3>
 
                 {/* Post Form */}
-                {user ? (
+                {currentUser ? (
                     <form onSubmit={handleComment} className="flex gap-4">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#996515] flex-shrink-0 flex items-center justify-center text-black font-black text-xs uppercase">
-                            {user.email?.[0] || 'U'}
+                            {currentUser.email?.[0] || 'U'}
                         </div>
                         <div className="flex-1 space-y-3">
                             <textarea
