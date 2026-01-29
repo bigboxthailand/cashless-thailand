@@ -30,7 +30,7 @@ const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
         <!-- MAIN CONTENT -->
         <main class="flex-1 overflow-auto bg-[#050505] relative pt-0">
             <!-- Background Image -->
-            <div class="fixed inset-0 z-0 pointer-events-none">
+            <div class="fixed inset-0 z-[-10] pointer-events-none">
                 <div
                     class="absolute inset-0 bg-[url('/bg-crypto.webp')] bg-cover bg-center opacity-40 mix-blend-luminosity"
                 >
@@ -42,7 +42,7 @@ const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
             </div>
 
             <div
-                class="fixed inset-0 z-0 pointer-events-none opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"
+                class="fixed inset-0 z-[-10] pointer-events-none opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"
             >
             </div>
             <div class="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
