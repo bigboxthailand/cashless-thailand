@@ -1,0 +1,138 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Verify Your Email | Cashless Thailand">
+    <Navbar />
+    <main
+        class="bg-[#050505] min-h-screen pt-40 pb-20 px-6 flex items-center justify-center relative overflow-hidden"
+    >
+        {/* Background Elements */}
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none"
+        >
+        </div>
+
+        <div class="w-full max-w-lg relative z-10 text-center">
+            <div
+                class="bg-[#111] border border-[#D4AF37]/20 rounded-3xl p-10 shadow-[0_0_50px_rgba(212,175,55,0.1)]"
+            >
+                <div
+                    class="w-20 h-20 bg-[#D4AF37]/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-[#D4AF37]/20"
+                >
+                    <svg
+                        class="w-10 h-10 text-[#D4AF37]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.5"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        ></path>
+                    </svg>
+                </div>
+
+                <h1
+                    class="text-3xl font-black text-white uppercase tracking-widest mb-4"
+                >
+                    Please Verify Email
+                </h1>
+                <p class="text-white/60 mb-8 leading-relaxed">
+                    กรุณายืนยันอีเมลของคุณก่อนเข้าใช้งานส่วนกระดานส่วนตัว
+                    (Dashboard)<br />
+                    เราได้ส่งลิงก์ยืนยันไปที่อีเมลของคุณแล้ว โปรดตรวจสอบใน Inbox หรือ
+                    Junk Mail ครับ
+                </p>
+
+                <div class="space-y-4">
+                    <button
+                        id="btn-resend"
+                        class="w-full bg-[#D4AF37] text-black font-bold py-4 rounded-xl hover:bg-[#b89530] transition-all transform hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(212,175,55,0.3)] uppercase tracking-widest text-sm"
+                    >
+                        Resend Confirmation Email
+                    </button>
+
+                    <a
+                        href="/"
+                        class="block w-full bg-white/5 border border-white/10 text-white/50 font-bold py-4 rounded-xl hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest text-sm"
+                    >
+                        Back to Home
+                    </a>
+                </div>
+
+                <div id="status-msg" class="mt-6 text-sm hidden"></div>
+            </div>
+
+            <p class="mt-8 text-white/20 text-xs uppercase tracking-widest">
+                Need help? Contact <a
+                    href="mailto:support@cashlessthailand.com"
+                    class="text-[#D4AF37] hover:underline">support</a
+                >
+            </p>
+        </div>
+    </main>
+    <Footer />
+</Layout>
+
+<script>
+    import { supabase } from "../lib/supabase";
+
+    const btnResend = document.getElementById("btn-resend");
+    const statusMsg = document.getElementById("status-msg");
+
+    btnResend?.addEventListener("click", async () => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user || !user.email) {
+            alert("ไม่พบข้อมูลอีเมลของคุณ กรุณาล็อกอินใหม่อีกครั้ง");
+            window.location.href = "/login";
+            return;
+        }
+
+        btnResend.setAttribute("disabled", "true");
+        btnResend.innerText = "Sending...";
+
+        try {
+            const { error } = await supabase.auth.resend({
+                type: "signup",
+                email: user.email,
+            });
+
+            if (error) throw error;
+
+            if (statusMsg) {
+                statusMsg.innerText =
+                    "✓ ลิงก์ยืนยันตัวตนถูกส่งไปใหม่เรียบร้อยแล้ว!";
+                statusMsg.className = "mt-6 text-sm text-green-500 font-bold";
+                statusMsg.classList.remove("hidden");
+            }
+        } catch (err: any) {
+            if (statusMsg) {
+                statusMsg.innerText = "❌ เกิดข้อผิดพลาด: " + err.message;
+                statusMsg.className = "mt-6 text-sm text-red-500 font-bold";
+                statusMsg.classList.remove("hidden");
+            }
+        } finally {
+            btnResend.removeAttribute("disabled");
+            btnResend.innerText = "Resend Confirmation Email";
+        }
+    });
+
+    // Auto-redirect if verified
+    const checkInterval = setInterval(async () => {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        if (user?.email_confirmed_at) {
+            window.location.href = "/profile";
+            clearInterval(checkInterval);
+        }
+    }, 5000);
+</script>

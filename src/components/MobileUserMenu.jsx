@@ -9,12 +9,14 @@ export default function MobileUserMenu() {
     const [showModal, setShowModal] = useState(false);
     const [profile, setProfile] = useState(null);
     const [shop, setShop] = useState(null);
+    const [isVerified, setIsVerified] = useState(true);
 
     useEffect(() => {
         // 1. Check Supabase Session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
             if (session) {
+                setIsVerified(!!session.user.email_confirmed_at);
                 fetchProfile(session.user.id, null);
                 fetchShop(session.user.id);
             } else {
@@ -29,6 +31,7 @@ export default function MobileUserMenu() {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
             if (session) {
+                setIsVerified(!!session.user.email_confirmed_at);
                 fetchProfile(session.user.id, null);
                 fetchShop(session.user.id);
             } else {
@@ -109,9 +112,9 @@ export default function MobileUserMenu() {
                     </div>
                 )}
                 <div className="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[300ms] w-full text-center">
-                    <a href="/profile" className={linkClass}>
+                    <a href={session && !isVerified ? "/verify-email" : "/profile"} className={linkClass}>
                         {dotLeft}
-                        My Profile
+                        {session && !isVerified ? "🚨 Verify Email" : "My Profile"}
                         {dotRight}
                     </a>
                 </div>

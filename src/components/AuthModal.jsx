@@ -34,8 +34,7 @@ export default function AuthModal({ isOpen, onClose }) {
                     password,
                 });
                 if (error) throw error;
-                alert('Check your email for the confirmation link!');
-                setIsLogin(true);
+                window.location.href = '/verify-email';
             }
         } catch (err) {
             setError(err.message);

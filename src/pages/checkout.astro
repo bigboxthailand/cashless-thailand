@@ -90,6 +90,19 @@ import Footer from "../components/Footer.astro";
                         <div class="col-span-2 space-y-2">
                             <label
                                 class="text-xs text-white/50 uppercase tracking-wider"
+                                >Email Address</label
+                            >
+                            <input
+                                type="email"
+                                name="customer_email"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="อีเมลสำหรับรับใบเสร็จ"
+                            />
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
                                 >Address</label
                             >
                             <textarea
@@ -934,6 +947,12 @@ import Footer from "../components/Footer.astro";
                         lnameInput.value = profile.last_name || "";
                     if (phoneInput && !phoneInput.value)
                         phoneInput.value = profile.phone || "";
+
+                    const emailInput = document.querySelector(
+                        'input[name="customer_email"]',
+                    ) as HTMLInputElement;
+                    if (emailInput && !emailInput.value)
+                        emailInput.value = profile.email || "";
                 }
 
                 if (address) {
@@ -961,7 +980,9 @@ import Footer from "../components/Footer.astro";
                 console.error("Error fetching user data:", err);
             }
         }
-        prefillUserData();
+        prefillUserData().then(() => {
+            renderOrderItems();
+        });
         // -----------------------------
 
         function updateTotals() {
@@ -1189,7 +1210,8 @@ import Footer from "../components/Footer.astro";
             return;
         }
 
-        if (itemsContainer) {
+        function renderOrderItems() {
+            if (!itemsContainer) return;
             itemsContainer.innerHTML = cart
                 .map(
                     (item: any) => `
@@ -1220,13 +1242,15 @@ import Footer from "../components/Footer.astro";
                         <p class="text-white/40 text-xs">จัดส่งทั่วประเทศ</p>
                     </div>
                     <div class="text-[#D4AF37] font-bold text-sm">
-                        ${shippingFee.toLocaleString()} ฿
+                        ${shippingFee === 0 ? "FREE" : shippingFee.toLocaleString() + " ฿"}
                     </div>
                 </div>
             `;
+
+            updateTotals();
         }
 
-        updateTotals();
+        renderOrderItems();
 
         const fileInput = document.getElementById("slip-input");
 
@@ -2122,7 +2146,8 @@ import Footer from "../components/Footer.astro";
                         " " +
                         customerInfo.lastname
                     ).trim(),
-                    customer_email: "guest@example.com",
+                    customer_email:
+                        customerInfo.customer_email || "guest@example.com",
                     customer_phone: customerInfo.phone,
                     shipping_address: customerInfo.address,
                     province: customerInfo.province,

@@ -8,12 +8,16 @@ export default function UserMenu() {
     const [wallet, setWallet] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [profile, setProfile] = useState(null);
+    const [isVerified, setIsVerified] = useState(true);
 
     useEffect(() => {
         // 1. Check Supabase Session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setSession(session);
-            if (session) fetchProfile(session.user.id, null);
+            if (session) {
+                setIsVerified(!!session.user.email_confirmed_at);
+                fetchProfile(session.user.id, null);
+            }
             else {
                 // If no session, check for Wallet immediately
                 const storedWallet = localStorage.getItem('user_wallet');
@@ -26,8 +30,10 @@ export default function UserMenu() {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
-            if (session) fetchProfile(session.user.id, null);
-            else {
+            if (session) {
+                setIsVerified(!!session.user.email_confirmed_at);
+                fetchProfile(session.user.id, null);
+            } else {
                 setProfile(null);
                 // Check wallet again on logout
                 const storedWallet = localStorage.getItem('user_wallet');
@@ -98,6 +104,11 @@ export default function UserMenu() {
                             <a href="/profile" className="block px-4 py-3 text-white/70 hover:text-[#D4AF37] hover:bg-white/5 text-xs font-bold uppercase tracking-wider transition-colors">
                                 My Profile
                             </a>
+                            {session && !isVerified && (
+                                <a href="/verify-email" className="block px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest transition-colors border-t border-white/5">
+                                    ⚠️ Verify Your Email
+                                </a>
+                            )}
                             {["mycryptoclock@gmail.com"].includes(session.user.email) && (
                                 <a href="/admin" className="block px-4 py-3 text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 text-xs font-bold uppercase tracking-wider transition-colors border-t border-white/5">
                                     Admin Dashboard

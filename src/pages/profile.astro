@@ -30,4 +30,9 @@ import UserProfile from "../components/UserProfile.jsx";
     if (!session && !wallet) {
         window.location.href = "/login";
     }
+
+    // Email Verification Guard
+    if (session && !session.user.email_confirmed_at) {
+        window.location.href = "/verify-email";
+    }
 </script>
