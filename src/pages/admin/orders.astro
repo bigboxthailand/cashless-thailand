@@ -2,11 +2,30 @@
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import { supabase, supabaseAdmin } from "../../lib/supabase";
 
-// 1. Fetch Orders
+// 1. Fetch Orders with Shop Details for Payouts
 const { data: orders } = await supabaseAdmin
     .from("orders")
-    .select("*, order_items(*)")
+    .select(
+        `
+        *, 
+        order_items(
+            *,
+            products(
+                shop_id,
+                shops(name, promptpay_id)
+            )
+        )
+    `,
+    )
     .order("created_at", { ascending: false });
+
+const { data: settings } = await supabaseAdmin
+    .from("store_settings")
+    .select("platform_commission_rate")
+    .eq("id", 1)
+    .single();
+
+const commissionRate = settings?.platform_commission_rate || 0;
 
 const thbFormatter = new Intl.NumberFormat("th-TH", {
     style: "currency",
@@ -611,6 +630,29 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                         </table>
                     </div>
                 </div>
+
+                <!-- Seller Payouts Section (NEW) -->
+                <div id="modal-payouts-container" class="hidden space-y-4">
+                    <h3
+                        class="text-xl font-bold text-white flex items-center gap-3"
+                    >
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        Seller Payouts Breakdown
+                    </h3>
+                    <div
+                        id="modal-payouts-list"
+                        class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    >
+                        <!-- Payout cards injected here -->
+                    </div>
+                    <p
+                        class="text-[10px] text-white/30 italic uppercase tracking-widest pl-1"
+                    >
+                        * Calculations based on platform commission of {
+                            commissionRate
+                        }%
+                    </p>
+                </div>
             </div>
 
             <div
@@ -654,9 +696,10 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
     </div>
 </AdminLayout>
 
-<script define:vars={{ orders }}>
+<script define:vars={{ orders, commissionRate }}>
     // 1. ส่งข้อมูล orders เข้า window ทันทีที่โหลด
     window.allOrders = orders;
+    window.commissionRate = commissionRate;
 
     // 2. ใช้ astro:page-load เพื่อรันสคริปต์ใหม่ทุกครั้งที่เปลี่ยนหน้ามา
     document.addEventListener("astro:page-load", () => {
@@ -798,6 +841,75 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
             `,
                 )
                 .join("");
+
+            // 6. Calculate Seller Payouts
+            const payoutContainer = document.getElementById(
+                "modal-payouts-container",
+            );
+            const payoutList = document.getElementById("modal-payouts-list");
+
+            if (payoutContainer && payoutList) {
+                const sellerTotals = {};
+                order.order_items.forEach((item) => {
+                    const shop = item.products?.shops;
+                    if (!shop) return;
+
+                    if (!sellerTotals[item.products.shop_id]) {
+                        sellerTotals[item.products.shop_id] = {
+                            name: shop.name,
+                            promptpay: shop.promptpay_id || "Not Set",
+                            total: 0,
+                        };
+                    }
+                    sellerTotals[item.products.shop_id].total +=
+                        item.price * item.quantity;
+                });
+
+                const shops = Object.values(sellerTotals);
+                if (shops.length > 0) {
+                    payoutContainer.classList.remove("hidden");
+                    payoutList.innerHTML = shops
+                        .map((shop) => {
+                            const commission =
+                                shop.total * (window.commissionRate / 100);
+                            const netAmount = shop.total - commission;
+
+                            return `
+                            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="text-white font-bold">${shop.name}</h4>
+                                        <p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">PromptPay: <span class="text-white font-mono">${shop.promptpay}</span></p>
+                                    </div>
+                                    <div class="bg-green-500/10 text-green-500 text-[10px] font-black px-2 py-0.5 rounded uppercase border border-green-500/20">
+                                        Calculated
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                                    <div class="text-xs">
+                                        <p class="text-white/40 mb-1 leading-none uppercase text-[9px] font-bold">Gross Amount</p>
+                                        <p class="text-white font-bold">฿${shop.total.toLocaleString()}</p>
+                                    </div>
+                                    <div class="text-xs">
+                                        <p class="text-white/40 mb-1 leading-none uppercase text-[9px] font-bold">Commission (${window.commissionRate}%)</p>
+                                        <p class="text-red-400 font-bold">- ฿${commission.toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                <div class="bg-black/50 p-3 rounded-xl border border-white/5">
+                                    <p class="text-[9px] text-white/40 uppercase font-black tracking-widest mb-1">Total Payout to Seller</p>
+                                    <div class="flex justify-between items-end">
+                                        <span class="text-xl font-black text-[#D4AF37]">฿${netAmount.toLocaleString()}</span>
+                                        <button class="text-[10px] text-white/40 hover:text-white transition-colors underline uppercase font-bold">Copy Amount</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        })
+                        .join("");
+                } else {
+                    payoutContainer.classList.add("hidden");
+                }
+            }
 
             // Populate Payment Proof
             const proofDiv = document.getElementById("modal-proof-content");

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import ChatOrderSelector from './ChatOrderSelector';
+import EmojiPicker from './EmojiPicker';
 
 export default function ChatCenter() {
     const [conversations, setConversations] = useState([]);
@@ -10,6 +11,7 @@ export default function ChatCenter() {
     const [input, setInput] = useState("");
     const [session, setSession] = useState(null);
     const [myShopIds, setMyShopIds] = useState([]); // [NEW] Track my shops
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false); // [NEW] Emoji state
 
     // Attachment State
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -447,7 +449,12 @@ export default function ChatCenter() {
                                 const isMe = msg.sender_id === session.user.id;
                                 return (
                                     <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                        <div className={`max-w-[70%] md:max-w-[50%] p-3 rounded-2xl text-sm leading-relaxed space-y-2 ${isMe ? 'bg-[#D4AF37] text-black rounded-tr-sm shadow-[0_0_15px_rgba(212,175,55,0.2)]' : 'bg-[#222] text-white rounded-tl-sm border border-white/10'}`}>
+                                        <div className={`max-w-[70%] md:max-w-[50%] p-3 rounded-2xl text-sm leading-relaxed space-y-2 ${msg.type === 'sticker'
+                                                ? 'bg-transparent'
+                                                : isMe
+                                                    ? 'bg-[#D4AF37] text-black rounded-tr-sm shadow-[0_0_15px_rgba(212,175,55,0.2)]'
+                                                    : 'bg-[#222] text-white rounded-tl-sm border border-white/10'
+                                            }`}>
                                             {/* Image Attachment */}
                                             {msg.image_url && (
                                                 <div className="rounded-lg overflow-hidden mb-1 border border-black/10">
@@ -477,10 +484,17 @@ export default function ChatCenter() {
                                                 </div>
                                             )}
 
+                                            {/* Sticker Attachment */}
+                                            {msg.type === 'sticker' && (
+                                                <div className="mb-1">
+                                                    <img src={msg.content} alt="Sticker" className="w-32 h-32 object-contain" />
+                                                </div>
+                                            )}
+
                                             {/* Text Content */}
-                                            {msg.content && (!msg.image_url && !msg.order_id ? (
+                                            {msg.content && (!msg.image_url && !msg.order_id && msg.type !== 'sticker' ? (
                                                 <p>{msg.content}</p>
-                                            ) : msg.content !== 'Sent an image' && !msg.content.startsWith('Attached Order:') && (
+                                            ) : msg.content !== 'Sent an image' && !msg.content.startsWith('Attached Order:') && msg.type !== 'sticker' && (
                                                 <p className="pt-1">{msg.content}</p>
                                             ))}
                                         </div>
@@ -545,7 +559,38 @@ export default function ChatCenter() {
                                     >
                                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                     </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${showEmojiPicker ? 'bg-[#D4AF37] text-black border-[#D4AF37]' : 'bg-white/5 border-white/10 text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37]'}`}
+                                        title="Add Emoji/Sticker"
+                                    >
+                                        <span className="text-lg">😊</span>
+                                    </button>
                                 </div>
+
+                                {/* Emoji Picker Popover */}
+                                {showEmojiPicker && (
+                                    <EmojiPicker
+                                        onEmojiSelect={(emoji) => {
+                                            setInput(prev => prev + emoji);
+                                        }}
+                                        onStickerSelect={async (sticker) => {
+                                            setShowEmojiPicker(false);
+                                            if (!activeConvId || !session) return;
+                                            // Send sticker as a message with type 'sticker'
+                                            // Duplicate logic from sendMessage but specific for stickers
+                                            await supabase.from('messages').insert({
+                                                conversation_id: activeConvId,
+                                                sender_id: session.user.id,
+                                                content: sticker.url,
+                                                type: 'sticker',
+                                                metadata: { type: 'sticker', sticker_id: sticker.id }
+                                            });
+                                        }}
+                                        onClose={() => setShowEmojiPicker(false)}
+                                    />
+                                )}
 
                                 <div className="flex-1 relative">
                                     <input

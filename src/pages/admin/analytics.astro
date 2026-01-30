@@ -1,0 +1,104 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabaseAdmin } from "../../lib/supabase";
+import AdvancedAnalytics from "../../components/admin/AdvancedAnalytics";
+
+// 1. Top Products
+const { data: topProductsData } = await supabaseAdmin.rpc(
+    "get_top_selling_products",
+    { limit_count: 5 },
+);
+// Fallback if RPC doesn't exist
+let topProducts = topProductsData || [];
+if (!topProductsData) {
+    const { data: items } = await supabaseAdmin
+        .from("order_items")
+        .select("title, quantity");
+
+    if (items) {
+        const groups = items.reduce((acc: Record<string, number>, curr) => {
+            acc[curr.title] = (acc[curr.title] || 0) + Number(curr.quantity);
+            return acc;
+        }, {});
+
+        topProducts = Object.entries(groups)
+            .map(([title, count]) => ({ title, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+    }
+}
+
+// 2. Sales Over Time (Last 30 Days)
+const thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+const { data: orders } = await supabaseAdmin
+    .from("orders")
+    .select("created_at, total_price, sex, age, coupon_code, discount_amount")
+    .gte("created_at", thirtyDaysAgo.toISOString());
+
+const safeOrders = orders || [];
+
+const salesMap = safeOrders.reduce((acc: Record<string, number>, o) => {
+    const date = new Date(o.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+    });
+    acc[date] = (acc[date] || 0) + Number(o.total_price);
+    return acc;
+}, {});
+
+const salesOverTime = Object.entries(salesMap).map(([date, total]) => ({
+    date,
+    total,
+}));
+
+// 3. Demographic Stats
+const genderStats = {
+    male: safeOrders.filter((o) => o.sex?.toLowerCase() === "male").length,
+    female: safeOrders.filter((o) => o.sex?.toLowerCase() === "female").length,
+    other: safeOrders.filter(
+        (o) => !["male", "female"].includes(o.sex?.toLowerCase()),
+    ).length,
+};
+
+// 4. Coupon Stats
+const couponGroups = safeOrders.reduce((acc: Record<string, any>, o) => {
+    if (o.coupon_code) {
+        if (!acc[o.coupon_code])
+            acc[o.coupon_code] = {
+                code: o.coupon_code,
+                usage_count: 0,
+                saved: 0,
+            };
+        acc[o.coupon_code].usage_count++;
+        acc[o.coupon_code].saved += Number(o.discount_amount || 0);
+    }
+    return acc;
+}, {});
+
+const couponStats = Object.values(couponGroups);
+
+const analyticsData = {
+    topProducts,
+    salesOverTime,
+    genderStats,
+    ageStats: {}, // Placeholder
+    couponStats,
+};
+---
+
+<AdminLayout title="Advanced Analytics">
+    <div class="space-y-8 pb-20">
+        <div>
+            <h1 class="text-3xl font-black text-white uppercase tracking-wider">
+                Advanced <span class="text-[#D4AF37]">Analytics</span>
+            </h1>
+            <p class="text-white/50 text-sm mt-1">
+                Data-driven insights for store performance and customer behavior
+            </p>
+        </div>
+
+        <AdvancedAnalytics client:load data={analyticsData} />
+    </div>
+</AdminLayout>

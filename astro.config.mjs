@@ -14,6 +14,9 @@ export default defineConfig({
     plugins: [tailwindcss()],
     optimizeDeps: {
       exclude: ['@resvg/resvg-js']
+    },
+    ssr: {
+      noExternal: ['@emoji-mart/react', '@emoji-mart/data', 'emoji-mart']
     }
   },
   integrations: [react()]

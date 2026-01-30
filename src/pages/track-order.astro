@@ -1,0 +1,425 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Track Your Order | Cashless Thailand">
+    <div
+        class="min-h-[80vh] flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden"
+    >
+        <!-- Background Accents -->
+        <div
+            class="absolute top-1/4 -left-20 w-80 h-80 bg-[#D4AF37]/5 rounded-full blur-[100px]"
+        >
+        </div>
+        <div
+            class="absolute bottom-1/4 -right-20 w-80 h-80 bg-[#D4AF37]/5 rounded-full blur-[100px]"
+        >
+        </div>
+
+        <div class="w-full max-w-xl relative z-10">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 bg-[#D4AF37]/10 rounded-2xl mb-6 border border-[#D4AF37]/20"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-8 h-8 text-[#D4AF37]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"
+                        ></path>
+                        <path d="M16.5 9.4 7.55 4.24"></path>
+                        <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                        <line x1="12" y1="22" x2="12" y2="12"></line>
+                        <circle cx="18.5" cy="15.5" r="2.5"></circle>
+                        <path d="M20.27 17.27 22 19"></path>
+                    </svg>
+                </div>
+                <h1
+                    class="text-4xl font-black text-white uppercase tracking-tighter mb-3"
+                >
+                    Track Your <span class="text-[#D4AF37]">Order</span>
+                </h1>
+                <p class="text-white/50 text-base">
+                    Enter your details to see the latest status of your
+                    delivery.
+                </p>
+            </div>
+
+            <!-- Search Form -->
+            <div
+                id="search-section"
+                class="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl shadow-2xl transition-all duration-500"
+            >
+                <div class="space-y-6">
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-[#D4AF37] mb-2 tracking-widest pl-1"
+                            >Order ID</label
+                        >
+                        <input
+                            id="order-id"
+                            type="text"
+                            placeholder="ORD-2026..."
+                            class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-[#D4AF37] outline-none transition-all placeholder:text-white/20 text-lg font-bold"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-[#D4AF37] mb-2 tracking-widest pl-1"
+                            >Customer Email</label
+                        >
+                        <input
+                            id="customer-email"
+                            type="email"
+                            placeholder="your@email.com"
+                            class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white focus:border-[#D4AF37] outline-none transition-all placeholder:text-white/20 text-lg font-bold"
+                        />
+                    </div>
+                    <button
+                        id="track-btn"
+                        class="w-full py-5 bg-[#D4AF37] text-black font-black uppercase tracking-widest text-sm rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)]"
+                    >
+                        Track Now
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result Section (Hidden) -->
+            <div
+                id="result-section"
+                class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
+            >
+                <div
+                    class="bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl"
+                >
+                    <!-- Status Header -->
+                    <div
+                        class="p-8 border-b border-white/10 bg-[#D4AF37]/5 flex items-center justify-between"
+                    >
+                        <div>
+                            <h3
+                                id="res-order-id"
+                                class="text-white font-black uppercase text-xl"
+                            >
+                                ORD-XXXX
+                            </h3>
+                            <p
+                                id="res-date"
+                                class="text-white/40 text-xs font-bold uppercase tracking-wider"
+                            >
+                                Placed on Jan 30, 2026
+                            </p>
+                        </div>
+                        <div
+                            id="res-status-badge"
+                            class="px-4 py-2 bg-[#D4AF37] text-black text-xs font-black uppercase rounded-full"
+                        >
+                            Shipped
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="p-10 space-y-12">
+                        <div class="relative flex justify-between">
+                            <!-- Timeline Line -->
+                            <div
+                                class="absolute top-5 left-0 right-0 h-0.5 bg-white/10 z-0"
+                            >
+                            </div>
+                            <div
+                                id="progress-line"
+                                class="absolute top-5 left-0 h-0.5 bg-[#D4AF37] z-0 transition-all duration-1000"
+                                style="width: 66%;"
+                            >
+                            </div>
+
+                            <!-- Steps -->
+                            <div class="relative z-10 text-center">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-[#D4AF37] text-black flex items-center justify-center mx-auto mb-3 shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-5 h-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="3"
+                                        ><polyline points="20 6 9 17 4 12"
+                                        ></polyline></svg
+                                    >
+                                </div>
+                                <p
+                                    class="text-white text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Ordered
+                                </p>
+                            </div>
+                            <div class="relative z-10 text-center">
+                                <div
+                                    id="step-paid"
+                                    class="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-3"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-5 h-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="3"
+                                        ><polyline points="20 6 9 17 4 12"
+                                        ></polyline></svg
+                                    >
+                                </div>
+                                <p
+                                    class="text-white text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Paid
+                                </p>
+                            </div>
+                            <div class="relative z-10 text-center">
+                                <div
+                                    id="step-shipped"
+                                    class="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-3"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-5 h-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="3"
+                                        ><polyline points="20 6 9 17 4 12"
+                                        ></polyline></svg
+                                    >
+                                </div>
+                                <p
+                                    class="text-white text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Shipped
+                                </p>
+                            </div>
+                            <div class="relative z-10 text-center">
+                                <div
+                                    id="step-delivered"
+                                    class="w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-3"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="w-5 h-5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="3"
+                                        ><polyline points="20 6 9 17 4 12"
+                                        ></polyline></svg
+                                    >
+                                </div>
+                                <p
+                                    class="text-white text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Delivered
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-white/5"
+                        >
+                            <div class="space-y-4">
+                                <h4
+                                    class="text-white/30 text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Shipping Info
+                                </h4>
+                                <div
+                                    class="bg-white/5 p-4 rounded-2xl border border-white/5"
+                                >
+                                    <p
+                                        id="res-provider"
+                                        class="text-white font-bold text-sm mb-1"
+                                    >
+                                        Kerry Express
+                                    </p>
+                                    <p
+                                        id="res-tracking"
+                                        class="text-[#D4AF37] font-black text-lg tracking-wider font-mono"
+                                    >
+                                        TH1234567890
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4
+                                    class="text-white/30 text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Customer Details
+                                </h4>
+                                <p
+                                    id="res-customer"
+                                    class="text-white font-bold"
+                                >
+                                    John Doe
+                                </p>
+                                <p
+                                    id="res-address"
+                                    class="text-white/40 text-sm leading-relaxed"
+                                >
+                                    123 Street, Bangkok, 10110
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="p-6 bg-white/5 flex justify-center">
+                        <button
+                            id="reset-btn"
+                            class="text-white/40 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors"
+                        >
+                            Track another order
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading / Error -->
+            <div id="loader" class="hidden py-10 text-center">
+                <div
+                    class="animate-spin w-10 h-10 border-4 border-[#D4AF37] border-t-transparent rounded-full mx-auto mb-4"
+                >
+                </div>
+                <p
+                    class="text-white/40 uppercase tracking-widest font-bold text-xs"
+                >
+                    Finding your order...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // @ts-nocheck
+        import { supabase } from "../lib/supabase";
+
+        const trackBtn = document.getElementById("track-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const searchSection = document.getElementById("search-section");
+        const resultSection = document.getElementById("result-section");
+        const loader = document.getElementById("loader");
+
+        trackBtn?.addEventListener("click", async () => {
+            const id = (
+                document.getElementById("order-id") as HTMLInputElement
+            ).value.trim();
+            const email = (
+                document.getElementById("customer-email") as HTMLInputElement
+            ).value.trim();
+
+            if (!id || !email) {
+                alert("Please enter both Order ID and Email.");
+                return;
+            }
+
+            searchSection.classList.add("hidden");
+            loader.classList.remove("hidden");
+
+            const { data: order, error } = await supabase
+                .from("orders")
+                .select("*")
+                .eq("id", id)
+                .eq("customer_email", email)
+                .single();
+
+            loader.classList.add("hidden");
+
+            if (error || !order) {
+                alert("Order not found. Please check your ID and Email.");
+                searchSection.classList.remove("hidden");
+                return;
+            }
+
+            // Render Result
+            document.getElementById("res-order-id").innerText = order.id;
+            document.getElementById("res-date").innerText =
+                `Placed on ${new Date(order.created_at).toLocaleDateString()}`;
+            document.getElementById("res-status-badge").innerText =
+                order.shipping_status || order.payment_status;
+            document.getElementById("res-provider").innerText =
+                order.shipping_provider || "Pending dispatch";
+            document.getElementById("res-tracking").innerText =
+                order.tracking_number || "Awaiting tracking number";
+            document.getElementById("res-customer").innerText =
+                order.customer_name;
+            document.getElementById("res-address").innerText =
+                order.shipping_address;
+
+            // Update Progress
+            const status = order.shipping_status || order.payment_status;
+            let progress = 0;
+            if (order.payment_status === "paid") {
+                progress = 33;
+                document
+                    .getElementById("step-paid")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+                document
+                    .getElementById("step-paid")
+                    .classList.remove("bg-white/10", "text-white");
+            }
+            if (status === "shipped") {
+                progress = 66;
+                document
+                    .getElementById("step-shipped")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+                document
+                    .getElementById("step-shipped")
+                    .classList.remove("bg-white/10", "text-white");
+                // Also make sure paid is green if shipped
+                document
+                    .getElementById("step-paid")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+            }
+            if (status === "delivered") {
+                progress = 100;
+                document
+                    .getElementById("step-delivered")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+                document
+                    .getElementById("step-delivered")
+                    .classList.remove("bg-white/10", "text-white");
+                document
+                    .getElementById("step-paid")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+                document
+                    .getElementById("step-shipped")
+                    .classList.add("bg-[#D4AF37]", "text-black");
+            }
+            document.getElementById("progress-line").style.width =
+                `${progress}%`;
+
+            resultSection.classList.remove("hidden");
+        });
+
+        resetBtn?.addEventListener("click", () => {
+            resultSection.classList.add("hidden");
+            searchSection.classList.remove("hidden");
+            // Reset steps
+            ["step-paid", "step-shipped", "step-delivered"].forEach((id) => {
+                document
+                    .getElementById(id)
+                    .classList.remove("bg-[#D4AF37]", "text-black");
+                document
+                    .getElementById(id)
+                    .classList.add("bg-white/10", "text-white");
+            });
+            document.getElementById("progress-line").style.width = "0%";
+        });
+    </script>
+</Layout>

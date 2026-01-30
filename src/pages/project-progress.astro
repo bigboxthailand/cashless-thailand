@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ProjectSummaryViewer from "../components/ProjectSummaryViewer.jsx";
+---
+
+<Layout title="Project Progress Summary | Cashless Thailand">
+    <main
+        class="min-h-screen bg-[#0a0f1c] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-[#0a0f1c] to-[#0a0f1c]"
+    >
+        <ProjectSummaryViewer client:visible />
+    </main>
+</Layout>

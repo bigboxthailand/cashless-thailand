@@ -23,6 +23,7 @@ const config = settings || {
     store_email: "mycryptoclock@gmail.com",
     vat_enabled: false,
     vat_rate: 7,
+    platform_commission_rate: 0,
 };
 ---
 
@@ -194,6 +195,31 @@ const config = settings || {
                             </div>
                         </label>
                     </div>
+
+                    <!-- Platform Commission -->
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >Platform Commission (%)</label
+                        >
+                        <div class="relative">
+                            <input
+                                id="platform_commission_rate"
+                                type="number"
+                                step="0.1"
+                                placeholder="0.0"
+                                value={config.platform_commission_rate}
+                                class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                            />
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 text-xs font-bold"
+                                >%</span
+                            >
+                        </div>
+                        <p class="text-[10px] text-white/30 mt-1 italic">
+                            Fees taken from seller sales. Started at 0%
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -274,6 +300,11 @@ const config = settings || {
             ).checked,
             vat_rate: (document.getElementById("tax_rate") as HTMLInputElement)
                 .value,
+            platform_commission_rate: (
+                document.getElementById(
+                    "platform_commission_rate",
+                ) as HTMLInputElement
+            ).value,
             maintenance_mode: (
                 document.getElementById("maintenance_mode") as HTMLInputElement
             ).checked,
