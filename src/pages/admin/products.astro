@@ -1,10 +1,10 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 import ProductManager from "../../components/admin/ProductManager.jsx";
 
 // Fetch Real Products
-const { data: products, error } = await supabase
+const { data: products, error } = await supabaseAdmin
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });

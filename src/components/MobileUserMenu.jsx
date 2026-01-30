@@ -94,7 +94,7 @@ export default function MobileUserMenu() {
                     <div className="mobile-link-item translate-y-12 opacity-0 transition-all duration-500 delay-[250ms] w-full text-center">
                         <a href={shop.status === 'active' ? "/seller/dashboard" : "/seller/pending"} className={shopLinkClass}>
                             {dotLeft}
-                            {shop.status === 'active' ? 'Seller Center' : 'Shop Pending'}
+                            {shop.status === 'active' ? 'MY SHOP' : 'Shop Pending'}
                             {dotRight}
                         </a>
                     </div>

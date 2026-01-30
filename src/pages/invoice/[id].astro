@@ -1,0 +1,84 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { supabase } from "../../lib/supabase";
+import InvoiceGenerator from "../../components/shared/InvoiceGenerator";
+
+const { id } = Astro.params;
+
+// 1. Fetch Order Data using client-side supabase to respect RLS
+// Note: We might need an admin-level fetch if the user is an admin viewing someone else's invoice
+// but for public /invoice/[id], we primarily want the customer to see THEIR own.
+const { data: order } = await supabase
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("id", id)
+    .single();
+
+// 2. Fetch Store Settings (Publicly readable)
+const { data: settings } = await supabase
+    .from("store_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+if (!order) {
+    return Astro.redirect("/profile");
+}
+---
+
+<Layout title={`Invoice #${order.invoice_no || order.id}`}>
+    <div class="max-w-4xl mx-auto py-24 px-6 min-h-screen">
+        <div class="mb-8 flex justify-between items-center no-print">
+            <a
+                href="/profile"
+                class="text-white/50 hover:text-white flex items-center gap-2 text-sm transition-colors"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="m15 18-6-6 6-6"></path></svg
+                >
+                Back to Profile
+            </a>
+
+            <button
+                onclick="window.print()"
+                class="bg-[#D4AF37] text-black px-6 py-2 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-white transition-all shadow-lg flex items-center gap-2"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><polyline points="6 9 6 2 18 2 18 9"></polyline><path
+                        d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+                    ></path><rect width="12" height="8" x="6" y="14"
+                    ></rect></svg
+                >
+                Print / Download PDF
+            </button>
+        </div>
+
+        <InvoiceGenerator order={order} settings={settings} client:load />
+    </div>
+</Layout>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>

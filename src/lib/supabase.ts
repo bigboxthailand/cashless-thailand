@@ -48,3 +48,9 @@ const createMockClient = () => {
 export const supabase = (supabaseUrl && supabaseKey)
     ? createClient(supabaseUrl, supabaseKey)
     : createMockClient();
+
+// Admin client for server-side only (bypasses RLS)
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+export const supabaseAdmin = (supabaseUrl && serviceKey)
+    ? createClient(supabaseUrl, serviceKey)
+    : supabase; // Fallback to normal client if no service key

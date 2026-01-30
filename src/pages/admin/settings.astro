@@ -1,9 +1,10 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
+import AdminRoleManager from "../../components/admin/AdminRoleManager";
 
 // Fetch Settings (Singleton ID = 1)
-const { data: settings } = await supabase
+const { data: settings } = await supabaseAdmin
     .from("store_settings")
     .select("*")
     .eq("id", 1)
@@ -11,33 +12,54 @@ const { data: settings } = await supabase
 
 // Fallback defaults
 const config = settings || {
-    store_name: "Cashless Store",
+    store_name: "Cashless Thailand",
     currency: "THB",
     tax_rate: 7,
     maintenance_mode: false,
+    store_tax_id: "",
+    store_address:
+        "1509 Min Mani 1 Alley, Soi Phetkasem 4, Wat Tha Phra, Bangkok Yai, Bangkok 10700",
+    store_phone: "090-987-9566",
+    store_email: "mycryptoclock@gmail.com",
+    vat_enabled: false,
+    vat_rate: 7,
 };
 ---
 
 <AdminLayout title="Settings">
-    <div class="max-w-3xl mx-auto space-y-8">
+    <div class="max-w-3xl mx-auto space-y-8 pb-20">
         <div>
             <h1 class="text-3xl font-black text-white uppercase tracking-wider">
                 Store Settings
             </h1>
             <p class="text-white/50 text-sm mt-1">
-                Manage global configuration
+                Manage global configuration and administration
             </p>
         </div>
 
         <div
-            class="bg-[#0A0A0A] border border-white/10 p-8 rounded-xl space-y-8"
+            class="bg-[#0A0A0A] border border-white/10 p-8 rounded-xl space-y-12"
         >
+            <!-- ADMIN ROLE MANAGEMENT (NEW) -->
+            <AdminRoleManager client:load />
+
             <!-- GENERAL SETTINGS -->
             <div class="space-y-4">
                 <h3
-                    class="text-white font-bold uppercase text-sm border-b border-white/10 pb-2"
+                    class="text-white font-bold uppercase text-sm border-b border-white/10 pb-2 flex items-center gap-2"
                 >
-                    General
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 text-white/50"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        ><circle cx="12" cy="12" r="3"></circle><path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                        ></path></svg
+                    >
+                    Store Configuration
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -76,17 +98,102 @@ const config = settings || {
                     Tax & Fees
                 </h3>
 
-                <div>
-                    <label
-                        class="block text-xs uppercase font-bold text-white/50 mb-2"
-                        >VAT / Tax Rate (%)</label
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >Tax ID / เลขประจำตัวผู้เสียภาษี</label
+                        >
+                        <input
+                            id="store_tax_id"
+                            type="text"
+                            placeholder="0123456789012"
+                            value={config.store_tax_id}
+                            class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >Store Email (for Billing)</label
+                        >
+                        <input
+                            id="store_email"
+                            type="email"
+                            placeholder="billing@yourstore.com"
+                            value={config.store_email}
+                            class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >Store Phone</label
+                        >
+                        <input
+                            id="store_phone"
+                            type="text"
+                            placeholder="+66 2 123 4567"
+                            value={config.store_phone}
+                            class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                        />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >Store Address</label
+                        >
+                        <textarea
+                            id="store_address"
+                            rows="2"
+                            placeholder="Address for Receipt/Invoice"
+                            class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                            >{config.store_address}</textarea
+                        >
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div>
+                        <label
+                            class="block text-xs uppercase font-bold text-white/50 mb-2"
+                            >VAT / Tax Rate (%)</label
+                        >
+                        <input
+                            id="tax_rate"
+                            type="number"
+                            value={config.vat_rate || config.tax_rate}
+                            class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                        />
+                    </div>
+                    <div
+                        class="flex items-center justify-between bg-white/5 border border-white/10 p-4 rounded-lg"
                     >
-                    <input
-                        id="tax_rate"
-                        type="number"
-                        value={config.tax_rate}
-                        class="w-full bg-white/5 border border-white/10 rounded px-4 py-2 text-white focus:border-[#D4AF37] outline-none transition-colors"
-                    />
+                        <div>
+                            <h4 class="text-white font-bold text-sm">
+                                Enable VAT (7%)
+                            </h4>
+                            <p
+                                class="text-white/30 text-[10px] uppercase font-bold tracking-widest"
+                            >
+                                Toggle to show tax in invoices
+                            </p>
+                        </div>
+                        <label
+                            class="relative inline-flex items-center cursor-pointer"
+                        >
+                            <input
+                                id="vat_enabled"
+                                type="checkbox"
+                                class="sr-only peer"
+                                checked={config.vat_enabled}
+                            />
+                            <div
+                                class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#D4AF37]"
+                            >
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -149,6 +256,23 @@ const config = settings || {
             currency: (document.getElementById("currency") as HTMLInputElement)
                 .value,
             tax_rate: (document.getElementById("tax_rate") as HTMLInputElement)
+                .value,
+            store_tax_id: (
+                document.getElementById("store_tax_id") as HTMLInputElement
+            ).value,
+            store_email: (
+                document.getElementById("store_email") as HTMLInputElement
+            ).value,
+            store_phone: (
+                document.getElementById("store_phone") as HTMLInputElement
+            ).value,
+            store_address: (
+                document.getElementById("store_address") as HTMLTextAreaElement
+            ).value,
+            vat_enabled: (
+                document.getElementById("vat_enabled") as HTMLInputElement
+            ).checked,
+            vat_rate: (document.getElementById("tax_rate") as HTMLInputElement)
                 .value,
             maintenance_mode: (
                 document.getElementById("maintenance_mode") as HTMLInputElement

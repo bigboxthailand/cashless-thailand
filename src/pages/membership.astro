@@ -1,0 +1,661 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Membership & Rewards | Cashless Thailand">
+    <Navbar />
+
+    <main class="bg-[#020202] pt-32 pb-20 relative overflow-hidden">
+        <!-- Spectacular Background Elements -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div
+                class="absolute top-0 right-0 w-[800px] h-[800px] bg-[#D4AF37]/5 blur-[150px] rounded-full animate-pulse"
+            >
+            </div>
+            <div
+                class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#F7931A]/5 blur-[120px] rounded-full"
+            >
+            </div>
+            <div
+                class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-24 animate-fade-in">
+                <h2
+                    class="inline-block px-6 py-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 text-[#D4AF37] text-[10px] font-black tracking-[0.5em] uppercase mb-8 backdrop-blur-xl shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+                >
+                    The Future of Loyalty
+                </h2>
+                <h1
+                    class="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter leading-none mb-8 filter drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                >
+                    MEMBER <br />
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#FFF] to-[#F7931A] animate-gradient-x"
+                        >REWARDS</span
+                    >
+                </h1>
+                <p
+                    class="text-white/40 max-w-2xl mx-auto text-lg md:text-xl font-light leading-relaxed"
+                >
+                    ยกระดับการช้อปปิ้งสู่มิติใหม่ด้วยระบบ Membership และ
+                    Affiliate <br />
+                    ที่ออกแบบมาเพื่อสร้างความมั่งคั่งไปพร้อมกับเรา
+                </p>
+            </div>
+
+            <!-- Tiers Grid -->
+            <div
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-40"
+            >
+                <!-- BRONZE -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl group border-[#CD7F32]/20 bg-[#CD7F32]/5 hover:border-[#CD7F32]/50 shadow-[0_0_40px_rgba(205,127,50,0.05)] flex flex-col items-center text-center"
+                >
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-6 bg-black/20 border border-[#CD7F32]/30 shadow-[0_0_40px_rgba(205,127,50,0.2)] overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/bronze.png"
+                            class="w-full h-full object-cover mix-blend-screen opacity-90 scale-125"
+                            alt="Bronze Deer"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/bronze_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-contain opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-20 group-hover:scale-100"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-white uppercase mb-2 tracking-tighter"
+                    >
+                        Bronze
+                    </h3>
+                    <p
+                        class="text-[#CD7F32] text-sm mb-8 uppercase tracking-[.3em] font-black"
+                    >
+                        0 - 9,999 Points
+                    </p>
+                    <ul class="space-y-5 mb-8 text-lg">
+                        <li class="benefit-item text-white/40 font-medium">
+                            Standard Ecosystem Access
+                        </li>
+                        <li class="benefit-item text-white/40 font-medium">
+                            Community Priority
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- SILVER -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl group border-white/10 bg-white/5 hover:border-white/30 shadow-[0_0_50px_rgba(255,255,255,0.05)] flex flex-col items-center text-center"
+                >
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-6 bg-black/20 border border-white/30 shadow-[0_0_40px_rgba(255,255,255,0.15)] overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/silver.png"
+                            class="w-full h-full object-cover mix-blend-screen opacity-90 scale-125"
+                            alt="Silver Wolf"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/silver_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-contain opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-20 group-hover:scale-100"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-white uppercase mb-2 tracking-tighter"
+                    >
+                        Silver
+                    </h3>
+                    <p
+                        class="text-white/60 text-sm mb-8 uppercase tracking-[.3em] font-black"
+                    >
+                        10,000 - 49,999 Points
+                    </p>
+                    <ul class="space-y-5 mb-8 text-white/60 text-lg">
+                        <li class="benefit-item font-bold text-white">
+                            <span class="text-[#C0C0C0]">2%</span> Cashback Multiplier
+                        </li>
+                        <li class="benefit-item font-bold">
+                            Early Drop Access
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- GOLD -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl group border-[#D4AF37]/30 bg-[#D4AF37]/5 scale-105 z-20 hover:border-[#D4AF37] shadow-[0_0_60px_rgba(212,175,55,0.15)] ring-1 ring-[#D4AF37]/20 flex flex-col items-center text-center"
+                >
+                    <div
+                        class="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#D4AF37] text-black text-[10px] font-black px-6 py-1.5 rounded-full uppercase tracking-widest shadow-[0_0_20px_rgba(212,175,55,0.4)]"
+                    >
+                        Most Privileged
+                    </div>
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-6 bg-black/20 border border-[#D4AF37]/50 shadow-[0_0_50px_rgba(212,175,55,0.3)] overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/gold.png"
+                            class="w-full h-full object-cover mix-blend-screen scale-125"
+                            alt="Gold Phoenix"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/gold_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-contain opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-40 group-hover:scale-100"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-white uppercase mb-2 tracking-tighter"
+                    >
+                        Gold
+                    </h3>
+                    <p
+                        class="text-[#D4AF37] text-sm mb-8 uppercase tracking-[.3em] font-black"
+                    >
+                        50,000 - 209,999 Points
+                    </p>
+                    <ul class="space-y-5 mb-8 text-lg">
+                        <li class="benefit-item font-bold text-white">
+                            <span class="text-[#D4AF37]">5%</span> Cashback Multiplier
+                        </li>
+                        <li class="benefit-item font-bold text-white">
+                            <span class="text-[#D4AF37]">5%</span> Direct Discount
+                        </li>
+                        <li class="benefit-item font-bold text-white/50">
+                            Priority Concierge
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- PLATINUM -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl group border-white/20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 hover:border-white/40 shadow-[0_0_50px_rgba(255,255,255,0.1)] overflow-hidden flex flex-col items-center text-center"
+                >
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-red-500/10 via-yellow-500/10 via-green-500/10 via-blue-500/10 to-purple-500/10 opacity-50 group-hover:opacity-100 transition-opacity duration-1000 animate-gradient-x"
+                    >
+                    </div>
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-6 bg-black/30 shadow-[0_10px_40px_rgba(255,255,255,0.2)] border-2 border-white/30 overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/platinum.png"
+                            class="w-full h-full object-cover mix-blend-screen scale-125"
+                            alt="Platinum Unicorn"
+                        />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent"
+                        >
+                        </div>
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/platinum_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-contain opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-30 group-hover:scale-100"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400 animate-gradient-x uppercase mb-2 tracking-tighter"
+                    >
+                        Platinum
+                    </h3>
+                    <p
+                        class="text-white/70 text-sm mb-8 uppercase tracking-[.4em] font-black"
+                    >
+                        210,000 - 499,999 Points
+                    </p>
+                    <ul
+                        class="space-y-5 mb-8 font-black text-white/80 text-lg relative z-10"
+                    >
+                        <li class="benefit-item">
+                            <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-purple-400 font-black"
+                                >7%</span
+                            > Cashback Multiplier
+                        </li>
+                        <li class="benefit-item text-white">
+                            <span class="text-[#D4AF37]">10%</span> Direct Discount
+                        </li>
+                        <li class="benefit-item">VIP Event Access</li>
+                        <li class="benefit-item text-white/40 font-bold">
+                            Pre-access to Drops
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- RARE EARTH -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl group border-[#39FF14]/20 bg-gradient-to-br from-black via-[#0a1a05] to-black hover:border-[#39FF14]/50 shadow-[0_0_60px_rgba(57,255,20,0.1)] overflow-hidden flex flex-col items-center text-center"
+                >
+                    <div
+                        class="absolute inset-0 bg-[radial-gradient(circle_at_center,_#39FF1411_0%,_transparent_70%)] opacity-30 group-hover:opacity-60 transition-opacity"
+                    >
+                    </div>
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-6 bg-black/40 shadow-[0_10px_50px_rgba(57,255,20,0.3)] border-2 border-[#39FF14]/40 overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/rare_earth.png"
+                            class="w-full h-full object-cover mix-blend-screen scale-125"
+                            alt="Rare Earth Dragon"
+                        />
+                        <div
+                            class="absolute inset-0 bg-[#39FF14]/10 animate-pulse"
+                        >
+                        </div>
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/rare_earth_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-cover opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-50 group-hover:scale-110 contrast-125 brightness-110"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-[#39FF14] drop-shadow-[0_0_15px_rgba(57,255,20,0.5)] uppercase mb-2 tracking-tighter"
+                    >
+                        Rare Earth
+                    </h3>
+                    <p
+                        class="text-[#39FF14]/60 text-sm mb-8 uppercase tracking-[.4em] font-black"
+                    >
+                        500,000 - 2,099,999 Points
+                    </p>
+                    <ul
+                        class="space-y-5 mb-8 font-black text-white/80 text-lg relative z-10"
+                    >
+                        <li class="benefit-item">
+                            <span class="text-[#39FF14]">10%</span> Cashback Multiplier
+                        </li>
+                        <li class="benefit-item">
+                            <span class="text-[#39FF14]/80">15%</span> Direct Discount
+                        </li>
+                        <li
+                            class="benefit-item text-[#39FF14] flex items-center gap-2 drop-shadow-[0_0_10px_rgba(57,255,20,0.3)]"
+                        >
+                            Lifetime Free Shipping
+                        </li>
+                        <li class="benefit-item text-white/40 font-bold">
+                            Secret Community Access
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- BITCOIN -->
+                <div
+                    class="tier-card p-10 pt-24 rounded-[3rem] border-2 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-6 hover:shadow-[0_0_100px_rgba(247,147,26,0.3)] group border-[#F7931A]/40 bg-gradient-to-br from-black via-[#1a0f00] to-black scale-110 z-20 hover:border-[#F7931A] shadow-[0_0_80px_rgba(247,147,26,0.25)] ring-2 ring-[#F7931A]/20 overflow-hidden flex flex-col items-center text-center"
+                >
+                    <div
+                        class="absolute -inset-2 bg-gradient-to-r from-transparent via-[#F7931A]/10 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"
+                    >
+                    </div>
+                    <div
+                        class="absolute -top-5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#F7931A] to-[#ffaa44] text-white text-[10px] font-black px-8 py-2 rounded-full uppercase tracking-[.3em] shadow-[0_0_30px_rgba(247,147,26,0.6)] z-30"
+                    >
+                        GOD MODE
+                    </div>
+                    <div
+                        class="tier-icon absolute -top-12 left-1/2 -translate-x-1/2 group-hover:scale-110 group-hover:rotate-12 bg-black/40 shadow-[0_15px_70px_rgba(247,147,26,0.4)] border border-[#F7931A]/40 overflow-hidden flex items-center justify-center p-0 z-10"
+                    >
+                        <img
+                            src="/images/tiers/bitcoin.png"
+                            class="w-full h-full object-cover mix-blend-screen"
+                            alt="Bitcoin Lion"
+                        />
+                    </div>
+                    <div
+                        class="absolute inset-0 overflow-hidden pointer-events-none rounded-[3rem]"
+                    >
+                        <img
+                            src="/images/tiers/bitcoin_full.png"
+                            class="beast-bg absolute inset-0 w-full h-full object-contain opacity-0 scale-150 transition-all duration-700 mix-blend-screen group-hover:opacity-40 group-hover:scale-110"
+                        />
+                    </div>
+                    <h3
+                        class="text-5xl font-black text-white uppercase mb-2 tracking-tighter"
+                    >
+                        Bitcoin
+                    </h3>
+                    <p
+                        class="text-[#F7931A] text-sm mb-8 uppercase tracking-[.4em] font-black"
+                    >
+                        2,100,000+ Points
+                    </p>
+                    <ul class="space-y-5 mb-8 font-black text-white/90 text-xl">
+                        <li class="benefit-item text-[#F7931A]">
+                            21% Cashback Multiplier
+                        </li>
+                        <li class="benefit-item text-white">
+                            21% Direct Discount
+                        </li>
+                        <li
+                            class="benefit-item text-white flex items-center gap-2"
+                        >
+                            Personal Concierge
+                        </li>
+                        <li class="benefit-item text-[#F7931A] font-black">
+                            Satoshi Exclusive Gifts
+                        </li>
+                        <li class="benefit-item text-white/40">
+                            Governance Rights
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Affiliate Section: The Gold Mine -->
+            <div
+                class="relative group rounded-[4rem] p-1 md:p-1 overflow-hidden"
+            >
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-[#D4AF37] via-white to-[#F7931A] opacity-20 group-hover:opacity-40 transition-opacity duration-1000 animate-gradient-x"
+                >
+                </div>
+                <div
+                    class="relative bg-[#050505] rounded-[3.9rem] p-12 md:p-24 overflow-hidden border border-white/5"
+                >
+                    <!-- Particle Background for Affiliate -->
+                    <div
+                        class="absolute inset-0 z-0 h-full w-full pointer-events-none opacity-20"
+                    >
+                        <div class="particle-anim"></div>
+                    </div>
+
+                    <div
+                        class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10"
+                    >
+                        <div>
+                            <h2
+                                class="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-8 leading-none"
+                            >
+                                UNLOCK THE <br />
+                                <span
+                                    class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F7931A]"
+                                    >GOLD MINE</span
+                                >
+                            </h2>
+                            <p
+                                class="text-white/60 text-xl mb-12 leading-relaxed font-light"
+                            >
+                                เปลี่ยนอิทธิพลของคุณให้เป็นรายได้ระดับพรีเมียม <br
+                                />
+                                รับค่าตอบแทน <span
+                                    class="text-[#D4AF37] font-black text-3xl"
+                                    >5%</span
+                                > ทันทีจากทุกออเดอร์
+                            </p>
+
+                            <div class="space-y-8 mb-16">
+                                <div class="flex items-center gap-6 group/item">
+                                    <div
+                                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-hover/item:border-[#D4AF37] transition-all"
+                                    >
+                                        🔗
+                                    </div>
+                                    <div
+                                        class="text-white/80 font-bold uppercase tracking-widest text-sm"
+                                    >
+                                        Copy Unique Link
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 group/item">
+                                    <div
+                                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-hover/item:border-[#F7931A] transition-all"
+                                    >
+                                        🚀
+                                    </div>
+                                    <div
+                                        class="text-white/80 font-bold uppercase tracking-widest text-sm"
+                                    >
+                                        Spread the word
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-6 group/item">
+                                    <div
+                                        class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl group-hover/item:border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all"
+                                    >
+                                        💰
+                                    </div>
+                                    <div
+                                        class="text-white/80 font-bold uppercase tracking-widest text-sm"
+                                    >
+                                        Collect Rewards
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a
+                                href="/profile"
+                                class="inline-flex items-center gap-4 bg-gradient-to-r from-[#D4AF37] to-[#F7931A] text-black px-16 py-6 rounded-2xl font-black uppercase tracking-[.2em] hover:scale-105 active:scale-95 transition-all shadow-[0_20px_60px_rgba(212,175,55,0.3)] hover:shadow-[0_20px_70px_rgba(212,175,55,0.5)]"
+                            >
+                                Start Earning Now
+                                <svg
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="3"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    ></path></svg
+                                >
+                            </a>
+                        </div>
+
+                        <div class="hidden lg:block relative">
+                            <div
+                                class="absolute inset-0 bg-[#D4AF37]/20 blur-[100px] rounded-full"
+                            >
+                            </div>
+                            <div
+                                class="relative bg-black/40 backdrop-blur-3xl border border-white/10 p-12 rounded-[3rem] shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700"
+                            >
+                                <div
+                                    class="flex justify-between items-center mb-10"
+                                >
+                                    <div
+                                        class="text-white/40 text-xs font-black uppercase tracking-[.3em]"
+                                    >
+                                        Affiliate Portal
+                                    </div>
+                                    <div
+                                        class="w-3 h-3 rounded-full bg-green-500 animate-pulse"
+                                    >
+                                    </div>
+                                </div>
+                                <div class="space-y-6">
+                                    <div
+                                        class="h-4 w-3/4 bg-white/10 rounded-full animate-pulse"
+                                    >
+                                    </div>
+                                    <div
+                                        class="h-4 w-1/2 bg-white/5 rounded-full"
+                                    >
+                                    </div>
+                                    <div
+                                        class="pt-8 text-6xl font-black text-white"
+                                    >
+                                        5.00%
+                                    </div>
+                                    <div
+                                        class="text-white/40 text-xs uppercase font-bold tracking-widest"
+                                    >
+                                        Commission Rate
+                                    </div>
+                                </div>
+                                <div class="mt-12 flex gap-4">
+                                    <div
+                                        class="flex-1 h-32 bg-[#D4AF37]/10 rounded-2xl border border-[#D4AF37]/20"
+                                    >
+                                    </div>
+                                    <div
+                                        class="flex-1 h-32 bg-white/5 rounded-2xl border border-white/5"
+                                    >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <Footer />
+</Layout>
+
+<style>
+    .tier-card {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tier-icon {
+        width: 6.5rem;
+        height: 6.5rem;
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(12px);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 20;
+    }
+
+    .tier-card:hover .tier-icon {
+        transform: scale(1.1) rotate(6deg);
+        box-shadow: 0 0 40px currentColor;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.125rem;
+        line-height: 1.4;
+    }
+
+    .benefit-item::before {
+        content: "";
+        width: 1rem;
+        height: 1px;
+        background: currentColor;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    @keyframes gradient-x {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+    .animate-gradient-x {
+        background-size: 200% 200%;
+        animation: gradient-x 5s ease infinite;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .particle-anim {
+        background-image:
+            radial-gradient(circle, #d4af37 1px, transparent 1px),
+            radial-gradient(circle, #f7931a 1px, transparent 1px);
+        background-size:
+            40px 40px,
+            60px 60px;
+        background-position:
+            0 0,
+            20px 20px;
+        width: 100%;
+        height: 100%;
+        animation: shipMove 40s linear infinite;
+    }
+
+    @keyframes shipMove {
+        0% {
+            background-position:
+                0 0,
+                20px 20px;
+        }
+        100% {
+            background-position:
+                400px 400px,
+                420px 420px;
+        }
+    }
+
+    /* Premium Glow Animation */
+    @keyframes gold-shine {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(200%) rotate(45deg);
+        }
+    }
+
+    .tier-card {
+        isolation: isolate;
+    }
+
+    .tier-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.05) 0%,
+            transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.5s;
+        z-index: -1;
+    }
+
+    .tier-card:hover::before {
+        opacity: 1;
+    }
+</style>

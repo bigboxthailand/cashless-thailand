@@ -75,7 +75,7 @@ export default function SellerCTA() {
                 href="/seller/dashboard"
                 className="hidden md:flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/50 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(212,175,55,0.1)] hover:shadow-[0_0_20px_rgba(212,175,55,0.5)]"
             >
-                <span className="relative z-10">Dashboard</span>
+                <span className="relative z-10">MY SHOP</span>
             </a>
         );
     }

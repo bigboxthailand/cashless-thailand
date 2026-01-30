@@ -1,10 +1,22 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 import CustomerCharts from "../../components/admin/CustomerCharts";
 
+// 0. Configuration
+const TIER_THRESHOLDS = {
+    WHALE: 100000,
+    PRO: 30000,
+};
+
+const getTier = (spent: number) => {
+    if (spent >= TIER_THRESHOLDS.WHALE) return "Whale";
+    if (spent >= TIER_THRESHOLDS.PRO) return "Pro";
+    return "User";
+};
+
 // 1. Fetch All Orders
-const { data: orders } = await supabase
+const { data: orders } = await supabaseAdmin
     .from("orders")
     .select(
         "customer_name, customer_email, customer_phone, province, total_price, created_at",
@@ -102,11 +114,7 @@ const totalCustomers = customers.length;
                                                 {c.name}
                                             </div>
                                             <div class="text-[10px] text-[#D4AF37] uppercase tracking-wider font-bold">
-                                                {c.totalSpent > 100000
-                                                    ? "Whale"
-                                                    : c.totalSpent > 30000
-                                                      ? "Pro"
-                                                      : "User"}
+                                                {getTier(c.totalSpent)}
                                             </div>
                                         </div>
                                     </td>

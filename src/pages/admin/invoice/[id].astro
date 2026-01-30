@@ -1,0 +1,52 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { supabaseAdmin } from "../../../lib/supabase";
+import InvoiceGenerator from "../../../components/shared/InvoiceGenerator";
+
+const { id } = Astro.params;
+
+// 1. Fetch Order Data
+const { data: order } = await supabaseAdmin
+    .from("orders")
+    .select("*, order_items(*)")
+    .eq("id", id)
+    .single();
+
+// 2. Fetch Store Settings
+const { data: settings } = await supabaseAdmin
+    .from("store_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+if (!order) {
+    return Astro.redirect("/admin/orders");
+}
+---
+
+<AdminLayout title={`Invoice #${order.invoice_no || order.id}`}>
+    <div class="max-w-4xl mx-auto py-8">
+        <div class="mb-4 flex justify-between items-center">
+            <a
+                href="/admin/orders"
+                class="text-white/50 hover:text-white flex items-center gap-2 text-sm transition-colors"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="m15 18-6-6 6-6"></path></svg
+                >
+                Back to Orders
+            </a>
+        </div>
+
+        <InvoiceGenerator order={order} settings={settings} client:load />
+    </div>
+</AdminLayout>

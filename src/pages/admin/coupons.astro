@@ -1,42 +1,16 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import AdminSidebar from "../../components/admin/AdminSidebar.astro";
+import AdminLayout from "../../layouts/AdminLayout.astro";
 import CouponManager from "../../components/admin/CouponManager.jsx";
-import Navbar from "../../components/Navbar.astro";
-import Footer from "../../components/Footer.astro";
-
-// Protected Page check can be added here or in middleware
 ---
 
-<Layout title="Coupon Management | Admin">
-    <Navbar />
-    <main class="min-h-screen bg-[#030305] text-white pt-20">
-        <div class="flex">
-            <AdminSidebar active="coupons" />
-
-            <div class="flex-1 p-8">
-                <div class="max-w-7xl mx-auto">
-                    <CouponManager client:load />
-                </div>
-            </div>
+<AdminLayout title="Coupon Management">
+    <div class="space-y-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-3xl font-black text-white uppercase tracking-wider">
+                Discount Coupons
+            </h1>
         </div>
-    </main>
-    <Footer />
-</Layout>
 
-<style is:global>
-    /* Admin specific scrollbar */
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #030305;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #1a1a1c;
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #d4af37;
-    }
-</style>
+        <CouponManager client:load />
+    </div>
+</AdminLayout>

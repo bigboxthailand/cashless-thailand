@@ -1,9 +1,9 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 
 // 1. Fetch Orders
-const { data: orders } = await supabase
+const { data: orders } = await supabaseAdmin
     .from("orders")
     .select("*, order_items(*)")
     .order("created_at", { ascending: false });
@@ -22,6 +22,7 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
             </h1>
             <div class="flex gap-2">
                 <button
+                    id="export-csv"
                     class="px-4 py-2 bg-white/5 rounded text-sm text-white hover:bg-white/10"
                     >Export CSV</button
                 >
@@ -280,6 +281,12 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                                             >
                                                 VIEW
                                             </button>
+                                            <a
+                                                href={`/admin/invoice/${order.id}`}
+                                                class="bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/30 text-[10px] px-3 py-1.5 rounded font-bold transition-all uppercase tracking-wider"
+                                            >
+                                                Invoice
+                                            </a>
 
                                             {order.payment_status ===
                                                 "pending" && (
@@ -574,53 +581,75 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <h3
-                    class="text-xl font-bold text-white mb-6 flex items-center gap-3"
-                >
-                    <span class="w-2 h-2 bg-[#D4AF37] rounded-full"></span>
-                    Ordered Items
-                </h3>
-                <div
-                    class="bg-[#0A0A0A] rounded-xl overflow-hidden border border-white/10"
-                >
-                    <table class="w-full text-left">
-                        <thead
-                            class="bg-white/5 text-white/50 text-xs font-bold uppercase tracking-wider"
-                        >
-                            <tr>
-                                <th class="p-4">Product</th>
-                                <th class="p-4 text-center">Qty</th>
-                                <th class="p-4 text-right">Price</th>
-                                <th class="p-4 text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody
-                            class="divide-y divide-white/5 text-sm"
-                            id="modal-items-list"
-                        >
-                        </tbody>
-                    </table>
+                <div>
+                    <h3
+                        class="text-xl font-bold text-white mb-6 flex items-center gap-3"
+                    >
+                        <span class="w-2 h-2 bg-[#D4AF37] rounded-full"></span>
+                        Ordered Items
+                    </h3>
+                    <div
+                        class="bg-[#0A0A0A] rounded-xl overflow-hidden border border-white/10"
+                    >
+                        <table class="w-full text-left">
+                            <thead
+                                class="bg-white/5 text-white/50 text-xs font-bold uppercase tracking-wider"
+                            >
+                                <tr>
+                                    <th class="p-4">Product</th>
+                                    <th class="p-4 text-center">Qty</th>
+                                    <th class="p-4 text-right">Price</th>
+                                    <th class="p-4 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody
+                                class="divide-y divide-white/5 text-sm"
+                                id="modal-items-list"
+                            >
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div
-            class="p-6 border-t border-white/10 bg-[#1A1A1A] flex justify-end gap-4"
-        >
-            <button
-                class="px-6 py-2 rounded-lg font-bold text-white/70 hover:text-white transition-colors"
-                onclick="document.getElementById('order-modal').classList.add('hidden')"
-                >Close</button
+            <div
+                class="p-6 border-t border-white/10 bg-[#1A1A1A] flex justify-end gap-4"
             >
-            <button
-                id="modal-action-btn"
-                class="px-6 py-2 rounded-lg font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
-            >
-                Mark as Paid
-            </button>
+                <button
+                    class="px-6 py-2 rounded-lg font-bold text-white/70 hover:text-white transition-colors"
+                    onclick="document.getElementById('order-modal').classList.add('hidden')"
+                    >Close</button
+                >
+                <a
+                    id="modal-invoice-link"
+                    href="#"
+                    class="px-6 py-2 rounded-lg font-bold bg-white/10 text-white hover:bg-white/20 transition-colors border border-white/10 flex items-center gap-2"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path
+                            d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                        ></path><polyline points="14 2 14 8 20 8"
+                        ></polyline></svg
+                    >
+                    Open Invoice
+                </a>
+                <button
+                    id="modal-action-btn"
+                    class="px-6 py-2 rounded-lg font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
+                >
+                    Mark as Paid
+                </button>
+            </div>
         </div>
     </div>
 </AdminLayout>
@@ -647,6 +676,10 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
             document.getElementById("modal-order-date").innerText = new Date(
                 order.created_at,
             ).toLocaleString("th-TH");
+
+            // Set Invoice Link
+            document.getElementById("modal-invoice-link").href =
+                `/admin/invoice/${order.id}`;
 
             // Populate Customer
             document.getElementById("modal-customer-name").innerText =
@@ -775,7 +808,7 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                 proofDiv.innerHTML = `
                     <div class="text-center p-4">
                         <div class="flex items-center justify-center gap-2 mb-2">
-                             <img src="https://getalby.com/assets/alby-logo-figure.svg" class="w-6 h-6" alt="Alby" />
+                             <img src="/images/alby-logo.png" class="w-6 h-6 rounded-md brightness-0" alt="Alby" />
                              <span class="text-[#F7931A] font-bold text-xs uppercase tracking-widest">Lightning Proof (Preimage)</span>
                         </div>
                         <p class="text-green-400 font-mono text-[10px] break-all mb-4 bg-black/50 p-3 rounded-lg border border-white/5 select-all">${order.lightning_preimage}</p>
@@ -891,6 +924,22 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                 localOrder.payment_status = newStatus;
                 if (newStatus === "shipped")
                     localOrder.shipping_status = "shipped";
+            }
+
+            // [NEW] Trigger Email Invoice on Paid
+            if (newStatus === "paid") {
+                fetch("/api/send-invoice", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ orderId }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        console.log("Invoice email trigger:", data);
+                    })
+                    .catch((err) =>
+                        console.error("Email trigger failed:", err),
+                    );
             }
         }
 
@@ -1079,6 +1128,57 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
 
             filterOrders(activeFilter, searchText, dateStart, dateEnd);
         }
+
+        // [New] Export CSV Logic
+        const exportBtn = document.getElementById("export-csv");
+        exportBtn?.addEventListener("click", () => {
+            const rows = Array.from(
+                document.querySelectorAll("#orders-table-body tr:not(.hidden)"),
+            );
+            if (rows.length === 0) {
+                alert("No data to export");
+                return;
+            }
+
+            let csvContent =
+                "Date,Order ID,Invoice No,Receipt No,Customer,Payment,Status,Total (THB)\n";
+
+            rows.forEach((row) => {
+                const orderId = row.dataset.orderId;
+                const order = window.allOrders.find((o) => o.id === orderId);
+                if (!order) return;
+
+                const date = new Date(order.created_at).toLocaleDateString(
+                    "th-TH",
+                );
+                const customer = `"${order.customer_name || "Guest"}"`;
+                const line = [
+                    date,
+                    order.id,
+                    order.invoice_no || "",
+                    order.receipt_no || "",
+                    customer,
+                    order.payment_method,
+                    order.payment_status,
+                    order.total_price,
+                ].join(",");
+                csvContent += line + "\n";
+            });
+
+            const blob = new Blob(["\ufeff" + csvContent], {
+                type: "text/csv;charset=utf-8;",
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute(
+                "download",
+                `CashlessThailand_Report_${new Date().toISOString().slice(0, 10)}.csv`,
+            );
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
 
         function filterOrders(status, searchText, dateStart, dateEnd) {
             const normalizedSearch = searchText

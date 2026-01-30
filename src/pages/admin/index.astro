@@ -1,21 +1,23 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 import DashboardCharts from "../../components/admin/DashboardCharts";
 import StatsPieChart from "../../components/admin/StatsPieChart";
 import ThailandOrdersMap from "../../components/admin/ThailandOrdersMap";
 import RealtimeOrderNotify from "../../components/admin/RealtimeOrderNotify";
 
 // Server-side Data Fetching
-const [{ data: orders }, { data: shops }] = await Promise.all([
-    supabase
-        .from("orders")
-        .select(
-            "total_price, total_sats, payment_status, shipping_status, created_at, payment_method, sex, age, province, buy_duration, shop_id",
-        )
-        .order("created_at", { ascending: false }),
-    supabase.from("shops").select("id, name"),
-]);
+const [{ data: orders }, { data: shops }, { data: settings }] =
+    await Promise.all([
+        supabaseAdmin
+            .from("orders")
+            .select(
+                "total_price, total_sats, payment_status, shipping_status, created_at, payment_method, sex, age, province, buy_duration, shop_id, order_items(title)",
+            )
+            .order("created_at", { ascending: false }),
+        supabaseAdmin.from("shops").select("id, name"),
+        supabaseAdmin.from("store_settings").select("*").eq("id", 1).single(),
+    ]);
 
 // KPI Calculation
 const totalRevenueTHB =
@@ -31,6 +33,11 @@ const pendingOrders =
 const disputesCount =
     orders?.filter((o) => o.shipping_status === "dispute").length || 0;
 const totalOrders = orders?.length || 0;
+
+// Tax Logic
+const vatEnabled = settings?.vat_enabled || false;
+const vatRate = (Number(settings?.vat_rate) || 7) / 100;
+const totalTaxEstimate = totalRevenueTHB - totalRevenueTHB / (1 + vatRate);
 
 // Format Currency
 const thbFormatter = new Intl.NumberFormat("th-TH", {
@@ -158,6 +165,25 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                 </h3>
                 <p class="text-4xl font-black text-white">{totalOrders}</p>
             </a>
+
+            <!-- TAX SUMMARY CARD -->
+            {
+                vatEnabled && (
+                    <div class="bg-[#0A0A0A] border border-[#1e8565]/20 p-6 rounded-xl group hover:bg-[#1e8565]/5 transition-all">
+                        <h3 class="text-[#1e8565] text-xs font-bold uppercase tracking-widest mb-4">
+                            Tax Summary ({(vatRate * 100).toFixed(0)}% VAT)
+                        </h3>
+                        <div class="space-y-1">
+                            <p class="text-3xl font-black text-white">
+                                {thbFormatter.format(totalTaxEstimate)}
+                            </p>
+                            <p class="text-[10px] text-white/30 font-bold uppercase tracking-widest">
+                                Estimated Tax Revenue
+                            </p>
+                        </div>
+                    </div>
+                )
+            }
         </div>
 
         <!-- REVENUE CHART -->

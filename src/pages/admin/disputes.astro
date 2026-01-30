@@ -1,9 +1,9 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 
-// Fetch Disputes
-const { data: disputes, error } = await supabase
+// Fetch Disputes using Admin client to bypass RLS
+const { data: disputes, error } = await supabaseAdmin
     .from("disputes")
     .select(
         `
@@ -26,6 +26,14 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
             Dispute Cases
         </h1>
 
+        {
+            error && (
+                <div class="bg-red-500/10 border border-red-500/50 p-4 rounded-xl text-red-500 mb-6 font-bold">
+                    Database Error: {error.message}
+                </div>
+            )
+        }
+
         <div class="grid gap-6">
             {
                 disputes?.map((dispute) => (
@@ -33,17 +41,22 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                         <div class="flex justify-between items-start mb-6 border-b border-white/5 pb-4">
                             <div>
                                 <div class="flex items-center gap-3">
-                                    <span
-                                        class={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                                            dispute.status === "open"
-                                                ? "bg-red-500 text-black"
-                                                : "bg-green-500/10 text-green-500"
-                                        }`}
-                                    >
-                                        {dispute.status}
-                                    </span>
+                                    {dispute.status === "open" ? (
+                                        <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-red-500 text-black animate-pulse">
+                                            OPEN · รอดำเนินการ
+                                        </span>
+                                    ) : dispute.status === "resolved_refund" ? (
+                                        <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                                            RESOLVED · คืนเงินเรียบร้อย
+                                        </span>
+                                    ) : (
+                                        <span class="px-2 py-1 rounded text-[10px] font-black uppercase bg-green-500/20 text-green-400 border border-green-500/30">
+                                            RESOLVED · ปิดเคส
+                                            (ยืนยันการรับสินค้า)
+                                        </span>
+                                    )}
                                     <span class="text-white/40 text-xs font-mono">
-                                        ID: {dispute.id}
+                                        ID: {dispute.id.slice(0, 8)}...
                                     </span>
                                 </div>
                                 <h2 class="text-xl font-bold text-white mt-2">
@@ -61,7 +74,10 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                                         dispute.order.total_price,
                                     )}
                                 </p>
-                                <p class="text-white/30 text-xs">
+                                <p class="text-white/30 text-[10px] uppercase font-bold mt-1">
+                                    Reporting Date
+                                </p>
+                                <p class="text-white/60 text-xs">
                                     {new Date(
                                         dispute.created_at,
                                     ).toLocaleString()}
@@ -71,99 +87,172 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
 
                         <div class="grid md:grid-cols-2 gap-6">
                             <div class="space-y-4">
-                                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
-                                    <h3 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-2">
-                                        Claim Details
+                                <div class="bg-black/40 p-5 rounded-2xl border border-white/5 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 p-2 opacity-10">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="w-12 h-12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                        Claim Reason:{" "}
+                                        {dispute.reason.replace("_", " ")}
                                     </h3>
-                                    <p class="text-white font-bold mb-1">
-                                        Reason:{" "}
-                                        <span class="text-red-400 capitalize">
-                                            {dispute.reason.replace("_", " ")}
-                                        </span>
-                                    </p>
-                                    <p class="text-white/80 text-sm whitespace-pre-wrap">
+                                    <p class="text-white/90 text-sm leading-relaxed whitespace-pre-wrap italic">
                                         "{dispute.description}"
                                     </p>
                                 </div>
 
-                                {/* Evidence Images Placeholder - Can Iterate JSONB here */}
                                 {dispute.evidence_images &&
                                     dispute.evidence_images.length > 0 && (
-                                        <div class="flex gap-2">
-                                            {dispute.evidence_images.map(
-                                                (img: any) => (
-                                                    <a
-                                                        href={img}
-                                                        target="_blank"
-                                                    >
-                                                        <img
-                                                            src={img}
-                                                            class="w-16 h-16 rounded border border-white/20 object-cover"
-                                                        />
-                                                    </a>
-                                                ),
-                                            )}
+                                        <div class="space-y-2">
+                                            <h4 class="text-[10px] font-bold text-white/30 uppercase tracking-widest pl-1">
+                                                Evidence Images
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                {dispute.evidence_images.map(
+                                                    (img: any) => (
+                                                        <a
+                                                            href={img}
+                                                            target="_blank"
+                                                            class="group relative"
+                                                        >
+                                                            <img
+                                                                src={img}
+                                                                class="w-20 h-20 rounded-xl border border-white/10 object-cover group-hover:border-[#D4AF37] transition-all"
+                                                            />
+                                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 rounded-xl flex items-center justify-center transition-opacity">
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    class="w-5 h-5 text-white"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="2"
+                                                                >
+                                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                                    <circle
+                                                                        cx="12"
+                                                                        cy="12"
+                                                                        r="3"
+                                                                    />
+                                                                </svg>
+                                                            </div>
+                                                        </a>
+                                                    ),
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                             </div>
 
                             <div class="space-y-4">
-                                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
-                                    <h3 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-2">
-                                        Ordered Items
+                                <div class="bg-black/40 p-5 rounded-2xl border border-white/5 h-full flex flex-col">
+                                    <h3 class="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-3">
+                                        Order Contents
                                     </h3>
-                                    <ul class="space-y-2">
+                                    <div class="flex-1 space-y-2">
                                         {dispute.order.order_items.map(
                                             (item: any) => (
-                                                <li class="flex justify-between text-sm text-white/70 border-b border-white/5 pb-1 last:border-0">
-                                                    <span>
-                                                        {item.title} (x
-                                                        {item.quantity})
-                                                    </span>
-                                                    <span>
+                                                <div class="flex justify-between items-center text-sm bg-white/5 p-2 rounded-lg border border-white/5">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="w-6 h-6 rounded bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center text-[10px] font-bold">
+                                                            x{item.quantity}
+                                                        </span>
+                                                        <span class="text-white font-medium">
+                                                            {item.title}
+                                                        </span>
+                                                    </div>
+                                                    <span class="text-white/60">
                                                         {thbFormatter.format(
                                                             item.price,
                                                         )}
                                                     </span>
-                                                </li>
+                                                </div>
                                             ),
                                         )}
-                                    </ul>
-                                </div>
-
-                                {dispute.status === "open" && (
-                                    <div
-                                        class="flex gap-3 justify-end pt-4"
-                                        id={`actions-${dispute.id}`}
-                                    >
-                                        <button
-                                            onclick={`resolveDispute('${dispute.id}', '${dispute.order.id}', 'refund')`}
-                                            class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-4 py-2 rounded-lg font-bold border border-red-600/50 transition-all text-sm"
-                                        >
-                                            Refund Order
-                                        </button>
-                                        <button
-                                            onclick={`resolveDispute('${dispute.id}', '${dispute.order.id}', 'close')`}
-                                            class="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white px-4 py-2 rounded-lg font-bold border border-green-600/50 transition-all text-sm"
-                                        >
-                                            Reject & Complete
-                                        </button>
                                     </div>
-                                )}
+
+                                    {dispute.status === "open" ? (
+                                        <div class="flex flex-col gap-3 pt-6 border-t border-white/5 mt-4">
+                                            <div class="flex gap-3">
+                                                <button
+                                                    onclick={`resolveDispute('${dispute.id}', '${dispute.order.id}', 'refund')`}
+                                                    class="flex-1 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white py-3 rounded-xl font-black border border-red-600/30 transition-all text-[11px] uppercase tracking-wider"
+                                                >
+                                                    Full Refund
+                                                </button>
+                                                <button
+                                                    onclick={`resolveDispute('${dispute.id}', '${dispute.order.id}', 'close')`}
+                                                    class="flex-1 bg-green-600/10 hover:bg-green-600 text-green-500 hover:text-white py-3 rounded-xl font-black border border-green-600/30 transition-all text-[11px] uppercase tracking-wider"
+                                                >
+                                                    Reject & Settle
+                                                </button>
+                                            </div>
+                                            <p class="text-[9px] text-white/30 text-center uppercase font-bold tracking-tighter">
+                                                * Final decision will update
+                                                order status automatically
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div class="pt-6 border-t border-white/5 mt-4">
+                                            <div
+                                                class={`p-4 rounded-xl border flex items-center gap-3 ${
+                                                    dispute.status ===
+                                                    "resolved_refund"
+                                                        ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
+                                                        : "bg-green-500/10 border-green-500/30 text-green-400"
+                                                }`}
+                                            >
+                                                <div class="w-8 h-8 rounded-full bg-current opacity-20 flex items-center justify-center shrink-0">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        class="w-5 h-5 text-current"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="3"
+                                                    >
+                                                        <polyline points="20 6 9 17 4 12" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-black uppercase tracking-widest">
+                                                        Case Resolved
+                                                    </p>
+                                                    <p class="text-[10px] opacity-70">
+                                                        {dispute.status ===
+                                                        "resolved_refund"
+                                                            ? "Action: Customer has been refunded full amount."
+                                                            : "Action: Dispute rejected. Order marked as completed."}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 ))
             }
-
-            {
-                disputes?.length === 0 && (
-                    <div class="text-center py-20 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                        <p class="text-white/30">No active disputes.</p>
-                    </div>
-                )
-            }
         </div>
+        )) }
+
+        {
+            disputes?.length === 0 && (
+                <div class="text-center py-20 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                    <p class="text-white/30">No active disputes.</p>
+                </div>
+            )
+        }
     </div>
 </AdminLayout>
 
@@ -183,16 +272,29 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
     window.resolveDispute = async (disputeId, orderId, action) => {
         if (!confirm(`Confirm action: ${action.toUpperCase()}?`)) return;
 
+        console.log(
+            `Resolving dispute ${disputeId} for order ${orderId} with action ${action}`,
+        );
+
         try {
             // 1. Update Dispute Status
             const status =
                 action === "refund" ? "resolved_refund" : "resolved_close";
+
             const { error: dError } = await supabase
                 .from("disputes")
-                .update({ status: status })
+                .update({
+                    status: status,
+                    updated_at: new Date().toISOString(),
+                })
                 .eq("id", disputeId);
 
-            if (dError) throw dError;
+            if (dError) {
+                console.error("Dispute update error:", dError);
+                throw new Error(
+                    "Failed to update dispute status: " + dError.message,
+                );
+            }
 
             // 2. Update Order Status
             const orderStatus =
@@ -203,7 +305,7 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                       }
                     : {
                           shipping_status: "delivered",
-                          payment_status: "shipped",
+                          payment_status: "paid",
                       };
 
             const { error: oError } = await supabase
@@ -211,11 +313,18 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                 .update(orderStatus)
                 .eq("id", orderId);
 
-            if (oError) throw oError;
+            if (oError) {
+                console.error("Order update error:", oError);
+                throw new Error(
+                    "Failed to update order status: " + oError.message,
+                );
+            }
 
+            console.log("Resolution successful, reloading...");
             alert("Resolved successfully!");
             location.reload();
         } catch (err: any) {
+            console.error("Resolution caught error:", err);
             alert("Error: " + err.message);
         }
     };

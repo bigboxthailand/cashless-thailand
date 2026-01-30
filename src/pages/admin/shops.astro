@@ -1,9 +1,9 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 
 // Fetch Shops
-const { data: shops, error: shopsError } = await supabase
+const { data: shops, error: shopsError } = await supabaseAdmin
     .from("shops")
     .select("*, profile:profiles(email, full_name)")
     .order("created_at", { ascending: false });
@@ -188,14 +188,92 @@ const suspendedShops = shops?.filter((s) => s.status === "suspended") || [];
             </div>
         </section>
 
-        {/* Suspended Shops (Collapsible or Bottom) */}
+        {/* Suspended Shops */}
         {
             suspendedShops.length > 0 && (
-                <section class="opacity-70 grayscale hover:grayscale-0 transition-all">
-                    <h2 class="text-xl font-bold text-red-500 mb-4">
-                        Suspended ({suspendedShops.length})
+                <section class="bg-[#0A0A0A] border border-red-500/20 rounded-xl p-6 opacity-80 hover:opacity-100 transition-opacity">
+                    <h2 class="text-xl font-bold text-red-500 mb-6 flex items-center gap-2">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <>
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </>
+                        </svg>
+                        Suspended Shops ({suspendedShops.length})
                     </h2>
-                    {/* List suspended... similar to active but with "Restore" button */}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-white/40 text-xs uppercase tracking-wider border-b border-white/10">
+                                    <th class="p-4">Shop</th>
+                                    <th class="p-4">Owner</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-white/5">
+                                {suspendedShops.map((shop) => (
+                                    <tr class="hover:bg-white/5 transition-colors">
+                                        <td class="p-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 overflow-hidden">
+                                                    {shop.logo_url ? (
+                                                        <img
+                                                            src={shop.logo_url}
+                                                            class="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <span class="text-red-500 text-xs font-bold">
+                                                            {shop.name[0]}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span class="text-white/70 font-bold">
+                                                    {shop.name}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-white/50 text-sm">
+                                            {shop.profile?.email}
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="text-red-400 text-[10px] font-black uppercase px-2 py-0.5 bg-red-400/10 border border-red-400/20 rounded">
+                                                Banned
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-right">
+                                            <div class="flex items-center gap-3 justify-end">
+                                                <button
+                                                    data-id={shop.id}
+                                                    data-action="restore"
+                                                    class="action-btn text-green-500 text-xs hover:underline font-bold"
+                                                >
+                                                    Restore Shop
+                                                </button>
+                                                <span class="text-white/10">
+                                                    |
+                                                </span>
+                                                <button
+                                                    data-id={shop.id}
+                                                    data-action="delete"
+                                                    class="action-btn text-red-500 text-xs hover:underline font-bold"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
             )
         }

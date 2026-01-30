@@ -64,16 +64,29 @@ const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
                     return;
                 }
 
-                // Security: Restrict Admin Access
+                // Security: Fetch Role from Profile
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("role, email")
+                    .eq("id", session.user.id)
+                    .single();
+
                 const allowedAdmins = ["mycryptoclock@gmail.com"];
                 const userEmail = session.user.email || "";
-                if (!allowedAdmins.includes(userEmail)) {
+
+                if (
+                    profile?.role !== "admin" &&
+                    !allowedAdmins.includes(userEmail)
+                ) {
                     alert("Access Denied: You are not an admin.");
                     window.location.href = "/"; // Redirect normal users to home
                 }
             };
-            // Temporarily commented out to allow testing without login during dev
+
             checkAuth();
+
+            // Re-check on navigation (for ViewTransitions)
+            document.addEventListener("astro:page-load", checkAuth);
         </script>
 
         <style>

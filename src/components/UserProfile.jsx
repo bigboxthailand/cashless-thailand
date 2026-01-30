@@ -11,8 +11,10 @@ export default function UserProfile() {
     const [profile, setProfile] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'info' | 'addresses' | 'history'
+    const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'info' | 'addresses' | 'history' | 'affiliate'
     const [editingAddress, setEditingAddress] = useState(null);
+    const [referrals, setReferrals] = useState([]);
+    const [affiliateStats, setAffiliateStats] = useState({ count: 0, totalSales: 0, totalCommission: 0 });
 
     // Dispute State
     const [showDisputeModal, setShowDisputeModal] = useState(false);
@@ -31,6 +33,7 @@ export default function UserProfile() {
 
     // Stats
     const [orderHistory, setOrderHistory] = useState([]);
+    const [requestingWithdrawal, setRequestingWithdrawal] = useState(false);
 
     // Review System State
     const [showReviewModal, setShowReviewModal] = useState(false);
@@ -43,6 +46,37 @@ export default function UserProfile() {
         fetchAddresses();
         fetchOrders();
     }, []);
+
+    const fetchAffiliateData = async (userId) => {
+        if (!userId) return;
+        try {
+            const { data: refData } = await supabase
+                .from('affiliate_referrals')
+                .select(`
+                    *,
+                    orders:referred_order_id (
+                        customer_name,
+                        total_price,
+                        created_at
+                    )
+                `)
+                .eq('referrer_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (refData) {
+                setReferrals(refData);
+                const stats = refData.reduce((acc, curr) => {
+                    acc.count += 1;
+                    acc.totalSales += Number(curr.orders?.total_price || 0);
+                    acc.totalCommission += Number(curr.commission_amount || 0);
+                    return acc;
+                }, { count: 0, totalSales: 0, totalCommission: 0 });
+                setAffiliateStats(stats);
+            }
+        } catch (err) {
+            console.error('Error fetching affiliate data:', err);
+        }
+    };
 
     const fetchProfile = async () => {
         try {
@@ -80,12 +114,14 @@ export default function UserProfile() {
                     ...data,
                     first_name: data.full_name?.split(' ')[0] || '',
                     last_name: data.full_name?.split(' ').slice(1).join(' ') || '',
-                    email: data.email || (wallet ? wallet.substring(0, 6) + '...' + wallet.substring(38) : '')
+                    email: data.email || (wallet ? wallet.substring(0, 6) + '...' + wallet.substring(38) : ''),
+                    email_verified: !!user?.email_confirmed_at
                 };
                 setProfile(p);
                 // Fetch related data after profile is set
                 fetchAddresses(userId);
                 fetchOrders(userId);
+                fetchAffiliateData(userId);
             }
 
         } catch (error) {
@@ -113,7 +149,44 @@ export default function UserProfile() {
         setAddresses(formatted);
     };
 
-    const fetchOrders = async (userId) => {
+    const requestWithdrawal = async () => {
+        const lastRequest = localStorage.getItem(`last_withdrawal_${profile.id}`);
+        const now = Date.now();
+        if (lastRequest && now - parseInt(lastRequest) < 24 * 60 * 60 * 1000) {
+            const hoursLeft = Math.ceil((24 * 60 * 60 * 1000 - (now - parseInt(lastRequest))) / (1000 * 60 * 60));
+            alert(`คุณเพิ่งกดถอนเงินไป กรุณารออีกประมาณ ${hoursLeft} ชั่วโมง จึงจะกดได้ใหม่อีกครั้งครับ`);
+            return;
+        }
+
+        const approvedComm = referrals
+            .filter(r => r.status === 'approved')
+            .reduce((sum, r) => sum + Number(r.commission_amount), 0);
+
+        if (approvedComm <= 0) {
+            alert('คุณยังไม่มียอดเงินที่สามารถถอนได้ (ยอดเงินสะสมต้องได้รับการ Approved จากแอดมินก่อนครับ)');
+            return;
+        }
+
+        if (!confirm(`ยืนยันการขอถอนเงินจำนวน ${approvedComm.toLocaleString()} ฿ ใช่หรือไม่?`)) return;
+
+        setRequestingWithdrawal(true);
+        try {
+            // Send to Telegram Admin
+            const msg = encodeURIComponent(`💰 *Withdrawal Request*\n\nUser: ${profile.first_name} ${profile.last_name}\nEmail: ${profile.email}\nAmount: ${approvedComm.toLocaleString()} THB\n\n_Please check admin dashboard to process payout._`);
+            window.open(`https://t.me/myCryptoClock?text=${msg}`, '_blank');
+
+            // Set cooldown
+            localStorage.setItem(`last_withdrawal_${profile.id}`, now.toString());
+            alert('ส่งคำขอถอนเงินเรียบร้อยแล้ว! ระบบกำลังพาไปส่งข้อความหาแอดมินทาง Telegram ครับ');
+        } catch (err) {
+            alert('เกิดข้อผิดพลาดในการส่งคำขอ');
+        } finally {
+            setRequestingWithdrawal(false);
+        }
+    };
+
+    const fetchOrders = async (userIdOverride) => {
+        const userId = userIdOverride || profile?.id;
         if (!userId) return;
 
         try {
@@ -174,8 +247,10 @@ export default function UserProfile() {
         if (error) {
             alert('Error: ' + error.message);
         } else {
-            await fetchOrders();
-            alert('ขอบคุณ! เลิอกสินค้าเพื่อรีวิวได้เลย');
+            // Success - refresh both orders AND profile (to catch any point/tier updates)
+            await fetchOrders(profile.id);
+            await fetchProfile();
+            alert('ขอบคุณ! เลือกสินค้าเพื่อรีวิวได้เลย');
         }
     };
 
@@ -220,7 +295,44 @@ export default function UserProfile() {
         setDisputeTarget({ orderId });
         setDisputeReason('not_received');
         setDisputeDescription('');
+        setDisputeImages([]);
         setShowDisputeModal(true);
+    };
+
+    const handleDisputeFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Size check: 2MB per user request
+        if (file.size > 2 * 1024 * 1024) {
+            alert('รูปภาพขนาดใหญ่เกินไป (จำกัดไม่เกิน 2MB ต่อรูปครับ)');
+            return;
+        }
+
+        if (disputeImages.length >= 3) {
+            alert('แนบรูปได้สูงสุด 3 รูปครับ');
+            return;
+        }
+
+        setUploadingDispute(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `dispute_${Date.now()}.${fileExt}`;
+            const filePath = `${profile.id}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('chat-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage.from('chat-images').getPublicUrl(filePath);
+            setDisputeImages(prev => [...prev, data.publicUrl]);
+        } catch (error) {
+            alert('เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+        } finally {
+            setUploadingDispute(false);
+        }
     };
 
     const submitDispute = async (e) => {
@@ -449,6 +561,56 @@ export default function UserProfile() {
         </button>
     );
 
+    const getTierStyle = (tier) => {
+        const styles = {
+            bronze: {
+                bg: 'bg-gradient-to-br from-[#CD7F32] to-[#8B4513]',
+                text: 'text-white',
+                label: 'text-white/60',
+                btn: 'bg-white/10 text-white',
+                icon: '🦌'
+            },
+            silver: {
+                bg: 'bg-gradient-to-br from-[#C0C0C0] to-[#707070]',
+                text: 'text-slate-900',
+                label: 'text-slate-900/60',
+                btn: 'bg-black/10 text-black',
+                icon: '🐺'
+            },
+            gold: {
+                bg: 'bg-gradient-to-br from-[#D4AF37] to-[#8a7020]',
+                text: 'text-black',
+                label: 'text-black/60',
+                btn: 'bg-black/10 text-black',
+                icon: '🔥'
+            },
+            platinum: {
+                bg: 'bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 animate-gradient-x',
+                text: 'text-white font-black',
+                label: 'text-white/80',
+                btn: 'bg-white/20 text-white',
+                icon: '🦄'
+            },
+            rare_earth: {
+                bg: 'bg-gradient-to-br from-black via-[#0a1a05] to-black border border-[#39FF14]/30',
+                text: 'text-[#39FF14] font-black drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]',
+                label: 'text-[#39FF14]/60',
+                btn: 'bg-[#39FF14]/20 text-[#39FF14]',
+                icon: '🐲'
+            },
+            bitcoin: {
+                bg: 'bg-gradient-to-br from-[#F7931A] to-[#ffaa44]',
+                text: 'text-white font-black',
+                label: 'text-white/60',
+                btn: 'bg-black/20 text-white',
+                icon: '🦁'
+            }
+        };
+        return styles[tier?.toLowerCase()] || styles.bronze;
+    };
+
+    const currentTierStyle = getTierStyle(profile?.tier || 'bronze');
+
     return (
         <div className="grid lg:grid-cols-12 gap-8 items-start">
             {showAvatarModal && <AvatarModal />}
@@ -537,6 +699,45 @@ export default function UserProfile() {
                                 ></textarea>
                             </div>
 
+                            <div className="space-y-4">
+                                <label className="text-white/50 text-xs font-bold uppercase tracking-widest">Evidence Images (Max 3, less than 2MB each)</label>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    {disputeImages.map((img, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
+                                            <img src={img} className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setDisputeImages(prev => prev.filter((_, i) => i !== idx))}
+                                                className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {disputeImages.length < 3 && (
+                                        <label className={`aspect-square rounded-xl border-2 border-dashed border-white/20 hover:border-red-500/50 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-white/5 ${uploadingDispute ? 'animate-pulse pointer-events-none' : ''}`}>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleDisputeFileChange}
+                                                disabled={uploadingDispute}
+                                            />
+                                            {uploadingDispute ? (
+                                                <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                                            ) : (
+                                                <>
+                                                    <svg className="w-6 h-6 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                                                    <span className="text-[8px] text-white/20 mt-2 font-bold uppercase">Add Photo</span>
+                                                </>
+                                            )}
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="p-4 bg-red-500/10 rounded-xl border border-red-500/20">
                                 <p className="text-red-400 text-xs flex gap-2">
                                     <span className="font-bold">Note:</span>
@@ -575,7 +776,22 @@ export default function UserProfile() {
                             </div>
                         </div>
                         <h2 className="text-xl font-black text-white uppercase tracking-wider">{profile?.first_name || 'User'} {profile?.last_name}</h2>
-                        <p className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest mt-1">Verified Member</p>
+                        <div className="flex flex-col items-center gap-1 mt-1">
+                            {profile?.is_kyc_verified ? (
+                                <p className="text-[#39FF14] text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-1 bg-[#39FF14]/10 px-3 py-1 rounded-full border border-[#39FF14]/20 shadow-[0_0_15px_rgba(57,255,20,0.1)]">
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                                    Identity Verified (KYC)
+                                </p>
+                            ) : profile?.email_verified ? (
+                                <p className="text-[#D4AF37] text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-1 bg-[#D4AF37]/10 px-3 py-1 rounded-full border border-[#D4AF37]/20">
+                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>
+                                    Email Verified
+                                </p>
+                            ) : (
+                                <p className="text-white/30 text-[10px] font-bold uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">Member</p>
+                            )}
+                        </div>
+                        <p className="text-white/20 text-[8px] font-mono mt-2 break-all overflow-hidden">{profile?.id}</p>
                     </div>
 
                     <div className="space-y-2">
@@ -599,6 +815,11 @@ export default function UserProfile() {
                             label="Order History"
                             icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
                         />
+                        <TabButton
+                            id="affiliate"
+                            label="Affiliate & Loyalty"
+                            icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                        />
                     </div>
 
                     <div className="pt-6 mt-6 border-t border-white/10">
@@ -621,27 +842,58 @@ export default function UserProfile() {
                     <div className="animate-fade-in space-y-8">
                         {/* Stats Header */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-colors">
+                            <div
+                                onClick={() => setActiveTab('history')}
+                                className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-colors cursor-pointer"
+                            >
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <svg className="w-24 h-24 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                 </div>
                                 <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Total Orders</h3>
                                 <p className="text-4xl font-black text-white">{orderHistory.length}</p>
                             </div>
-                            <div className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-colors">
+                            <div
+                                onClick={() => setActiveTab('addresses')}
+                                className="bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-colors cursor-pointer"
+                            >
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <svg className="w-24 h-24 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
                                 </div>
                                 <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Saved Addresses</h3>
                                 <p className="text-4xl font-black text-white">{addresses.length}</p>
                             </div>
-                            <div className="bg-gradient-to-br from-[#D4AF37] to-[#8a7020] rounded-3xl p-6 relative overflow-hidden text-black shadow-[0_0_30px_rgba(212,175,55,0.2)]">
-                                <h3 className="text-black/60 text-xs font-bold uppercase tracking-widest mb-1">Member Status</h3>
-                                <p className="text-3xl font-black uppercase">Gold Tier</p>
-                                <div className="mt-4 bg-black/10 rounded-full h-1 w-full overflow-hidden">
-                                    <div className="bg-black w-3/4 h-full"></div>
+                            <div
+                                onClick={() => setActiveTab('affiliate')}
+                                className={`${currentTierStyle.bg} rounded-3xl p-6 relative overflow-hidden ${currentTierStyle.text} shadow-[0_0_30px_rgba(0,0,0,0.2)] cursor-pointer group transition-all duration-500`}
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform duration-500">
+                                    <span className="text-5xl">{currentTierStyle.icon}</span>
                                 </div>
-                                <p className="text-[10px] font-bold mt-2 opacity-60">Points: 1,250 / 2,000</p>
+                                <h3 className={`${currentTierStyle.label} text-xs font-bold uppercase tracking-widest mb-1`}>Member Status</h3>
+                                <p className="text-3xl font-black uppercase italic tracking-tighter">{profile?.tier?.replace('_', ' ') || 'Bronze'} Tier</p>
+                                <div className="mt-4 bg-black/10 rounded-full h-1 w-full overflow-hidden">
+                                    <div
+                                        className="bg-current h-full transition-all duration-1000 opacity-50"
+                                        style={{ width: `${Math.min((profile?.points || 0) / (profile?.tier === 'bitcoin' ? 2100000 : (profile?.tier === 'rare_earth' ? 2100000 : (profile?.tier === 'platinum' ? 500000 : (profile?.tier === 'gold' ? 210000 : (profile?.tier === 'silver' ? 50000 : 10000))))) * 100, 100)}%` }}
+                                    ></div>
+                                </div>
+                                <div className="flex justify-between items-end mt-2">
+                                    <p className="text-[10px] font-bold opacity-60 uppercase tracking-widest">
+                                        Points: {(profile?.points || 0).toLocaleString()} / {profile?.tier === 'bitcoin' ? '2.1M+' : (profile?.tier === 'rare_earth' ? '2,100,000' : (profile?.tier === 'platinum' ? '500,000' : (profile?.tier === 'gold' ? '210,000' : (profile?.tier === 'silver' ? '50,000' : '10,000'))))}
+                                    </p>
+                                    <p className="text-[10px] font-black opacity-40">
+                                        Value: ≈ {((profile?.points || 0) / 100).toLocaleString()} THB
+                                    </p>
+                                </div>
+
+                                {profile?.tier === 'bitcoin' && (
+                                    <button
+                                        onClick={() => window.open('https://t.me/myCryptoClock', '_blank')}
+                                        className={`mt-4 w-full ${currentTierStyle.btn} text-[10px] font-black uppercase py-2 rounded-xl transition-all border border-black/10 flex items-center justify-center gap-2`}
+                                    >
+                                        <span>⚡ Contact Bitcoin Concierge</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -936,6 +1188,15 @@ export default function UserProfile() {
                                                     }`}>
                                                     {order.shippingStatus === 'delivered' ? 'DELIVERED' : (order.status || 'Pending')}
                                                 </span>
+
+                                                <a
+                                                    href={`/invoice/${order.id}`}
+                                                    target="_blank"
+                                                    className="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-1.5"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                    Invoice
+                                                </a>
                                             </div>
                                         </div>
 
@@ -1054,7 +1315,159 @@ export default function UserProfile() {
                         )}
                     </div>
                 )}
+
+                {/* 4. AFFILIATE & LOYALTY VIEW */}
+                {activeTab === 'affiliate' && (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="bg-gradient-to-br from-[#111] to-[#050505] border border-[#D4AF37]/20 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:scale-110 transition-transform duration-1000">
+                                <svg className="w-48 h-48 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">Affiliate Program</h2>
+                                <p className="text-white/40 mb-8 max-w-lg">แชร์ลิงก์ของคุณและรับคอมมิชชั่น 5% จากทุกยอดคำสั่งซื้อที่เกิดขึ้นจริง</p>
+
+                                <div className="space-y-4">
+                                    <label className="block text-[10px] font-bold text-[#D4AF37] uppercase tracking-[0.2em]">Your Referral Link</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            readOnly
+                                            value={`${window.location.origin}/r/${profile?.id}`}
+                                            className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-mono outline-none"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(`${window.location.origin}/r/${profile?.id}`);
+                                                alert('Link copied to clipboard!');
+                                            }}
+                                            className="bg-[#D4AF37] text-black px-6 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="bg-[#111] border border-white/5 p-8 rounded-3xl relative overflow-hidden group">
+                                <div className={`${currentTierStyle.bg} w-1 h-full absolute left-0 top-0 opacity-30`}></div>
+                                <h3 className={`${currentTierStyle.text} text-[10px] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-3`}>
+                                    <span className="text-xl">{currentTierStyle.icon}</span>
+                                    Current Benefits ({profile?.tier?.replace('_', ' ') || 'Bronze'})
+                                </h3>
+                                <ul className="space-y-4">
+                                    <li className="flex items-center gap-3 text-white/80 text-sm">
+                                        <div className="w-5 h-5 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center text-[10px]">✓</div>
+                                        Standard Earning (1 THB = 1 Point)
+                                    </li>
+                                    {(profile?.tier === 'silver' || profile?.tier === 'gold' || profile?.tier === 'platinum' || profile?.tier === 'rare_earth' || profile?.tier === 'bitcoin') && (
+                                        <li className="flex items-center gap-3 text-[#D4AF37] text-sm font-bold">
+                                            <div className="w-5 h-5 bg-[#D4AF37]/20 rounded-full flex items-center justify-center text-[10px]">✨</div>
+                                            {profile?.tier === 'silver' ? '2%' : (profile?.tier === 'gold' ? '5%' : (profile?.tier === 'platinum' ? '7%' : (profile?.tier === 'rare_earth' ? '10%' : '21%')))} Cashback
+                                        </li>
+                                    )}
+                                    {(profile?.tier === 'gold' || profile?.tier === 'platinum' || profile?.tier === 'rare_earth' || profile?.tier === 'bitcoin') && (
+                                        <li className="flex items-center gap-3 text-[#D4AF37] text-sm font-bold">
+                                            <div className="w-5 h-5 bg-[#D4AF37]/20 rounded-full flex items-center justify-center text-[10px]">✨</div>
+                                            {profile?.tier === 'gold' ? '5%' : (profile?.tier === 'platinum' ? '10%' : (profile?.tier === 'rare_earth' ? '15%' : '21%'))} Direct Discount
+                                        </li>
+                                    )}
+                                    {(profile?.tier === 'rare_earth' || profile?.tier === 'bitcoin') && (
+                                        <li className="flex items-center gap-3 text-[#D4AF37] text-sm font-bold">
+                                            <div className="w-5 h-5 bg-[#D4AF37]/20 rounded-full flex items-center justify-center text-[10px]">✨</div>
+                                            Free Worldwide Shipping
+                                        </li>
+                                    )}
+                                    {profile?.tier === 'bitcoin' && (
+                                        <li className="flex items-center gap-3 text-[#F7931A] text-sm font-bold">
+                                            <div className="w-5 h-5 bg-[#F7931A]/20 rounded-full flex items-center justify-center text-[10px]">₿</div>
+                                            Personal Concierge (Satoshi Status)
+                                        </li>
+                                    )}
+                                </ul>
+                                <a href="/membership" target="_blank" className="mt-8 block text-center text-white/30 hover:text-[#D4AF37] text-[10px] font-bold uppercase tracking-widest transition-colors">View All Tiers Details →</a>
+                            </div>
+
+                            <div className="bg-[#111] border border-white/5 p-8 rounded-3xl flex flex-col justify-center text-center">
+                                <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">Total Referrals</h3>
+                                <p className="text-5xl font-black text-white mb-6">{affiliateStats.count}</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                        <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest mb-1">Total Sales</p>
+                                        <p className="text-lg font-black text-white">{affiliateStats.totalSales.toLocaleString()} ฿</p>
+                                    </div>
+                                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                                        <p className="text-[#D4AF37] text-[9px] font-bold uppercase tracking-widest mb-1">Commission</p>
+                                        <p className="text-lg font-black text-[#D4AF37]">{affiliateStats.totalCommission.toLocaleString()} ฿</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={requestWithdrawal}
+                                    disabled={requestingWithdrawal}
+                                    className={`mt-6 w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all
+                                        ${requestingWithdrawal ? 'bg-white/5 text-white/20' : 'bg-[#D4AF37] text-black hover:bg-white shadow-[0_10px_20px_rgba(212,175,55,0.2)]'}
+                                    `}
+                                >
+                                    {requestingWithdrawal ? 'Recording...' : '💰 Request Withdrawal'}
+                                </button>
+                                <p className="mt-3 text-[10px] text-white/30 italic">ถอนได้ทุกๆ 24 ชม. (เฉพาะยอด Approved)</p>
+                            </div>
+                        </div>
+
+                        {/* Referrals Table */}
+                        <div className="bg-[#111] border border-white/5 rounded-3xl overflow-hidden">
+                            <div className="p-8 border-b border-white/5">
+                                <h3 className="text-white text-sm font-black uppercase tracking-widest">Referral History</h3>
+                            </div>
+                            {referrals.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead>
+                                            <tr className="text-[10px] text-white/30 uppercase tracking-[0.2em] bg-white/2">
+                                                <th className="px-8 py-4 font-black">Customer</th>
+                                                <th className="px-8 py-4 font-black">Order Value</th>
+                                                <th className="px-8 py-4 font-black">Commission</th>
+                                                <th className="px-8 py-4 font-black">Date</th>
+                                                <th className="px-8 py-4 font-black">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {referrals.map((ref, idx) => (
+                                                <tr key={idx} className="hover:bg-white/2 transition-colors">
+                                                    <td className="px-8 py-6">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center text-[10px] text-white/40">{ref.orders?.customer_name?.charAt(0) || '?'}</div>
+                                                            <span className="text-white text-sm font-bold">{ref.orders?.customer_name || 'Guest'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-8 py-6 text-white text-sm">{Number(ref.orders?.total_price || 0).toLocaleString()} ฿</td>
+                                                    <td className="px-8 py-6 text-[#D4AF37] text-sm font-black">{Number(ref.commission_amount || 0).toLocaleString()} ฿</td>
+                                                    <td className="px-8 py-6 text-white/40 text-xs">{new Date(ref.created_at).toLocaleDateString('th-TH')}</td>
+                                                    <td className="px-8 py-6">
+                                                        <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${ref.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                                                            ref.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                                'bg-red-500/10 text-red-500'
+                                                            }`}>
+                                                            {ref.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="p-12 text-center">
+                                    <p className="text-white/20 italic text-sm">ยังไม่มีประวัติการแนะนำ</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
+        </div >
     );
 }

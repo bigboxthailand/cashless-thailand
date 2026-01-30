@@ -98,17 +98,33 @@ const StatsPieChart = ({ orders }) => {
                 break;
 
             case 'products':
-                // Top 5 Products (placeholder - enhance later with real data)
-                const productPlaceholder = {
-                    'BitNode Personal': Math.floor(orders.length * 0.3),
-                    'CryptoClock Pro': Math.floor(orders.length * 0.25),
-                    'Ledger Nano X': Math.floor(orders.length * 0.2),
-                    'Trezor Model T': Math.floor(orders.length * 0.15),
-                    'Others': Math.floor(orders.length * 0.1),
-                };
-                labels = Object.keys(productPlaceholder);
-                data = Object.values(productPlaceholder);
-                colors = ['#D4AF37', '#3B82F6', '#10B981', '#F59E0B', '#6B7280'];
+                // Real Product Aggregation from orders -> order_items
+                const productCounts = {};
+                orders.forEach(order => {
+                    if (order.order_items) {
+                        order.order_items.forEach(item => {
+                            const title = item.title || 'Unknown Product';
+                            productCounts[title] = (productCounts[title] || 0) + 1;
+                        });
+                    }
+                });
+
+                const sortedProducts = Object.entries(productCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 5); // Top 5
+
+                const topTotal = sortedProducts.reduce((sum, [, count]) => sum + count, 0);
+                const allTotalItems = Object.values(productCounts).reduce((a, b) => a + b, 0);
+
+                labels = sortedProducts.map(([title]) => title);
+                data = sortedProducts.map(([, count]) => count);
+
+                if (allTotalItems > topTotal) {
+                    labels.push('Others');
+                    data.push(allTotalItems - topTotal);
+                }
+
+                colors = ['#D4AF37', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#6B7280'];
                 break;
 
             default:

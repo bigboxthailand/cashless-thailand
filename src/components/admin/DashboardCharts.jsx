@@ -272,7 +272,7 @@ export default function DashboardCharts({ orders = [], shops = [] }) {
                             className="bg-black/40 text-white text-[10px] px-2 py-1.5 rounded border border-white/10 outline-none hover:border-[#D4AF37]"
                         >
                             <option value="all">All Years</option>
-                            {[2024, 2025, 2026].map(y => (
+                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
                                 <option key={y} value={y.toString()}>{y}</option>
                             ))}
                         </select>

@@ -1,0 +1,58 @@
+---
+// src/pages/r/[ref].astro
+const { ref } = Astro.params;
+
+// This page handles the referral logic on the client side
+// and then redirects the user to the home page or specific destination.
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Redirecting... | Cashless Thailand</title>
+        <style>
+            body {
+                background: #050505;
+                color: #d4af37;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                font-family: sans-serif;
+            }
+            .loader {
+                width: 30px;
+                height: 30px;
+                border: 3px solid #d4af3722;
+                border-top-color: #d4af37;
+                border-radius: 50%;
+                animate: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="loader"></div>
+
+        <script define:vars={{ ref }}>
+            // Save referral ID to localStorage for 30 days
+            if (ref) {
+                localStorage.setItem("affiliate_ref_id", ref);
+                localStorage.setItem(
+                    "affiliate_ref_expiry",
+                    (Date.now() + 30 * 24 * 60 * 60 * 1000).toString(),
+                );
+            }
+
+            // Redirect to homepage after a slight delay for smooth transition
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 500);
+        </script>
+    </body>
+</html>
