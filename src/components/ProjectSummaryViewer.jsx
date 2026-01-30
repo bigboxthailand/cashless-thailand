@@ -79,6 +79,7 @@ const ActionItem = ({ label, desc }) => (
 );
 
 
+
 const ImageBox = ({ src, caption }) => (
     <div className="mt-4 mb-6">
         <div className="rounded-lg overflow-hidden border border-white/10 shadow-lg">
@@ -124,7 +125,7 @@ export default function ProjectSummaryViewer() {
 
                     <ManualSection title="Checkout & Payment" icon={CreditCard}>
                         <SubSection title="Step 1: Shipping Info">
-                            <ImageBox src="/manual_images/visual_manual_checkout_page_1769793044397.webp" caption="หน้า Checkout กรอกที่อยู่และเลือกวิธีการชำระเงิน" />
+                            <ImageBox src="/manual_images/buyer_checkout_fixed_1769801782651.png" caption="หน้า Checkout: กรอกที่อยู่, เลือกวิธีชำระเงิน (PromptPay/Crypto), และอัปโหลดสลิป" />
                             <ActionItem label="Form Inputs" desc="กรอกชื่อ, ที่อยู่, เบอร์โทรศัพท์ และอีเมลให้ครบถ้วน" />
                         </SubSection>
                         <SubSection title="Step 2: Payment Methods">
@@ -169,12 +170,13 @@ export default function ProjectSummaryViewer() {
 
                     <ManualSection title="Core Operations (หลัก)" icon={BarChart} defaultOpen={true}>
                         <SubSection title="3.1 Dashboard">
-                            <ImageBox src="/manual_images/admin_dashboard_top_1769799740196.png" caption="Admin Dashboard (ส่วนบน): KPI Card แสดงยอดขายรวม, Pending Orders, และ Disputes" />
-                            <ImageBox src="/manual_images/admin_dashboard_bottom_1769799742245.png" caption="Admin Dashboard (ส่วนล่าง): แผนที่ยอดขายรายจังหวัด และกราฟวงกลม Analytics" />
+                            <ImageBox src="/manual_images/admin_dashboard_top_1769799740196.png" caption="Admin Dashboard: KPI Cards และยอดขายรวม" />
+                            <ImageBox src="/manual_images/admin_dashboard_bottom_1769799742245.png" caption="Real-time Map & Analytics: แผนที่ยอดขายรายจังหวัดและกราฟวงกลม" />
                             <ActionItem label="KPI Cards" desc="ยอดขายรวม (THB/Sats), ออเดอร์รอตรวจสอบ, และข้อพิพาท (Disputes)" />
                             <ActionItem label="Real-time Map" desc="แผนที่ Heatmap แสดงจุดที่สินค้าถูกสั่งซื้อในประเทศไทย" />
                         </SubSection>
                         <SubSection title="3.2 Analytics">
+                            <ImageBox src="/manual_images/admin_analytics_1769800939740.png" caption="Analytics Dashboard: วิเคราะห์แนวโน้มยอดขายและข้อมูลประชากร" />
                             <ActionItem label="Top Products" desc="5 อันดับสินค้าขายดีที่สุด" />
                             <ActionItem label="Sales Graph" desc="กราฟยอดขายย้อนหลัง 30 วัน" />
                         </SubSection>
@@ -182,36 +184,51 @@ export default function ProjectSummaryViewer() {
 
                     <ManualSection title="Order & Inventory (สินค้า/ออเดอร์)" icon={Package}>
                         <SubSection title="3.3 Orders">
-                            <ImageBox src="/manual_images/admin_orders_top_1769799775735.png" caption="หน้าจัดการออเดอร์: รายการคำสั่งซื้อทั้งหมด พร้อมสถานะ (Pending, Paid, Shipped)" />
+                            <ImageBox src="/manual_images/admin_orders_top_1769799775735.png" caption="Order Management: รายการคำสั่งซื้อทั้งหมดและการตรวจสอบสถานะ" />
                             <ActionItem label="Verification" desc="ตรวจสอบสลิปโอนเงิน (PromptPay) และกดยืนยัน (Confirm Payment)" />
                         </SubSection>
                         <SubSection title="3.4 Products">
-                            <ImageBox src="/manual_images/admin_products_top_1769799816489.png" caption="หน้าจัดการสินค้า: รายการสินค้าทั้งหมดในระบบ (Inventory)" />
+                            <ImageBox src="/manual_images/admin_products_top_1769799816489.png" caption="Product Inventory: รายการสินค้าทั้งหมดในระบบพร้อมจำนวนสต็อก" />
                             <ActionItem label="Global Inventory" desc="ดูสินค้าทั้งหมดในระบบ และจำนวนสต็อกคงเหลือ" />
+                        </SubSection>
+                        <SubSection title="3.11 Disputes (ข้อพิพาท)">
+                            <ImageBox src="/manual_images/admin_disputes_1769801584992.png" caption="Dispute Resolution: จัดการข้อพิพาทและคำร้องขอคืนเงิน" />
+                            <ActionItem label="Resolve Case" desc="ตัดสินคืนเงิน (Refund) หรือ ปฏิเสธคำร้อง (Reject)" />
+                            <ActionItem label="Evidence" desc="ดูรูปภาพหลักฐานความเสียหายที่ลูกค้าส่งมา" />
                         </SubSection>
                     </ManualSection>
 
                     <ManualSection title="User Management (บุคคล)" icon={Users}>
                         <SubSection title="3.5 Shops">
+                            <ImageBox src="/manual_images/admin_shops_1769800958796.png" caption="Shop Moderation: ตรวจสอบและอนุมัติร้านค้าใหม่" />
                             <ActionItem label="Approve/Reject" desc="อนุมัติร้านค้าใหม่ที่สมัครเข้ามา" />
                             <ActionItem label="Suspend" desc="ระงับร้านค้าชั่วคราว หรือลบร้านค้าที่ทำผิดกฎ" />
                         </SubSection>
                         <SubSection title="3.6 Customers">
+                            <ImageBox src="/manual_images/admin_customers_part1_1769800979111.png" caption="Customer CRM: รายชื่อลูกค้าและระดับ Tier ของสมาชิก" />
                             <ActionItem label="CRM" desc="ดูประวัติการสั่งซื้อ, ยอด Spending สะสม (LTV), และ Tier ลูกค้า" />
                         </SubSection>
                         <SubSection title="3.10 Affiliates">
+                            <ImageBox src="/manual_images/admin_affiliates_1769801502790.png" caption="Affiliate Management: ตรวจสอบค่าคอมมิชชั่นและการจ่ายเงิน" />
                             <ActionItem label="Commission" desc="ตรวจสอบและอนุมัติค่าคอมมิชชั่นให้นายหน้า" />
                         </SubSection>
                     </ManualSection>
 
                     <ManualSection title="System & Marketing (ระบบ)" icon={Settings}>
                         <SubSection title="3.7 Support Chat">
+                            <ImageBox src="/manual_images/admin_chat_1769801356148.png" caption="Admin Support Chat: ตอบข้อความลูกค้าแบบ Real-time" />
                             <ActionItem label="Tickets" desc="ตอบแชทลูกค้าและร้านค้าที่ติดต่อเข้ามา (Admin View)" />
                         </SubSection>
+                        <SubSection title="3.8 Blog">
+                            <ImageBox src="/manual_images/admin_blog_1769801392357.png" caption="Blog CMS: ระบบจัดการบทความและข่าวสาร" />
+                            <ActionItem label="Content" desc="เขียน/แก้ไข บทความข่าวสารและประกาศของแพลตฟอร์ม" />
+                        </SubSection>
                         <SubSection title="3.9 Coupons">
+                            <ImageBox src="/manual_images/admin_coupons_1769801469361.png" caption="Coupon Manager: สร้างและจัดการคูปองส่วนลด" />
                             <ActionItem label="Create" desc="สร้างคูปองส่วนลดแบบ % หรือ Fixed Amount" />
                         </SubSection>
                         <SubSection title="3.12 Settings">
+                            <ImageBox src="/manual_images/admin_settings_1769801621878.png" caption="Global Configuration: ตั้งค่าระบบหลัก ภาษี และค่าธรรมเนียม" />
                             <ActionItem label="Config" desc="ตั้งค่าร้าน, VAT, และค่าธรรมเนียม Platform (%)" />
                         </SubSection>
                     </ManualSection>
@@ -221,10 +238,11 @@ export default function ProjectSummaryViewer() {
             </div>
             <div className="mt-12 text-center border-t border-white/10 pt-8">
                 <p className="text-white/30 text-xs">
-                    Documentation Version 2.2 (Visuals Included) | Cashless Thailand
+                    Documentation Version 2.3 (Complete Visuals) | Cashless Thailand
                 </p>
             </div>
         </div>
     );
 }
+
 
