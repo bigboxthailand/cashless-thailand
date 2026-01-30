@@ -1,7 +1,24 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ShoppingCart, CreditCard, User, Store, Package, BarChart, ShieldAlert, MousePointer, LayoutGrid } from 'lucide-react';
+import {
+    ChevronDown,
+    ShoppingCart,
+    CreditCard,
+    User,
+    Store,
+    Package,
+    BarChart,
+    ShieldAlert,
+    MousePointer,
+    LayoutGrid,
+    Users,
+    MessageSquare,
+    Tags,
+    Settings,
+    FileText,
+    Share2
+} from 'lucide-react';
 
 const ManualSection = ({ title, icon: Icon, children, defaultOpen = false }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -149,33 +166,74 @@ export default function ProjectSummaryViewer() {
                     </ManualSection>
                 </div>
 
-                {/* ADMIN */}
+                {/* ADMIN (COMPREHENSIVE) */}
                 <div className="relative mt-12">
                     <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 to-transparent rounded-full opacity-50"></div>
                     <h2 className="text-2xl font-black text-red-500 mb-4 pl-4 uppercase tracking-widest">3. Admin Guide (ผู้ดูแล)</h2>
 
-                    <ManualSection title="System Overview" icon={BarChart}>
-                        <SubSection title="Dashboard">
-                            <ActionItem label="Revenue Map" desc="แผนที่ประเทศไทยแสดงจุดที่มียอดสั่งซื้อ" />
-                            <ActionItem label="Live Monitor" desc="ตาราง Real-time แจ้งเตือนออเดอร์เข้าใหม่" />
+                    <ManualSection title="Core Operations (หลัก)" icon={BarChart} defaultOpen={true}>
+                        <SubSection title="3.1 Dashboard">
+                            <ActionItem label="KPI Cards" desc="ยอดขายรวม (THB/Sats), ออเดอร์รอตรวจสอบ, และข้อพิพาท (Disputes)" />
+                            <ActionItem label="Real-time Map" desc="แผนที่ Heatmap แสดงจุดที่สินค้าถูกสั่งซื้อในประเทศไทย" />
+                        </SubSection>
+                        <SubSection title="3.2 Analytics">
+                            <ActionItem label="Top Products" desc="5 อันดับสินค้าขายดีที่สุด" />
+                            <ActionItem label="Sales Graph" desc="กราฟยอดขายย้อนหลัง 30 วัน" />
+                            <ActionItem label="Demographics" desc="สัดส่วนลูกค้าแบ่งตามเพศ (Male/Female/Other)" />
                         </SubSection>
                     </ManualSection>
 
-                    <ManualSection title="Operations" icon={ShieldAlert}>
-                        <SubSection title="Order Approval">
-                            <ActionItem label="Verify Slip" desc="ตรวจสอบยอดเงินจากสลิปที่แนบมา" />
-                            <ActionItem label="Approve" desc="กดยืนยันถ้ายอดถูกต้อง ระบบจะแจ้งเตือนลูกค้าและผู้ขาย" />
+                    <ManualSection title="Order & Inventory (สินค้า/ออเดอร์)" icon={Package}>
+                        <SubSection title="3.3 Orders">
+                            <ActionItem label="Verification" desc="ตรวจสอบสลิปโอนเงิน (PromptPay) และกดยืนยัน (Confirm Payment)" />
+                            <ActionItem label="Fulfillment" desc="ใส่เลข Tracking และเลือกขนส่ง เพื่อปิดงาน (Shipped)" />
+                            <ActionItem label="Invoice" desc="ออกใบเสร็จรับเงิน/ใบกำกับภาษี" />
                         </SubSection>
-                        <SubSection title="Disputes">
-                            <ActionItem label="Dispute Cases" desc="ตัดสินข้อพิพาทระหว่างผู้ซื้อและผู้ขาย (คืนเงิน/ยกเลิก)" />
+                        <SubSection title="3.4 Products">
+                            <ActionItem label="Global Inventory" desc="ดูสินค้าทั้งหมดในระบบ และจำนวนสต็อกคงเหลือ" />
+                        </SubSection>
+                        <SubSection title="3.11 Disputes (ข้อพิพาท)">
+                            <ActionItem label="Resolve Case" desc="ตัดสินคืนเงิน (Refund) หรือ ปฏิเสธคำร้อง (Reject)" />
+                            <ActionItem label="Evidence" desc="ดูรูปภาพหลักฐานความเสียหายที่ลูกค้าส่งมา" />
                         </SubSection>
                     </ManualSection>
+
+                    <ManualSection title="User Management (บุคคล)" icon={Users}>
+                        <SubSection title="3.5 Shops">
+                            <ActionItem label="Approve/Reject" desc="อนุมัติร้านค้าใหม่ที่สมัครเข้ามา" />
+                            <ActionItem label="Suspend" desc="ระงับร้านค้าชั่วคราว หรือลบร้านค้าที่ทำผิดกฎ" />
+                        </SubSection>
+                        <SubSection title="3.6 Customers">
+                            <ActionItem label="CRM" desc="ดูประวัติการสั่งซื้อ, ยอด Spending สะสม (LTV), และ Tier ลูกค้า" />
+                        </SubSection>
+                        <SubSection title="3.10 Affiliates">
+                            <ActionItem label="Commission" desc="ตรวจสอบและอนุมัติค่าคอมมิชชั่นให้นายหน้า" />
+                            <ActionItem label="Payouts" desc="บันทึกสถานะการจ่ายเงิน (Mark as Paid)" />
+                        </SubSection>
+                    </ManualSection>
+
+                    <ManualSection title="System & Marketing (ระบบ)" icon={Settings}>
+                        <SubSection title="3.7 Support Chat">
+                            <ActionItem label="Tickets" desc="ตอบแชทลูกค้าและร้านค้าที่ติดต่อเข้ามา (Admin View)" />
+                        </SubSection>
+                        <SubSection title="3.8 Blog">
+                            <ActionItem label="Content" desc="เขียน/แก้ไข บทความข่าวสารและประกาศของแพลตฟอร์ม" />
+                        </SubSection>
+                        <SubSection title="3.9 Coupons">
+                            <ActionItem label="Create" desc="สร้างคูปองส่วนลดแบบ % หรือ Fixed Amount" />
+                        </SubSection>
+                        <SubSection title="3.12 Settings">
+                            <ActionItem label="Config" desc="ตั้งค่าร้าน, VAT, และค่าธรรมเนียม Platform (%)" />
+                            <ActionItem label="Maintenance" desc="เปิด/ปิด โหมดปิดปรับปรุงเว็บไซต์" />
+                        </SubSection>
+                    </ManualSection>
+
                 </div>
 
             </div>
             <div className="mt-12 text-center border-t border-white/10 pt-8">
                 <p className="text-white/30 text-xs">
-                    Documentation Version 2.0 | Cashless Thailand
+                    Documentation Version 2.1 (Full Admin) | Cashless Thailand
                 </p>
             </div>
         </div>

@@ -87,20 +87,111 @@
 ---
 
 ## 3. Administrator Guide (คู่มือผู้ดูแลระบบ)
+**Access**: เมนู `Dashboard` (เฉพาะผู้ใช้ที่มี Role: Admin)
 
-### 3.1 Admin Dashboard
-*   **Overview**: ดูยอดขายรวมทั้งแพลตฟอร์ม (THB & Sats)
-*   **Map view**: ดูแผนที่แสดงตำแหน่งที่มีการสั่งซื้อ
-*   **Real-time Monitor**: แจ้งเตือนเมื่อมีออเดอร์ใหม่เข้ามา
+### 3.1 Dashboard (ภาพรวมระบบ)
+หน้าแรกสำหรับดูภาพรวมและสถิติสำคัญของระบบแบบ Real-time
+*   **KPI Cards**:
+    *   **Total Revenue**: ยอดขายรวมทั้งหมด (แสดงทั้งสกุลเงิน THB และ Sats)
+    *   **Pending Orders**: จำนวนออเดอร์ที่รอการตรวจสอบ (มีไฟกระพริบแจ้งเตือนเมื่อมีออเดอร์ใหม่)
+    *   **Active Disputes**: จำนวนข้อพิพาทที่เปิดอยู่และต้องการการแก้ไข
+    *   **Total Orders**: จำนวนคำสั่งซื้อสะสมทั้งหมด
+*   **Charts & Maps**:
+    *   **Revenue Chart**: กราฟแสดงยอดขายย้อนหลัง
+    *   **Thailand Orders Map**: แผนที่ Heatmap แสดงความหนาแน่นของคำสั่งซื้อในแต่ละจังหวัด
+    *   **Analytics Pie Chart**: สัดส่วนยอดขายแบ่งตามหมวดหมู่สินค้า หรือ Payment Methods
 
-### 3.2 Order Management
-*   **Verify Slip**: ตรวจสอบสลิปที่ลูกค้าแนบมา
-*   **Approve Order**: กดยืนยันเมื่อยอดเงินถูกต้อง (Status -> Paid)
-*   **Dispute Handling**: ดูเคสที่มีปัญหา (ขอคืนเงิน/ของไม่ครบ) และตัดสินใจ
+### 3.2 Analytics (ระบบวิเคราะห์ข้อมูล)
+เครื่องมือวิเคราะห์เชิงลึกสำหรับวางแผนการตลาด
+*   **Top Products**: 5 อันดับสินค้าขายดีที่สุด (Best Sellers)
+*   **Sales Over Time**: กราฟยอดขายย้อนหลัง 30 วัน
+*   **Demographics**: สัดส่วนเพศ (Male/Female/Other) ของลูกค้า
+*   **Coupon Usage**: ประสิทธิภาพของคูปอง (จำนวนครั้งที่ใช้ และยอดส่วนลดรวม)
 
-### 3.3 Customer & Shop Management
-*   **Customer List**: ดูรายชื่อลูกค้าและยอดใช้จ่ายสะสม
-*   **Shop Approval**: อนุมัติร้านค้าใหม่ที่สมัครเข้ามา (ตรวจสอบ KYC)
-*   **Coupon Management**: สร้างโค้ดส่วนลด (Fixed/Percent) กำหนดวันหมดอายุ
+### 3.3 Orders (จัดการคำสั่งซื้อ)
+หน้ารายการคำสั่งซื้อทั้งหมดที่เกิดขึ้นในระบบ
+*   **Filters**: กรองตามสถานะ (All, Pending, Paid, Shipped, Dispute) หรือช่วงเวลา
+*   **Search**: ค้นหาด้วย Order ID หรือชื่อลูกค้า
+*   **Order Table**: แสดง Order ID, วันที่, ลูกค้า, จำนวนสินค้า, ยอดรวม, วิธีชำระเงิน, และสถานะ
+*   **Order Detail Modal** (คลิกที่ View):
+    *   **Customer Info**: ข้อมูลติดต่อ, ที่อยู่จัดส่ง, Avatar
+    *   **Payment Proof**: ดูรูปสลิปโอนเงิน (สำหรับ PromptPay)
+    *   **Items**: รายการสินค้าที่สั่งซื้อ
+    *   **Actions**:
+        *   **Confirm Payment**: กดยืนยันเมื่อตรวจสอบสลิปแล้ว (สถานะเปลี่ยนเป็น Paid)
+        *   **Ship**: ใส่เลขพัสดุ (Tracking No.) และเลือกขนส่ง (Kerry, Flash, EMS) เพื่อปิดจบออเดอร์ (สถานะ Shipped)
+        *   **Open Invoice**: เปิดดูใบเสร็จรับเงิน
 
----
+### 3.4 Products (จัดการคลังสินค้า)
+หน้าสำหรับจัดการสินค้าในระบบ (Global Inventory)
+*   **Product List**: ดูสินค้าทั้งหมด พร้อมรูปภาพ, ราคา, และจำนวนสต็อกคงเหลือ
+*   **Management**: แก้ไขข้อมูลสินค้า, เปลี่ยนราคา, หรือลบสินค้า (Functionality handled via ProductManager)
+
+### 3.5 Shops (จัดการร้านค้า)
+ระบบ Seller Moderation สำหรับควบคุมคุณภาพผู้ขาย
+*   **Pending Approval**: รายการร้านค้าใหม่ที่รออนุมัติ
+    *   **Approve**: อนุมัติให้เปิดร้าน (Shop Active)
+    *   **Reject**: ปฏิเสธคำขอ
+*   **Active Shops**: รายชื่อร้านค้าที่เปิดอยู่
+    *   **Suspend**: ระงับร้านค้าชั่วคราว (ร้านจะไม่แสดงผลบนหน้าเว็บ)
+    *   **Delete**: ลบร้านค้าออกจากระบบ
+*   **Suspended Shops**: รายชื่อร้านค้าที่ถูกแบน (สามารถกด Restore เพื่อคืนยศได้)
+
+### 3.6 Customers (ข้อมูลลูกค้า)
+ระบบ CRM (Customer Relationship Management) พื้นฐาน
+*   **Customer Table**:
+    *   **Profile**: รูป Avatar, ชื่อ, Email, Phone
+    *   **Tier**: ระดับลูกค้า (Whale > 100k, Pro > 30k, User)
+    *   **Region**: จังหวัดที่อยู่
+    *   **Stats**: จำนวนออเดอร์ที่เคยสั่ง (Orders), ยอดใช้จ่ายรวม (LTV - Lifetime Value), วันเใช้งานล่าสุด
+*   **Export**: ปุ่ม Export CRM data (CSV)
+
+### 3.7 Chat (ระบบซัพพอร์ต)
+หน้าจอ Support Tickets สำหรับตอบข้อความ
+*   **Conversation List**: รายการแชทจากลูกค้าหรือร้านค้า
+*   **Chat Window**: หน้าจอแชทสำหรับตอบคำถามและแก้ปัญหา (Admin View)
+
+### 3.8 Blog (จัดการบทความ)
+ระบบ CMS (Content Management System) สำหรับเขียนข่าวสาร
+*   **Post List**: รายการบทความที่เผยแพร่แล้ว
+*   **Editor**: เครื่องมือเขียนบทความ (Rich Text) พร้อมอัปโหลดรูปภาพปก
+
+### 3.9 Coupons (คูปองส่วนลด)
+สร้างแคมเปญส่งเสริมการขาย
+*   **Active Coupons**: รายการคูปองที่ใช้งานได้
+*   **Create Coupon**:
+    *   **Code**: รหัสคูปอง (เช่น WELCOME100)
+    *   **Type**: ลดเป็น % (Percentage) หรือ ลดเป็นบาท (Fixed Amount)
+    *   **Limit**: จำกัดจำนวนสิทธิ์การใช้
+
+### 3.10 Affiliates (ระบบนายหน้า)
+จัดการค่าคอมมิชชั่นสำหรับพันธมิตร
+*   **KPIs**: ยอดค้างจ่าย (Pending Payouts), ยอดอนุมัติแล้ว, ยอดจ่ายแล้วทั้งหมด
+*   **Referrals Table**:
+    *   **Affiliate**: ข้อมูลคนแนะนำ (Tier, Name)
+    *   **Order**: ออเดอร์ที่ถูกแนะนำมา
+    *   **Commission**: ส่วนแบ่งที่ได้รับ (บาท)
+    *   **Status**: Pending (รอตรวจสอบ), Approved (อนุมัติแล้ว), Paid (โอนเงินแล้ว)
+*   **Actions**:
+    *   **Approve**: อนุมัติค่าคอมมิชชั่น (เมื่อออเดอร์สมบูรณ์)
+    *   **Mark as Paid**: บันทึกว่าโอนเงินให้ Partner แล้ว
+
+### 3.11 Disputes (ข้อพิพาท)
+จัดการปัญหาการสั่งซื้อ (คืนเงิน/เคลมสินค้า)
+*   **Dispute Card**:
+    *   **Status**: OPEN (รอดำเนินการ), RESOLVED (จบเคส)
+    *   **Reason**: เหตุผลการเคลม (เช่น ของไม่ครบ, สินค้าเสียหาย)
+    *   **Evidence**: รูปภาพหลักฐานที่ลูกค้าแนบมา
+    *   **Order Details**: รายละเอียดสินค้าในออเดอร์นั้นๆ
+*   **Resolution Actions**:
+    *   **Full Refund**: คืนเงินเต็มจำนวน (ระบบเปลี่ยนสถานะเป็น Refunded / Dispute Resolved)
+    *   **Reject & Settle**: ปฏิเสธคำร้องและปิดงาน (ระบบเปลี่ยนสถานะเป็น Shipped / Delivered ปกติ)
+
+### 3.12 Settings (ตั้งค่าระบบ)
+ศูนย์ควบคุมการทำงานหลักของ Store
+*   **Store Configuration**: ตั้งชื่อร้าน, สกุลเงิน (Currency)
+*   **Tax & Fees**:
+    *   **Billing Info**: ที่อยู่, เลขแวต, เบอร์โทร
+    *   **VAT**: เปิด/ปิด ระบบ VAT 7%
+    *   **Platform Commission**: ตั้งค่า % หักหัวคิวจากร้านค้า (GP)
+*   **Maintenance Mode**: ปุ่มเปิด/ปิด โหมดปิดปรับปรุงเว็บไซต์ชั่วคราว
