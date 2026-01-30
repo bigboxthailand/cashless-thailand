@@ -1,0 +1,268 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+---
+
+<Layout title="Order Confirmed | Cashless Thailand">
+    <Navbar />
+
+    <main
+        class="relative z-10 bg-[#050505] min-h-screen flex items-center justify-center pt-32 pb-20"
+    >
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4AF37]/10 blur-[150px] rounded-full"
+            >
+            </div>
+        </div>
+
+        <div class="max-w-2xl w-full mx-6 text-center space-y-8 relative z-10">
+            <div
+                class="w-24 h-24 bg-gradient-to-br from-[#D4AF37] to-[#8B6914] rounded-full mx-auto flex items-center justify-center shadow-[0_0_50px_-10px_rgba(212,175,55,0.5)] mb-8 animate-bounce-in"
+            >
+                <svg
+                    class="w-12 h-12 text-black"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="3"
+                    ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M5 13l4 4L19 7"></path></svg
+                >
+            </div>
+
+            <div class="space-y-4">
+                <h1
+                    class="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none"
+                >
+                    Order <span class="text-[#D4AF37]">Confirmed!</span>
+                </h1>
+                <p class="text-white/60 text-lg font-light max-w-lg mx-auto">
+                    ขอบคุณสำหรับการสั่งซื้อ
+                    ข้อมูลการชำระเงินถูกบันทึกเรียบร้อยแล้ว <br />
+                    <span
+                        class="text-[#D4AF37] font-bold block mt-2 animate-pulse"
+                        id="payment-status-text"
+                        >⚡ ชำระเงินสำเร็จผ่าน Lightning Network ⚡</span
+                    >
+                </p>
+            </div>
+
+            <div
+                class="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-md mx-auto mt-8 text-left space-y-4 shadow-2xl relative overflow-hidden"
+            >
+                <div
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5 font-black text-9xl -rotate-12 pointer-events-none select-none"
+                >
+                    PAID
+                </div>
+
+                <div
+                    class="flex justify-between items-center border-b border-white/10 pb-4 relative z-10"
+                >
+                    <span
+                        class="text-xs text-white/40 uppercase tracking-widest"
+                        >Order Ref</span
+                    >
+                    <span
+                        class="text-xl font-black text-white eng tracking-widest"
+                        id="order-ref">...</span
+                    >
+                </div>
+
+                <div
+                    id="order-items-list"
+                    class="space-y-2 text-sm text-white/80 max-h-40 overflow-y-auto pr-2 custom-scrollbar relative z-10"
+                >
+                </div>
+
+                <div
+                    class="space-y-2 pt-4 border-t border-white/10 relative z-10"
+                >
+                    <div class="flex justify-between items-center">
+                        <span class="text-white/60">Total Amount</span>
+                        <span
+                            class="text-2xl font-black text-[#D4AF37]"
+                            id="order-total">0.00 ฿</span
+                        >
+                    </div>
+                    <div
+                        id="lightning-proof-container"
+                        class="hidden mt-4 p-3 bg-black/40 rounded-xl border border-white/5"
+                    >
+                        <p
+                            class="text-[10px] text-white/40 uppercase font-bold mb-1"
+                        >
+                            Lightning Preimage (Proof)
+                        </p>
+                        <p
+                            id="lightning-preimage"
+                            class="text-[10px] font-mono text-green-500/80 break-all select-all"
+                        >
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-6 mt-12">
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg"
+                >
+                    <a
+                        href="https://lin.ee/EKxf7zl"
+                        target="_blank"
+                        class="px-8 py-4 bg-[#06C755] rounded-xl text-white font-bold uppercase tracking-wider hover:bg-[#05b64d] transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-900/20 transform hover:scale-105 duration-200"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            ><path
+                                d="M21.155 8.39c-.582-3.8-4.225-6.195-8.482-6.386-4.99-.214-9.52 2.63-9.664 7.625-.138 4.773 2.87 8.358 7.37 9.54l.583 2.766c.07.33.456.467.728.25l3.96-3.053c3.784.076 7.408-3.033 7.828-6.95.215-2.007-.463-3.86-2.323-3.792zm-4.73 6.05c-.17.3-.64.385-.94.135-1.12-.935-3.32-2.735-4.525-4.475-.15-.245.035-.61.35-.66l.72-.11c.265-.04.495.14.565.405.155.57.37 1.135.64 1.665.115.3.005.65-.24.84l-.325.25c.675 1.07 1.645 1.94 2.825 2.51l.29-.31c.21-.225.565-.305.85-.16.51.255 1.06.445 1.615.575.265.06.44.29.385.555l-.215.78z"
+                            ></path></svg
+                        >
+                        Add Line
+                    </a>
+                    <button
+                        id="open-support-chat"
+                        class="px-8 py-4 bg-[#D4AF37] rounded-xl text-black font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center justify-center gap-3 shadow-lg shadow-yellow-900/20 transform hover:scale-105 duration-200"
+                    >
+                        <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                            ></path></svg
+                        >
+                        Support Chat
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-8 mt-4">
+                    <div class="bg-white p-2 rounded-xl">
+                        <img
+                            src="https://qr-official.line.me/gs/M_224sjsun_GW.png"
+                            alt="Add Line Friend"
+                            class="w-24 h-24"
+                        />
+                    </div>
+                    <div class="text-left">
+                        <p
+                            class="text-white/40 text-[10px] uppercase font-bold tracking-widest"
+                        >
+                            Line Support
+                        </p>
+                        <p class="text-white text-lg font-black tracking-tight">
+                            @224sjsun
+                        </p>
+                        <a
+                            href="/"
+                            class="text-[#D4AF37] hover:text-white underline text-sm mt-2 block"
+                            >กลับหน้าหลัก</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    document.addEventListener("astro:page-load", () => {
+        const storedOrder = localStorage.getItem("lastOrder");
+        if (!storedOrder) return;
+
+        const order = JSON.parse(storedOrder);
+
+        const refEl = document.getElementById("order-ref");
+        const listEl = document.getElementById("order-items-list");
+        const totalEl = document.getElementById("order-total");
+
+        if (refEl) refEl.innerText = order.id;
+        if (totalEl) totalEl.innerText = order.total.toLocaleString() + " THB";
+
+        // Handle Payment Details
+        const statusText = document.getElementById("payment-status-text");
+        const proofContainer = document.getElementById(
+            "lightning-proof-container",
+        );
+        const preimageEl = document.getElementById("lightning-preimage");
+
+        if (order.method === "bitcoin" && order.lightning_preimage) {
+            if (statusText)
+                statusText.innerText =
+                    "⚡ ชำระเงินสำเร็จผ่าน Lightning Network ⚡";
+            if (proofContainer) proofContainer.classList.remove("hidden");
+            if (preimageEl) preimageEl.innerText = order.lightning_preimage;
+        } else {
+            if (statusText)
+                statusText.innerText =
+                    "⚠️ กรุณาแคปหน้าจอนี้ไว้เพื่อใช้ตรวจสอบเลข Order ⚠️";
+        }
+
+        if (listEl) {
+            listEl.innerHTML = order.items
+                .map(
+                    (item: any) => `
+                <div class="flex justify-between py-1 border-b border-white/5 last:border-0">
+                    <span class="truncate pr-4">${item.title} (x${item.quantity})</span>
+                    <span class="whitespace-nowrap font-medium text-[#D4AF37]">${(item.price * item.quantity).toLocaleString()}</span>
+                </div>
+            `,
+                )
+                .join("");
+        }
+
+        // Support Chat Action
+        const chatBtn = document.getElementById("open-support-chat");
+        if (chatBtn) {
+            chatBtn.addEventListener("click", () => {
+                // Dispatch event to open global chat center
+                window.dispatchEvent(
+                    new CustomEvent("open-chat", {
+                        detail: {
+                            orderId: order.id,
+                            message: `สวัสดีครับ สอบถามเกี่ยวกับออเดอร์ #${order.id}`,
+                        },
+                    }),
+                );
+            });
+        }
+    });
+</script>
+
+<style>
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        60% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    .animate-bounce-in {
+        animation: bounceIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.3);
+        border-radius: 4px;
+    }
+</style>

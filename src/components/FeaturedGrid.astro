@@ -1,0 +1,175 @@
+---
+// src/components/FeaturedGrid.astro
+import { supabase } from "../lib/supabase";
+
+const { data: dbProducts } = await supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+const items = (dbProducts || []).map((p) => {
+    const price = p.pricing?.basePrice || 0;
+    const comparePrice = p.pricing?.comparePrice || 0;
+    const discount =
+        comparePrice > price
+            ? Math.round(((comparePrice - price) / comparePrice) * 100)
+            : 0;
+
+    return {
+        id: p.id,
+        title: p.meta?.title || p.name || "Untitled Product",
+        category: p.category || "General",
+        price: price.toLocaleString(),
+        originalPrice: comparePrice,
+        discount: discount,
+        image: p.media?.mainImage || "/placeholder.png",
+        hoverImage:
+            p.media?.gallery?.[0] || p.media?.mainImage || "/placeholder.png",
+        tag: p.meta?.tags?.[0] || "Featured",
+    };
+});
+---
+
+<section class="max-w-[1800px] mx-auto px-6 md:px-12 py-32 relative">
+    <div
+        class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 reveal"
+    >
+        <div class="space-y-4">
+            <h2
+                class="text-5xl md:text-7xl font-[900] tracking-tighter leading-none italic uppercase text-white"
+            >
+                Curated <br />
+                <span class="text-white/10 not-italic">Selection.</span>
+            </h2>
+            <div
+                class="w-24 h-1 bg-gradient-to-r from-[#D4AF37] to-transparent"
+            >
+            </div>
+        </div>
+        <a
+            href="/shop"
+            class="group flex items-center gap-4 text-[#D4AF37] eng font-black uppercase tracking-[0.3em] text-xs pb-2 border-b border-[#D4AF37]/20 hover:border-[#D4AF37] transition-all"
+        >
+            Explore All
+            <svg
+                class="group-hover:translate-x-2 transition-transform"
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14m-7-7 7 7-7 7"></path></svg
+            >
+        </a>
+    </div>
+
+    <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
+    >
+        {
+            items.map((item, i) => (
+                <div
+                    class="group relative reveal"
+                    style={`animation-delay: ${0.2 * i}s`}
+                >
+                    <div class="absolute -inset-2 bg-gradient-to-b from-[#D4AF37]/20 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700 rounded-[3rem]" />
+
+                    <div class="relative">
+                        <a
+                            href={`/products/${item.id}`}
+                            class="block aspect-[4/5] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-white/5 group-hover:border-[#D4AF37]/30 transition-all duration-500 shadow-2xl flex flex-col relative cursor-pointer"
+                        >
+                            <img
+                                src={item.image}
+                                alt={item.title}
+                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
+                                loading="lazy"
+                            />
+
+                            <img
+                                src={item.hoverImage}
+                                alt={`${item.title} side view`}
+                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+                                loading="lazy"
+                            />
+
+                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+
+                            <div class="absolute top-6 left-6 flex flex-col gap-2 z-10">
+                                <span class="px-4 py-1 bg-black/80 backdrop-blur-md border border-[#D4AF37]/30 rounded-full eng text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">
+                                    {item.tag}
+                                </span>
+                                {item.originalPrice > 0 &&
+                                    item.originalPrice >
+                                        parseFloat(
+                                            item.price.replace(/,/g, ""),
+                                        ) && (
+                                        <span class="px-4 py-1 bg-red-600/90 backdrop-blur-md text-white rounded-full eng text-[10px] font-black uppercase tracking-widest animate-pulse shadow-lg shadow-red-900/20">
+                                            Sale -{item.discount}%
+                                        </span>
+                                    )}
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span class="bg-[#D4AF37] text-black px-8 py-4 rounded-2xl font-black eng text-sm uppercase tracking-tighter opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_#D4AF37]">
+                                    View Details
+                                </span>
+                            </div>
+                        </a>
+
+                        <div class="mt-6 space-y-1 px-2">
+                            <p class="eng text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/60">
+                                {item.category}
+                            </p>
+                            <h3 class="text-lg font-bold text-white leading-tight group-hover:text-[#D4AF37] transition-colors">
+                                {item.title}
+                            </h3>
+                            <div class="flex items-center gap-3 pt-1">
+                                {item.originalPrice > 0 &&
+                                    item.originalPrice >
+                                        parseFloat(
+                                            item.price.replace(/,/g, ""),
+                                        ) && (
+                                        <span class="text-sm eng font-medium text-white/30 line-through">
+                                            {item.originalPrice.toLocaleString()}{" "}
+                                            ฿
+                                        </span>
+                                    )}
+                                <div class="flex items-center gap-1">
+                                    <span
+                                        class={`text-xl eng font-black ${item.originalPrice > 0 && item.originalPrice > parseFloat(item.price.replace(/,/g, "")) ? "text-red-500" : "text-white"}`}
+                                    >
+                                        {item.price}
+                                    </span>
+                                    <span class="text-[10px] eng font-medium text-white/30 uppercase tracking-widest">
+                                        THB
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))
+        }
+    </div>
+</section>
+
+<style>
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    }
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

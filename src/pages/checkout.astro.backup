@@ -1,0 +1,1088 @@
+---
+// src/pages/checkout.astro
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Secure Checkout | Cashless Thailand">
+    <Navbar />
+
+    <main class="relative z-10 bg-[#050505] min-h-screen pt-32 pb-20">
+        <form
+            id="checkout-form"
+            class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-8 lg:gap-16"
+        >
+            <div class="absolute opacity-0 -z-10 w-0 h-0 overflow-hidden">
+                <label for="website-honeypot">Website</label>
+                <input
+                    type="text"
+                    name="website_check"
+                    id="website-honeypot"
+                    tabindex="-1"
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="lg:col-span-7 space-y-10">
+                <div class="border-b border-white/10 pb-6">
+                    <h1
+                        class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter"
+                    >
+                        Checkout
+                    </h1>
+                    <p class="text-white/40 mt-2 text-sm">
+                        กรอกข้อมูลจัดส่งและยืนยันการชำระเงิน
+                    </p>
+                </div>
+
+                <section class="space-y-6">
+                    <h2
+                        class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3"
+                    >
+                        <span
+                            class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs"
+                            >1</span
+                        >
+                        Shipping Info
+                    </h2>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >First Name</label
+                            >
+                            <input
+                                type="text"
+                                name="firstname"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="ชื่อจริง"
+                            />
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Last Name</label
+                            >
+                            <input
+                                type="text"
+                                name="lastname"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="นามสกุล"
+                            />
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Phone Number</label
+                            >
+                            <input
+                                type="tel"
+                                name="phone"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="เบอร์โทรศัพท์"
+                            />
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Address</label
+                            >
+                            <textarea
+                                name="address"
+                                rows="3"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="ที่อยู่จัดส่ง"></textarea>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Province</label
+                            >
+                            <input
+                                type="text"
+                                name="province"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="จังหวัด"
+                            />
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Postal Code</label
+                            >
+                            <input
+                                type="text"
+                                name="zipcode"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="รหัสไปรษณีย์"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="hidden lg:block border-t border-white/10 pt-8">
+                    <h3 class="text-white font-bold mb-6">Order Items</h3>
+                    <div id="checkout-items-desktop" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 relative">
+                <div
+                    class="bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-[2rem] p-6 md:p-8 sticky top-32 shadow-2xl"
+                >
+                    <h2
+                        class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3 mb-6"
+                    >
+                        <span
+                            class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs"
+                            >2</span
+                        >
+                        Payment
+                    </h2>
+
+                    <div
+                        class="flex p-1 bg-black rounded-xl mb-6 border border-white/10"
+                    >
+                        <button
+                            type="button"
+                            id="btn-promptpay"
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider bg-[#D4AF37] text-black shadow-lg transition-all"
+                            >PromptPay</button
+                        >
+                        <button
+                            type="button"
+                            id="btn-crypto"
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/40 hover:text-white transition-all"
+                            >Crypto</button
+                        >
+                    </div>
+
+                    <div
+                        id="payment-promptpay"
+                        class="text-center space-y-6 animate-fade-in"
+                    >
+                        <div
+                            class="bg-white p-4 rounded-2xl inline-block shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] relative overflow-hidden group"
+                        >
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
+                                class="w-48 h-48 mix-blend-multiply mx-auto"
+                            />
+                            <div
+                                class="absolute inset-0 bg-gradient-to-b from-transparent via-[#D4AF37]/20 to-transparent h-[10px] w-full animate-scan"
+                            >
+                            </div>
+                        </div>
+                        <div
+                            class="text-white/60 text-xs uppercase tracking-widest"
+                        >
+                            <p>บริษัท แคชเลส (ประเทศไทย) จำกัด</p>
+                            <p class="text-[#D4AF37] font-bold mt-1">
+                                081-234-5678 (KBank)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        id="payment-crypto"
+                        class="hidden text-center space-y-6 animate-fade-in"
+                    >
+                        <div
+                            class="p-6 border border-dashed border-[#F7931A]/50 rounded-2xl bg-[#F7931A]/5"
+                        >
+                            <p class="text-[#F7931A] font-bold text-lg mb-4">
+                                Crypto Payment
+                            </p>
+
+                            <div class="space-y-4 mb-4">
+                                <!-- Network Selector -->
+                                <div>
+                                    <label
+                                        class="text-white/40 text-xs uppercase block mb-2"
+                                        >เลือกเครือข่าย</label
+                                    >
+                                    <select
+                                        id="network-select"
+                                        class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-sm transition-colors cursor-pointer hover:bg-white/5"
+                                    >
+                                        <option value="ethereum"
+                                            >🔷 Ethereum Mainnet</option
+                                        >
+                                        <option value="bsc"
+                                            >🟡 BNB Smart Chain (BSC)</option
+                                        >
+                                        <option value="polygon"
+                                            >🟣 Polygon</option
+                                        >
+                                        <option value="arbitrum"
+                                            >🔵 Arbitrum One</option
+                                        >
+                                        <option value="optimism"
+                                            >🔴 Optimism</option
+                                        >
+                                        <option value="base">🔵 Base</option>
+                                    </select>
+                                </div>
+
+                                <!-- Currency Selector -->
+                                <div>
+                                    <label
+                                        class="text-white/40 text-xs uppercase block mb-2"
+                                        >เลือกสกุลเงิน</label
+                                    >
+                                    <select
+                                        id="currency-select"
+                                        class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-sm transition-colors cursor-pointer hover:bg-white/5"
+                                    >
+                                        <option value="usdt"
+                                            >💵 USDT (Tether)</option
+                                        >
+                                        <option value="usdc"
+                                            >💵 USDC (USD Coin)</option
+                                        >
+                                        <option value="native"
+                                            >⚡ Native Coin (ETH/BNB/MATIC)</option
+                                        >
+                                    </select>
+                                </div>
+
+                                <!-- Live Price Display -->
+                                <div
+                                    class="bg-black/30 rounded-lg p-3 border border-white/5"
+                                >
+                                    <div
+                                        class="flex justify-between items-center mb-1"
+                                    >
+                                        <span class="text-white/40 text-xs"
+                                            >จำนวนที่ต้องชำระ:</span
+                                        >
+                                        <span
+                                            id="crypto-amount-display"
+                                            class="text-[#D4AF37] font-bold text-lg"
+                                        >
+                                            <span class="loading-dots"
+                                                >กำลังคำนวณ...</span
+                                            >
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                        <span class="text-white/40 text-[10px]"
+                                            >อัตราแลกเปลี่ยน:</span
+                                        >
+                                        <span
+                                            id="exchange-rate-display"
+                                            class="text-white/60 text-xs font-mono"
+                                        >
+                                            --
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Metamask Payment Button (shown if logged in via Metamask) -->
+                            <div id="metamask-payment-section" class="hidden">
+                                <div class="mb-3 text-center">
+                                    <p class="text-white/60 text-xs mb-2">
+                                        🦊 คุณ login ด้วย Metamask
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    id="btn-metamask-pay"
+                                    class="w-full bg-gradient-to-r from-[#26A17B] to-[#1e8565] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(38,161,123,0.3)] mb-3"
+                                >
+                                    <svg
+                                        class="w-6 h-6"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            d="M22.05 12c0-5.52-4.48-10-10-10S2.05 6.48 2.05 12c0 4.84 3.44 8.87 8 9.8V15h-2v-3h2V9.5c0-2.42 1.58-3.5 3.5-3.5.51 0 1.05.09 1.5.18v2.82h-1.05c-.83 0-1.45.83-1.45 1.5V12h2.5l-.5 3h-2v6.8c4.56-.93 8-4.96 8-9.8z"
+                                        ></path>
+                                    </svg>
+                                    <span id="metamask-pay-btn-text"
+                                        >ชำระด้วย Metamask</span
+                                    >
+                                </button>
+                                <p
+                                    class="text-white/30 text-[10px] uppercase text-center"
+                                >
+                                    ระบบจะสลับเครือข่ายให้อัตโนมัติ
+                                </p>
+                            </div>
+
+                            <!-- QR Code Payment (shown if NOT logged in via Metamask) -->
+                            <div id="qr-payment-section" class="hidden">
+                                <div class="mb-3 text-center">
+                                    <p class="text-white/60 text-xs mb-3">
+                                        📱 สแกน QR Code เพื่อชำระเงิน
+                                    </p>
+                                </div>
+                                <div
+                                    class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] mb-3"
+                                >
+                                    <div
+                                        id="qr-code-container"
+                                        class="w-48 h-48 flex items-center justify-center"
+                                    >
+                                        <div class="loading-dots text-black">
+                                            กำลังสร้าง QR...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center space-y-1">
+                                    <p class="text-white/40 text-xs">
+                                        ที่อยู่ผู้รับ:
+                                    </p>
+                                    <code
+                                        class="text-white/80 text-[10px] break-all bg-black/50 px-2 py-1 rounded font-mono block"
+                                    >
+                                        0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-white/10 space-y-4">
+                        <div class="flex justify-between items-end mb-4">
+                            <span class="text-white/60 text-sm"
+                                >Total Amount</span
+                            >
+                            <span
+                                id="final-total"
+                                class="text-3xl font-black text-white"
+                                >0.00 ฿</span
+                            >
+                        </div>
+
+                        <label
+                            class="flex items-center justify-center w-full py-4 border-2 border-dashed border-white/20 hover:border-[#D4AF37] rounded-xl cursor-pointer transition-all hover:bg-[#D4AF37]/5 group"
+                        >
+                            <div
+                                class="flex items-center gap-3 text-white/50 group-hover:text-[#D4AF37]"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                    ></path></svg
+                                >
+                                <span
+                                    class="text-sm font-bold uppercase tracking-wider"
+                                    id="file-label">Attach Slip / Proof</span
+                                >
+                            </div>
+                            <input
+                                type="file"
+                                name="slip"
+                                class="hidden"
+                                id="slip-input"
+                                accept="image/*"
+                                required
+                            />
+                        </label>
+
+                        <div
+                            class="bg-black/50 border border-white/10 p-4 rounded-xl mt-4"
+                        >
+                            <label
+                                class="block text-xs text-white/50 uppercase tracking-wider mb-2 text-center"
+                            >
+                                Security Check: <span
+                                    id="num1"
+                                    class="text-[#D4AF37] font-bold text-lg"
+                                    >0</span
+                                > + <span
+                                    id="num2"
+                                    class="text-[#D4AF37] font-bold text-lg"
+                                    >0</span
+                                > = ?
+                            </label>
+                            <input
+                                type="number"
+                                id="captcha-input"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-center font-bold text-lg"
+                                placeholder="ใส่ผลลัพธ์"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black py-4 rounded-xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_40px_-10px_rgba(212,175,55,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        >
+                            Confirm Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <Footer />
+</Layout>
+
+<script>
+    import { cartStore } from "../lib/cartStore.js";
+    import { supabase } from "../lib/supabaseClient";
+    import { ethers } from "ethers";
+
+    document.addEventListener("astro:page-load", () => {
+        // --- [A] MATH CAPTCHA SETUP ---
+        const n1 = Math.floor(Math.random() * 10);
+        const n2 = Math.floor(Math.random() * 10);
+        const correctSum = n1 + n2;
+
+        const num1El = document.getElementById("num1");
+        const num2El = document.getElementById("num2");
+        if (num1El && num2El) {
+            num1El.innerText = n1.toString();
+            num2El.innerText = n2.toString();
+        }
+        // -----------------------------
+
+        // --- PREFILL USER DATA ---
+        async function prefillUserData() {
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                if (!session) return;
+
+                // Fetch Profile
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", session.user.id)
+                    .single();
+
+                // Fetch Default Address
+                const { data: address } = await supabase
+                    .from("addresses")
+                    .select("*")
+                    .eq("user_id", session.user.id)
+                    .eq("is_default", true)
+                    .single();
+
+                if (profile) {
+                    const fnameInput = document.querySelector(
+                        'input[name="firstname"]',
+                    ) as HTMLInputElement;
+                    const lnameInput = document.querySelector(
+                        'input[name="lastname"]',
+                    ) as HTMLInputElement;
+                    const phoneInput = document.querySelector(
+                        'input[name="phone"]',
+                    ) as HTMLInputElement;
+
+                    if (fnameInput && !fnameInput.value)
+                        fnameInput.value = profile.first_name || "";
+                    if (lnameInput && !lnameInput.value)
+                        lnameInput.value = profile.last_name || "";
+                    if (phoneInput && !phoneInput.value)
+                        phoneInput.value = profile.phone || "";
+                }
+
+                if (address) {
+                    const fnameInput = document.querySelector(
+                        'input[name="firstname"]',
+                    ) as HTMLInputElement;
+                    const lnameInput = document.querySelector(
+                        'input[name="lastname"]',
+                    ) as HTMLInputElement;
+                    const phoneInput = document.querySelector(
+                        'input[name="phone"]',
+                    ) as HTMLInputElement;
+                    const addrInput = document.querySelector(
+                        'textarea[name="address"]',
+                    ) as HTMLTextAreaElement;
+                    const distInput = document.querySelector(
+                        'input[name="district"]',
+                    ) as HTMLInputElement;
+                    const provInput = document.querySelector(
+                        'input[name="province"]',
+                    ) as HTMLInputElement;
+                    const zipInput = document.querySelector(
+                        'input[name="zipcode"]',
+                    ) as HTMLInputElement;
+
+                    // Address overrides profile if available
+                    if (fnameInput)
+                        fnameInput.value =
+                            address.first_name || fnameInput.value;
+                    if (lnameInput)
+                        lnameInput.value =
+                            address.last_name || lnameInput.value;
+                    if (phoneInput)
+                        phoneInput.value = address.phone || phoneInput.value;
+
+                    if (addrInput)
+                        addrInput.value = [
+                            address.address_line1,
+                            address.district,
+                        ]
+                            .filter(Boolean)
+                            .join(", ");
+                    if (provInput) provInput.value = address.province || "";
+                    if (zipInput) zipInput.value = address.zip_code || "";
+                }
+            } catch (err) {
+                console.error("Error fetching user data:", err);
+            }
+        }
+        prefillUserData();
+        // -----------------------------
+
+        const cart = cartStore.get();
+        const { total } = cartStore.totals();
+        const container = document.getElementById("checkout-items-desktop");
+        const finalTotal = document.getElementById("final-total");
+
+        if (cart.length === 0) {
+            window.location.href = "/shop";
+            return;
+        }
+
+        if (container) {
+            container.innerHTML = cart
+                .map(
+                    (item: any) => `
+                <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
+                        <img src="${item.image}" class="w-full h-full object-cover opacity-80" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-bold text-sm truncate">${item.title}</h4>
+                        <p class="text-[#D4AF37] text-xs">${item.price.toLocaleString()} ฿ <span class="text-white/30">x ${item.quantity}</span></p>
+                    </div>
+                    <div class="text-white font-bold text-sm">
+                        ${(item.price * item.quantity).toLocaleString()} ฿
+                    </div>
+                </div>
+            `,
+                )
+                .join("");
+        }
+
+        if (finalTotal) finalTotal.innerText = total.toLocaleString() + " THB";
+
+        const fileInput = document.getElementById("slip-input");
+        const fileLabel = document.getElementById("file-label");
+
+        fileInput?.addEventListener("change", (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
+            if (file) {
+                if (file.size > 3 * 1024 * 1024) {
+                    alert(
+                        "⚠️ ไฟล์ภาพมีขนาดใหญ่เกินไป (ต้องไม่เกิน 3MB)\nกรุณาลดขนาดภาพหรือถ่ายภาพหน้าจอใหม่",
+                    );
+                    target.value = "";
+                    if (fileLabel) {
+                        fileLabel.innerText = "Attach Slip / Proof";
+                        fileLabel.classList.remove("text-[#D4AF37]");
+                    }
+                    return;
+                }
+                if (fileLabel) {
+                    fileLabel.innerText = "✓ Attached: " + file.name;
+                    fileLabel.classList.add("text-[#D4AF37]");
+                }
+            }
+        });
+
+        const btnPrompt = document.getElementById("btn-promptpay");
+        const btnCrypto = document.getElementById("btn-crypto");
+        const divPrompt = document.getElementById("payment-promptpay");
+        const divCrypto = document.getElementById("payment-crypto");
+
+        btnPrompt?.addEventListener("click", () => {
+            divPrompt?.classList.remove("hidden");
+            divCrypto?.classList.add("hidden");
+            btnPrompt.classList.add("bg-[#D4AF37]", "text-black");
+            btnPrompt.classList.remove("text-white/40");
+            btnCrypto?.classList.remove("bg-[#D4AF37]", "text-black");
+            btnCrypto?.classList.add("text-white/40");
+        });
+
+        btnCrypto?.addEventListener("click", () => {
+            divCrypto?.classList.remove("hidden");
+            divPrompt?.classList.add("hidden");
+            btnCrypto.classList.add("bg-[#D4AF37]", "text-black");
+            btnCrypto.classList.remove("text-white/40");
+            btnPrompt?.classList.remove("bg-[#D4AF37]", "text-black");
+            btnPrompt?.classList.add("text-white/40");
+        });
+
+        // --- ENHANCED METAMASK & CRYPTO PAYMENT LOGIC ---
+        let metamaskTxHash: string | null = null;
+        const btnMetamask = document.getElementById("btn-metamask-pay");
+        const merchantAddress = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
+
+        // --- ENHANCED NETWORK CONFIG (6 Networks) ---
+        const NETWORKS: any = {
+            ethereum: {
+                chainId: "0x1",
+                chainIdDecimal: 1,
+                chainName: "Ethereum Mainnet",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://eth.llamarpc.com"],
+                blockExplorerUrls: ["https://etherscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            bsc: {
+                chainId: "0x38",
+                chainIdDecimal: 56,
+                chainName: "BNB Smart Chain",
+                nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+                rpcUrls: ["https://bsc-dataseed.binance.org/"],
+                blockExplorerUrls: ["https://bscscan.com/"],
+                tokens: {
+                    usdt: {
+                        address: "0x55d398326f99059fF775485246999027B3197955",
+                        decimals: 18,
+                    },
+                    usdc: {
+                        address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        decimals: 18,
+                    },
+                },
+                priceKey: "bnb",
+            },
+            polygon: {
+                chainId: "0x89",
+                chainIdDecimal: 137,
+                chainName: "Polygon",
+                nativeCurrency: {
+                    name: "MATIC",
+                    symbol: "MATIC",
+                    decimals: 18,
+                },
+                rpcUrls: ["https://polygon-rpc.com/"],
+                blockExplorerUrls: ["https://polygonscan.com/"],
+                tokens: {
+                    usdt: {
+                        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "matic",
+            },
+            arbitrum: {
+                chainId: "0xa4b1",
+                chainIdDecimal: 42161,
+                chainName: "Arbitrum One",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+                blockExplorerUrls: ["https://arbiscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            optimism: {
+                chainId: "0xa",
+                chainIdDecimal: 10,
+                chainName: "Optimism",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.optimism.io"],
+                blockExplorerUrls: ["https://optimistic.etherscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            base: {
+                chainId: "0x2105",
+                chainIdDecimal: 8453,
+                chainName: "Base",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org/"],
+                tokens: {
+                    usdc: {
+                        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+        };
+
+        const networkSelect = document.getElementById(
+            "network-select",
+        ) as HTMLSelectElement;
+        const currencySelect = document.getElementById(
+            "currency-select",
+        ) as HTMLSelectElement;
+        const payBtnText = document.getElementById("pay-btn-text");
+
+        // Update Button Text Logic
+        const updatePayButtonText = () => {
+            if (!networkSelect || !currencySelect || !payBtnText) return;
+
+            const net = networkSelect.value;
+            const curr = currencySelect.value;
+            const networkName = net === "bsc" ? "BEP20" : "Polygon";
+
+            if (curr === "usdt") {
+                payBtnText.innerText = `ชำระด้วย USDT (${networkName})`;
+            } else {
+                const symbol = NETWORKS[net].nativeCurrency.symbol;
+                payBtnText.innerText = `ชำระด้วย ${symbol} (${networkName})`;
+            }
+        };
+
+        networkSelect?.addEventListener("change", updatePayButtonText);
+        currencySelect?.addEventListener("change", updatePayButtonText);
+
+        btnMetamask?.addEventListener("click", () => {
+            // WRAPPER FUNCTION TO HANDLE ASYNC
+            (async () => {
+                const ethereum = (window as any).ethereum;
+                if (!ethereum) {
+                    alert("กรุณาติดตั้ง Metamask ก่อนใช้งาน!");
+                    return;
+                }
+
+                if (!networkSelect || !currencySelect) return;
+
+                const selectedNetKey = networkSelect.value;
+                const selectedCurrency = currencySelect.value;
+                const config = NETWORKS[selectedNetKey];
+
+                const metamaskBtn = btnMetamask as HTMLButtonElement;
+
+                try {
+                    metamaskBtn.innerText = "กำลังสลับเครือข่าย...";
+                    metamaskBtn.disabled = true;
+
+                    // 1. Switch Network logic
+                    try {
+                        await ethereum.request({
+                            method: "wallet_switchEthereumChain",
+                            params: [{ chainId: config.chainId }],
+                        });
+                    } catch (switchError: any) {
+                        // This error code indicates that the chain has not been added to MetaMask.
+                        if (switchError.code === 4902) {
+                            try {
+                                await ethereum.request({
+                                    method: "wallet_addEthereumChain",
+                                    params: [
+                                        {
+                                            chainId: config.chainId,
+                                            chainName: config.chainName,
+                                            nativeCurrency:
+                                                config.nativeCurrency,
+                                            rpcUrls: config.rpcUrls,
+                                            blockExplorerUrls:
+                                                config.blockExplorerUrls,
+                                        },
+                                    ],
+                                });
+                            } catch (addError) {
+                                throw addError;
+                            }
+                        } else {
+                            throw switchError;
+                        }
+                    }
+
+                    metamaskBtn.innerText = "กำลังเชื่อมต่อ...";
+
+                    // 2. Connect Provider
+                    const provider = new ethers.BrowserProvider(ethereum);
+                    const signer = await provider.getSigner();
+
+                    // 3. Payment Logic with Real-Time Pricing
+                    let tx;
+
+                    // Fetch latest prices
+                    if (!cryptoPrices) {
+                        cryptoPrices = await fetchCryptoPrices();
+                    }
+
+                    if (
+                        selectedCurrency === "usdt" ||
+                        selectedCurrency === "usdc"
+                    ) {
+                        // --- STABLECOIN PAYMENT (USDT/USDC) ---
+                        const tokenConfig = config.tokens[selectedCurrency];
+                        if (!tokenConfig) {
+                            alert(
+                                `${selectedCurrency.toUpperCase()} not supported on ${config.chainName}`,
+                            );
+                            metamaskBtn.disabled = false;
+                            return;
+                        }
+
+                        const tokenAbi = [
+                            "function transfer(address to, uint amount) returns (bool)",
+                            "function decimals() view returns (uint8)",
+                        ];
+                        const contract = new ethers.Contract(
+                            tokenConfig.address,
+                            tokenAbi,
+                            signer,
+                        );
+
+                        // Calculate Amount using real-time price
+                        const price = cryptoPrices[selectedCurrency];
+                        const amount = (total / price).toFixed(2);
+                        metamaskBtn.innerText = `กำลังชำระ ${amount} ${selectedCurrency.toUpperCase()}...`;
+
+                        const amountInWei = ethers.parseUnits(
+                            amount,
+                            tokenConfig.decimals,
+                        );
+
+                        const txResponse = await contract.transfer(
+                            merchantAddress,
+                            amountInWei,
+                        );
+                        tx = txResponse;
+                    } else {
+                        // --- NATIVE COIN PAYMENT ---
+                        const priceKey = config.priceKey;
+                        const price = cryptoPrices[priceKey];
+                        const amount = (total / price).toFixed(6);
+                        metamaskBtn.innerText = `กำลังชำระ ${amount} ${config.nativeCurrency.symbol}...`;
+
+                        const txResponse = await signer.sendTransaction({
+                            to: merchantAddress,
+                            value: ethers.parseEther(amount),
+                        });
+                        tx = txResponse;
+                    }
+
+                    if (tx) {
+                        metamaskTxHash = tx.hash;
+                        metamaskBtn.innerText = "กำลังตรวจสอบ...";
+                        await tx.wait();
+
+                        // 4. Success using the outer tx variable or local if logic preserved
+                        metamaskBtn.innerText = "✓ ชำระเงินสำเร็จ";
+                        metamaskBtn.classList.add(
+                            "bg-green-500",
+                            "border-green-500",
+                        );
+                        metamaskBtn.classList.remove("bg-[#26A17B]");
+
+                        alert(`ชำระเงินเรียบร้อยแล้ว!\nTx Hash: ${tx.hash}`);
+
+                        const fileLabel = document.getElementById("file-label");
+                        if (fileLabel) {
+                            fileLabel.innerText = "✓ ตรวจสอบโดย Metamask แล้ว";
+                            fileLabel.classList.add("text-[#D4AF37]");
+                        }
+                    }
+                } catch (err: any) {
+                    console.error(err);
+                    alert("การชำระเงินล้มเหลว: " + (err.reason || err.message));
+                    updatePayButtonText(); // Reset text
+                    metamaskBtn.disabled = false;
+                }
+            })();
+        });
+
+        // -----------------------------------------------------------
+        // HANDLE SUBMIT
+        // -----------------------------------------------------------
+        const form = document.getElementById("checkout-form");
+
+        const fileToBase64 = (file: File) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+            });
+        };
+
+        form?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // [B] HONEYPOT CHECK
+            const honeypot = (
+                document.getElementById("website-honeypot") as HTMLInputElement
+            ).value;
+            if (honeypot) {
+                console.warn("Bot detected!");
+                return;
+            }
+
+            // [C] MATH CAPTCHA CHECK
+            const userAnswer = parseInt(
+                (document.getElementById("captcha-input") as HTMLInputElement)
+                    .value,
+            );
+            if (userAnswer !== correctSum) {
+                alert(`❌ คำตอบผิดครับ! กรุณาตรวจสอบผลบวก (${n1} + ${n2})`);
+                return;
+            }
+
+            const submitBtn = form.querySelector(
+                'button[type="submit"]',
+            ) as HTMLButtonElement;
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Uploading & Processing...";
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+            const formData = new FormData(e.target as HTMLFormElement);
+            const customerInfo = Object.fromEntries(formData.entries());
+            const items = cartStore.get();
+            const { total } = cartStore.totals();
+            const orderId = `ORD-${new Date().getFullYear()}${Math.floor(Math.random() * 10000)}`;
+            const isCrypto = document
+                .getElementById("btn-crypto")
+                ?.classList.contains("bg-[#D4AF37]");
+            const paymentMethod = isCrypto ? "Crypto (BTC)" : "PromptPay";
+
+            let slipData: {
+                image: string | null;
+                name: string | null;
+                type: string | null;
+            } = { image: null, name: null, type: null };
+            const file = (
+                document.getElementById("slip-input") as HTMLInputElement
+            ).files?.[0];
+
+            if (file) {
+                try {
+                    const base64: any = await fileToBase64(file);
+                    slipData.image = base64.split(",")[1];
+                    slipData.name = file.name;
+                    slipData.type = file.type;
+                } catch (err) {
+                    console.error("File error", err);
+                }
+            }
+
+            const orderData = {
+                id: orderId,
+                customer: customerInfo,
+                items: items,
+                total: total,
+                paymentMethod: paymentMethod,
+                date: new Date().toLocaleString("th-TH"),
+                slipImage: slipData.image,
+                slipName: slipData.name,
+                slipMimeType: slipData.type,
+            };
+
+            // *** ใส่ URL ของคุณตรงนี้ ***
+            const GOOGLE_SCRIPT_URL =
+                "https://script.google.com/macros/s/AKfycbz_URL_ของคุณ_ที่นี่/exec";
+
+            try {
+                // If Metamask was used, use empty slip logic but include TX Hash in customer info or notes
+                if (metamaskTxHash) {
+                    orderData.slipName = "Metamask Tx";
+                    orderData.slipImage = "TX:" + metamaskTxHash;
+                }
+                // Only require slip if NOT promptpay (which requires slip) BUT wait, promptpay is manual.
+                // Let's rely on standard flow: if file attached, use it. If Metamask hash exists, use that.
+
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(orderData),
+                });
+
+                localStorage.setItem("lastOrder", JSON.stringify(orderData));
+                cartStore.clear();
+                window.location.href = "/thankyou";
+            } catch (error) {
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง");
+                console.error("Checkout Error:", error);
+
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes scan {
+        0% {
+            top: 0%;
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            top: 100%;
+            opacity: 0;
+        }
+    }
+    .animate-scan {
+        animation: scan 2s linear infinite;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

@@ -1,0 +1,1117 @@
+[
+  {
+    "id": "cryptoclock-basic",
+    "category": "clock",
+    "meta": {
+      "title": "CryptoClock Basic",
+      "description": "นาฬิกาคริปโตยอดนิยม รุ่นเริ่มต้น ขนาดกะทัดรัด เหมาะสำหรับตั้งโต๊ะทำงาน เชื่อมต่อ WiFi แสดงราคาได้ทั่วโลก",
+      "tags": [
+        "BEST SELLER",
+        "STARTER"
+      ]
+    },
+    "pricing": {
+      "basePrice": 980,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/cryptoclock-basic/Basic_White_Center.webp",
+      "gallery": [
+        "/images/products/cryptoclock-basic/Basic_White_Center.webp",
+        "/images/products/cryptoclock-basic/Basic_Black_Center.webp",
+        "/images/products/cryptoclock-basic/Basic_Tran_Center.webp"
+      ]
+    },
+    "config": {
+      "variantType": "color",
+      "variants": [
+        {
+          "name": "White",
+          "price": 980,
+          "value": "#F0F0F0",
+          "image": "/images/products/cryptoclock-basic/Basic_White_Center.webp"
+        },
+        {
+          "name": "Black",
+          "price": 980,
+          "value": "#111111",
+          "image": "/images/products/cryptoclock-basic/Basic_Black_Center.webp"
+        },
+        {
+          "name": "Transparent",
+          "price": 980,
+          "value": "#E5E5E5",
+          "image": "/images/products/cryptoclock-basic/Basic_Tran_Center.webp"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Why Basic?",
+      "subheadline": "จุดเริ่มต้นของการเป็น Bitcoiner",
+      "benefits": [
+        {
+          "title": "Minimal Design",
+          "desc": "ดีไซน์มินิมอล เข้าได้กับทุกโต๊ะทำงาน",
+          "icon": "gift"
+        },
+        {
+          "title": "Real-time Data",
+          "desc": "เชื่อมต่อ API โดยตรง ไม่ดีเลย์",
+          "icon": "chart"
+        },
+        {
+          "title": "Plug & Play",
+          "desc": "เสียบปลั๊ก ตั้งค่า WiFi จบใน 1 นาที",
+          "icon": "shop"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "CPU",
+        "value": "Dual-core 32-bit (240MHz)"
+      },
+      {
+        "label": "RAM/Flash",
+        "value": "520KB SRAM / 32Mbit Flash"
+      },
+      {
+        "label": "Display",
+        "value": "LED Matrix (Adjustable Brightness)"
+      },
+      {
+        "label": "Connectivity",
+        "value": "WiFi 802.11 b/g/n (2.4GHz)"
+      },
+      {
+        "label": "Power Input",
+        "value": "USB-C (4.75-5.25V)"
+      },
+      {
+        "label": "Dimension",
+        "value": "DIP-16 Form Factor"
+      }
+    ],
+    "manualLink": "/knowledge/cryptoclock-basic"
+  },
+  {
+    "id": "cryptoclock-pro",
+    "category": "clock",
+    "meta": {
+      "title": "CryptoClock Pro",
+      "description": "ยกระดับการติดตามตลาดด้วยหน้าจอ IPS LCD Full Color ความละเอียดสูง แสดงกราฟแท่งเทียน (Candlestick) ย้อนหลังและมูลค่า Portfolio ของคุณแบบ Real-time มาพร้อมชิปประมวลผล Dual-Core เร็วแรงไม่อืด",
+      "tags": [
+        "POPULAR",
+        "TRADER",
+        "CHART"
+      ]
+    },
+    "pricing": {
+      "basePrice": 1490,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/cryptoclock-pro/cryptoclock-pro.webp",
+      "gallery": [
+        "/images/products/cryptoclock-pro/cryptoclock-pro.webp",
+        "/images/cryptoclock-pro/cryptoclock-pro-nfc.webp"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Standard Edition",
+          "price": 1490,
+          "image": "/images/products/cryptoclock-pro/cryptoclock-pro.webp"
+        },
+        {
+          "name": "NFC Edition",
+          "price": 1990,
+          "image": "/images/products/cryptoclock-pro/cryptoclock-pro-nfc.webp"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Visualize Trends",
+      "subheadline": "เห็นเทรนด์ก่อนใคร ตัดสินใจแม่นยำกว่า",
+      "benefits": [
+        {
+          "title": "Candlestick Chart",
+          "desc": "แสดงกราฟแท่งเทียน Timeframe 15m, 1H, 4H, 1D วิเคราะห์เทรนด์ได้ทันทีโดยไม่ต้องเปิดคอม",
+          "icon": "chart"
+        },
+        {
+          "title": "Portfolio Tracker",
+          "desc": "เชื่อมต่อ API (Read-only) เพื่อแสดงมูลค่าพอร์ตของคุณรวมทุก Exchange",
+          "icon": "money"
+        },
+        {
+          "title": "IPS Full Color",
+          "desc": "หน้าจอสีสันสดใส ความละเอียดสูง มองเห็นชัดเจนรอบทิศทาง 178 องศา",
+          "icon": "shop"
+        },
+        {
+          "title": "Touch & Tap",
+          "desc": "รองรับปุ่มสัมผัส (Capacitive Touch) เพื่อเปลี่ยนเหรียญหรือเปลี่ยนโหมดการแสดงผล",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Display",
+        "value": "1.9\" IPS LCD (240x280 px)"
+      },
+      {
+        "label": "Processor",
+        "value": "ESP32-S3 Dual-Core 240MHz"
+      },
+      {
+        "label": "Wireless",
+        "value": "Wi-Fi 2.4GHz + Bluetooth LE"
+      },
+      {
+        "label": "Sensors",
+        "value": "Capacitive Touch Button"
+      },
+      {
+        "label": "NFC (Optional)",
+        "value": "Tap to Config / Tap to Open App"
+      },
+      {
+        "label": "Power",
+        "value": "USB-C (5V/1A)"
+      },
+      {
+        "label": "Material",
+        "value": "Matte Acrylic Case"
+      }
+    ],
+    "manualLink": "/knowledge/cryptoclock-pro"
+  },
+  {
+    "id": "cryptoclock-epaper",
+    "category": "clock",
+    "meta": {
+      "title": "CryptoClock ePaper",
+      "description": "นวัตกรรมนาฬิกาคริปโตหน้าจอ E-Ink (Electronic Paper) ให้ความรู้สึกเหมือนอ่านจากกระดาษจริง ถนอมสายตา ไม่มีแสงสีฟ้ารบกวนการนอน และประหยัดพลังงานขั้นสุด",
+      "tags": [
+        "E-INK",
+        "PREMIUM",
+        "ECO",
+        "ZEN"
+      ]
+    },
+    "pricing": {
+      "basePrice": 3990,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/cryptoclock-epaper/4.7-front.webp",
+      "gallery": [
+        "/images/products/cryptoclock-epaper/4.7-front.webp",
+        "/images/products/cryptoclock-epaper/7.5-front.webp"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "4.7 Inch (Desk Size)",
+          "price": 3990,
+          "image": "/images/products/cryptoclock-epaper/4.7-front.webp"
+        },
+        {
+          "name": "7.5 Inch (Wall Size)",
+          "price": 5990,
+          "image": "/images/products/cryptoclock-epaper/7.5-front.webp"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Digital Zen",
+      "subheadline": "สงบ เรียบง่าย แต่ทรงพลัง",
+      "benefits": [
+        {
+          "title": "Zero Blue Light",
+          "desc": "ไม่มีแสง Backlight รบกวนสายตา เหมาะสำหรับวางในห้องนอนหรือห้องทำงานสไตล์ Zen",
+          "icon": "gift"
+        },
+        {
+          "title": "Paper Texture",
+          "desc": "เทคโนโลยี E-Ink ให้ความคมชัดสูงเหมือนหมึกพิมพ์บนกระดาษจริง มองเห็นชัดแม้แดดจ้า",
+          "icon": "shop"
+        },
+        {
+          "title": "Always On",
+          "desc": "หน้าจอแสดงผลค้างไว้ได้ตลอดเวลาแม้ไม่มีไฟเลี้ยง (Bi-stable display)",
+          "icon": "chart"
+        },
+        {
+          "title": "Battery Life",
+          "desc": "แบตเตอรี่ในตัวชาร์จ 1 ครั้งอยู่ได้นาน 30-60 วัน (ขึ้นอยู่กับความถี่ในการอัปเดต)",
+          "icon": "money"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Display Tech",
+        "value": "E-Ink / Electronic Paper"
+      },
+      {
+        "label": "Resolution",
+        "value": "960x540 (4.7\") / 800x480 (7.5\")"
+      },
+      {
+        "label": "Viewing Angle",
+        "value": "178° (Paper-like)"
+      },
+      {
+        "label": "Battery",
+        "value": "2000mAh Li-Po (Rechargeable)"
+      },
+      {
+        "label": "Frame Material",
+        "value": "Solid Teak Wood / Ash Wood"
+      },
+      {
+        "label": "Connectivity",
+        "value": "Wi-Fi Low Energy"
+      },
+      {
+        "label": "Refresh Time",
+        "value": "~2s (Partial) / ~15s (Full)"
+      }
+    ],
+    "manualLink": "/knowledge/cryptoclock-epaper"
+  },
+  {
+    "id": "cryptoclock-saving",
+    "category": "clock",
+    "meta": {
+      "title": "CryptoClock Saving",
+      "description": "นาฬิกาคริปโตดีไซน์ Retro รุ่นประหยัดพลังงาน แสดงผลด้วยตัวเลข 7-Segment สุดคลาสสิก ตัดสิ่งรบกวนเหลือเพียงราคาที่คุณโฟกัส เหมาะสำหรับวางหัวเตียงหรือโต๊ะทำงานมินิมอล",
+      "tags": [
+        "BUDGET",
+        "RETRO",
+        "ECO",
+        "GIFT"
+      ]
+    },
+    "pricing": {
+      "basePrice": 980,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/cryptoclock-saving/white.webp",
+      "gallery": [
+        "/images/products/cryptoclock-saving/white.webp",
+        "/images/products/cryptoclock-saving/black.webp",
+        "/images/products/cryptoclock-saving/orange.webp"
+      ]
+    },
+    "config": {
+      "variantType": "color",
+      "variants": [
+        {
+          "name": "Classic White",
+          "price": 980,
+          "value": "#F0F0F0",
+          "image": "/images/products/cryptoclock-saving/white.webp"
+        },
+        {
+          "name": "Matte Black",
+          "price": 980,
+          "value": "#111111",
+          "image": "/images/products/cryptoclock-saving/black.webp"
+        },
+        {
+          "name": "Neon Orange",
+          "price": 980,
+          "value": "#FF6B00",
+          "image": "/images/products/cryptoclock-saving/orange.webp"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Proof of Savings",
+      "subheadline": "สะสมอย่างมีสไตล์ เรียบง่ายในโลกที่วุ่นวาย",
+      "benefits": [
+        {
+          "title": "Low Time Preference",
+          "desc": "กินไฟน้อยกว่า 1W เปิดเฝ้าราคาได้ทั้งปี ค่าไฟถูกกว่าค่าธรรมเนียมถอนเหรียญ (ไม่ถึง 20 บาทต่อปี)",
+          "icon": "time"
+        },
+        {
+          "title": "HODL Aesthetic",
+          "desc": "เคส 3D Print ดีไซน์เฉพาะตัว พร้อมตัวเลข 7-Segment สีแดงสด ให้ฟีลสิ่งดิบเท่แบบ Cyberpunk ยุค 90s",
+          "icon": "diamond"
+        },
+        {
+          "title": "Direct Stacking",
+          "desc": "สแกน QR Code บนหน้าจอเพื่อเติม Bitcoin เข้า Wallet ได้ทันที เปลี่ยนการออมให้เป็นกิจวัตรที่จับต้องได้",
+          "icon": "money"
+        },
+        {
+          "title": "Signal over Noise",
+          "desc": "แสดงเพียง 'Signal' ราคาที่คุณต้องการ ตัด 'Noise' กราฟที่วุ่นวายออกไป เพื่อสมาธิในการถือยาว",
+          "icon": "zap"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Display",
+        "value": "0.96\" Red LED 7-Segment"
+      },
+      {
+        "label": "Brightness",
+        "value": "Auto-Dimming (Day/Night)"
+      },
+      {
+        "label": "Connectivity",
+        "value": "Wi-Fi 2.4GHz (ESP8266)"
+      },
+      {
+        "label": "Power Input",
+        "value": "USB-C (5V/0.5A)"
+      },
+      {
+        "label": "Dimensions",
+        "value": "60 x 30 x 25 mm (Ultra Compact)"
+      },
+      {
+        "label": "Weight",
+        "value": "35g (Lightweight)"
+      },
+      {
+        "label": "Setup",
+        "value": "Web Config Interface"
+      }
+    ],
+    "manualLink": "/knowledge/cryptoclock-saving"
+  },
+  {
+    "id": "bitterm-series",
+    "category": "kiosk",
+    "meta": {
+      "title": "BiTTerm Series",
+      "description": "ตู้ Bitcoin ATM (Lightning Network) สำหรับร้านค้าและพื้นที่สาธารณะ เปลี่ยนเงินสดเป็น Bitcoin ได้ใน 5 วินาที สร้างรายได้ Passive Income จากค่าธรรมเนียมธุรกรรม ดึงดูดลูกค้ากลุ่มใหม่เข้าร้าน",
+      "tags": [
+        "BUSINESS",
+        "PASSIVE INCOME",
+        "B2B",
+        "ATM"
+      ]
+    },
+    "pricing": {
+      "basePrice": 7500,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/bitterm-series/mini-front.webp",
+      "gallery": [
+        "/images/products/bitterm-series/mini-front.webp",
+        "/images/products/bitterm-series/pro-standing.webp",
+        "/images/products/bitterm-series/action-insert.webp",
+        "/images/products/bitterm-series/lifestyle-mall.webp"
+      ]
+    },
+    "config": {
+      "variantType": "composite",
+      "options": [
+        {
+          "name": "Hardware Model",
+          "values": [
+            {
+              "name": "Coin Only (Compact)",
+              "image": "/images/products/bitterm-series/mini-front.webp"
+            },
+            {
+              "name": "Bill Only (Kiosk)",
+              "image": "/images/products/bitterm-series/pro-standing.webp"
+            },
+            {
+              "name": "Hybrid (Coin + Bill)",
+              "image": "/images/products/bitterm-series/pro-standing.webp"
+            }
+          ]
+        },
+        {
+          "name": "Payment System",
+          "values": [
+            {
+              "name": "Crypto Only (Standard)"
+            },
+            {
+              "name": "Crypto + PromptPay"
+            }
+          ]
+        }
+      ],
+      "combinations": [
+        {
+          "indices": [
+            0,
+            0
+          ],
+          "price": 7500,
+          "sku": "MINI-COIN-STD"
+        },
+        {
+          "indices": [
+            0,
+            1
+          ],
+          "price": 16000,
+          "sku": "MINI-COIN-PRO"
+        },
+        {
+          "indices": [
+            1,
+            0
+          ],
+          "price": 17500,
+          "sku": "PRO-BILL-STD"
+        },
+        {
+          "indices": [
+            1,
+            1
+          ],
+          "price": 26000,
+          "sku": "PRO-BILL-PRO"
+        },
+        {
+          "indices": [
+            2,
+            0
+          ],
+          "price": 21000,
+          "sku": "PRO-HYBRID-STD"
+        },
+        {
+          "indices": [
+            2,
+            1
+          ],
+          "price": 29500,
+          "sku": "PRO-HYBRID-PRO"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Turn Cash to Crypto",
+      "subheadline": "เปลี่ยนพื้นที่ว่าง ให้ทำเงิน 24 ชม.",
+      "benefits": [
+        {
+          "title": "Earn Fees",
+          "desc": "กำหนดค่าธรรมเนียมตู้ได้เอง (เช่น 1-5%) สร้างรายได้ทันทีที่มีคนใช้งาน",
+          "icon": "money"
+        },
+        {
+          "title": "Attract Customers",
+          "desc": "ดึงดูดกลุ่มลูกค้า Crypto & Tech Savvy ให้เดินทางมาที่ร้านของคุณ (Bitcoin Tourism)",
+          "icon": "shop"
+        },
+        {
+          "title": "Industrial Grade",
+          "desc": "ตัวรับธนบัตร ICT เกรดเดียวกับตู้บุญเติม คัดแยกแบงค์ปลอมแม่นยำ 99.9%",
+          "icon": "chart"
+        },
+        {
+          "title": "Lightning Speed",
+          "desc": "ลูกค้าได้รับ Bitcoin ทันทีผ่าน Lightning Network ไม่ต้องยืนรอนาน",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Bill Acceptor",
+        "value": "ICT V77E / XBA (Industrial Grade)"
+      },
+      {
+        "label": "Stacker Capacity",
+        "value": "200 Bills (Mini) / 1000 Bills (Pro)"
+      },
+      {
+        "label": "Display",
+        "value": "7\" Touchscreen (Mini) / 10.1\" (Pro)"
+      },
+      {
+        "label": "Controller",
+        "value": "Raspberry Pi 4 / 5"
+      },
+      {
+        "label": "Network",
+        "value": "Wi-Fi Dual Band / Ethernet RJ45"
+      },
+      {
+        "label": "Security",
+        "value": "Steel Enclosure + Kensington Lock"
+      },
+      {
+        "label": "Protocol",
+        "value": "LNBits / LNURL-Withdraw"
+      },
+      {
+        "label": "Power",
+        "value": "12V DC (Adapter Included)"
+      }
+    ],
+    "manualLink": "/knowledge/bitterm-series"
+  },
+  {
+    "id": "bitpos-terminal",
+    "category": "pos",
+    "meta": {
+      "title": "BiTPos Terminal",
+      "description": "เครื่องรับชำระเงิน Bitcoin All-in-One สำหรับร้านค้า รองรับ Lightning Network, NFC Cards และพิมพ์ใบเสร็จในตัว เปลี่ยนร้านค้าธรรมดาให้เป็น Crypto-Friendly ในวินาทีเดียว",
+      "tags": [
+        "MERCHANT",
+        "B2B",
+        "NFC"
+      ]
+    },
+    "pricing": {
+      "basePrice": 8900,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/bitpos-terminal/main.webp",
+      "gallery": [
+        "/images/products/bitpos-terminal/main.webp"
+      ]
+    },
+    "config": {
+      "variantType": "composite",
+      "options": [
+        {
+          "name": "Model",
+          "values": [
+            {
+              "name": "Android Tablet",
+              "image": "/images/products/bitpos-terminal/main.webp"
+            },
+            {
+              "name": "Handheld",
+              "image": "/images/products/bitpos-terminal/main.webp"
+            },
+            {
+              "name": "Mini PC",
+              "image": "/images/products/bitpos-terminal/main.webp"
+            },
+            {
+              "name": "Mini PC 2 Screen",
+              "image": "/images/products/bitpos-terminal/main.webp"
+            }
+          ]
+        },
+        {
+          "name": "Option",
+          "values": [
+            {
+              "name": "No Printer + No Cash Box"
+            },
+            {
+              "name": "Thermal Printer + No Cash Box"
+            },
+            {
+              "name": "No Printer + Cash Box"
+            },
+            {
+              "name": "Thermal Printer + Cash Box"
+            }
+          ]
+        }
+      ],
+      "combinations": [
+        {
+          "indices": [
+            0,
+            0
+          ],
+          "price": 8900,
+          "sku": "TAB-NONE"
+        },
+        {
+          "indices": [
+            0,
+            1
+          ],
+          "price": 10900,
+          "sku": "TAB-PRN"
+        },
+        {
+          "indices": [
+            0,
+            2
+          ],
+          "price": 10400,
+          "sku": "TAB-BOX"
+        },
+        {
+          "indices": [
+            0,
+            3
+          ],
+          "price": 12400,
+          "sku": "TAB-FULL"
+        },
+        {
+          "indices": [
+            1,
+            0
+          ],
+          "price": 10900,
+          "sku": "HH-NONE"
+        },
+        {
+          "indices": [
+            1,
+            1
+          ],
+          "price": 12900,
+          "sku": "HH-PRN"
+        },
+        {
+          "indices": [
+            1,
+            2
+          ],
+          "price": 12400,
+          "sku": "HH-BOX"
+        },
+        {
+          "indices": [
+            1,
+            3
+          ],
+          "price": 14400,
+          "sku": "HH-FULL"
+        },
+        {
+          "indices": [
+            2,
+            0
+          ],
+          "price": 13900,
+          "sku": "PC-NONE"
+        },
+        {
+          "indices": [
+            2,
+            1
+          ],
+          "price": 15900,
+          "sku": "PC-PRN"
+        },
+        {
+          "indices": [
+            2,
+            2
+          ],
+          "price": 15400,
+          "sku": "PC-BOX"
+        },
+        {
+          "indices": [
+            2,
+            3
+          ],
+          "price": 17400,
+          "sku": "PC-FULL"
+        },
+        {
+          "indices": [
+            3,
+            0
+          ],
+          "price": 16900,
+          "sku": "PC2-NONE"
+        },
+        {
+          "indices": [
+            3,
+            1
+          ],
+          "price": 18900,
+          "sku": "PC2-PRN"
+        },
+        {
+          "indices": [
+            3,
+            2
+          ],
+          "price": 18400,
+          "sku": "PC2-BOX"
+        },
+        {
+          "indices": [
+            3,
+            3
+          ],
+          "price": 20400,
+          "sku": "PC2-FULL"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Future Payment",
+      "subheadline": "รับเงินล้าน ผ่าน Lightning",
+      "benefits": [
+        {
+          "title": "Instant Settlement",
+          "desc": "เงินเข้ากระเป๋าทันที ไม่ต้องรอเคลียร์ยอดข้ามวันเหมือนบัตรเครดิต",
+          "icon": "money"
+        },
+        {
+          "title": "Zero Chargeback",
+          "desc": "หมดปัญหาลูกค้าปฏิเสธการจ่ายเงิน ธุรกรรมสำเร็จแล้วย้อนกลับไม่ได้",
+          "icon": "chart"
+        },
+        {
+          "title": "Built-in Printer",
+          "desc": "พิมพ์ใบเสร็จ QR Code ได้ทันทีในตัว ไม่ต้องต่อเครื่องแยก",
+          "icon": "shop"
+        },
+        {
+          "title": "NFC Ready",
+          "desc": "รองรับการแตะจ่ายด้วย Bolt Card และแหวน NFC สะดวกรวดเร็ว",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "OS",
+        "value": "Android 13 (Secure ROM)"
+      },
+      {
+        "label": "Display",
+        "value": "5.5\" IPS HD+ Touchscreen"
+      },
+      {
+        "label": "Processor",
+        "value": "Quad-Core 1.8GHz"
+      },
+      {
+        "label": "Printer",
+        "value": "58mm High-Speed Thermal (70mm/s)"
+      },
+      {
+        "label": "Connectivity",
+        "value": "4G LTE / Wi-Fi Dual Band / Bluetooth 5.0"
+      },
+      {
+        "label": "Battery",
+        "value": "5200mAh (ใช้งานต่อเนื่อง 24 ชม.)"
+      },
+      {
+        "label": "Camera",
+        "value": "5MP Rear Camera (Auto Focus for QR)"
+      },
+      {
+        "label": "Port",
+        "value": "USB-C (Fast Charging)"
+      }
+    ],
+    "manualLink": "/knowledge/bitpos-terminal"
+  },
+  {
+    "id": "bitnode-personal",
+    "category": "node",
+    "meta": {
+      "title": "BiTNode Personal",
+      "description": "เซิร์ฟเวอร์ส่วนตัวสำหรับรัน Bitcoin Full Node และ Lightning Network มาพร้อม OS สำเร็จรูป (Umbrel/Start9) ใช้งานง่ายเหมือน Smartphone ให้คุณเป็นธนาคารด้วยตัวเองอย่างสมบูรณ์แบบ",
+      "tags": [
+        "PRIVACY",
+        "CORE",
+        "WEB3",
+        "SELF-HOSTED"
+      ]
+    },
+    "pricing": {
+      "basePrice": 25500,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "/images/products/bitnode-personal/umbrelhome.webp",
+      "gallery": [
+        "/images/products/bitnode-personal/umbrelhome.webp",
+        "/images/products/bitnode-personal/rpi.webp"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Umbrel Home",
+          "price": 49000,
+          "image": "/images/products/bitnode-personal/umbrelhome.webp"
+        },
+        {
+          "name": "Rpi",
+          "price": 25500,
+          "image": "/images/products/bitnode-personal/rpi.webp"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Don't Trust, Verify",
+      "subheadline": "ธนาคารส่วนตัวที่คุณเป็นเจ้าของ 100%",
+      "benefits": [
+        {
+          "title": "Ultimate Privacy",
+          "desc": "ตรวจสอบธุรกรรมด้วยตัวเอง ไม่ต้องพึ่งพา Server ของคนอื่น (No Leaked XPUB)",
+          "icon": "gift"
+        },
+        {
+          "title": "Lightning Ready",
+          "desc": "เปิด Payment Channel และรับค่าธรรมเนียม Routing ได้ทันที",
+          "icon": "money"
+        },
+        {
+          "title": "App Store",
+          "desc": "มาพร้อม App Store ในตัว: Nextcloud, Pi-hole, Plex, Home Assistant ติดตั้งง่ายในคลิกเดียว",
+          "icon": "shop"
+        },
+        {
+          "title": "Silent & Cool",
+          "desc": "เคสอลูมิเนียมระบายความร้อนทั้งตัว (Passive Cooling) เงียบสนิท ไม่มีเสียงพัดลมรบกวน",
+          "icon": "chart"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "CPU",
+        "value": "Broadcom BCM2712 (Quad-core 2.4GHz)"
+      },
+      {
+        "label": "RAM",
+        "value": "8GB LPDDR4X-4267 (Max Speed)"
+      },
+      {
+        "label": "Storage Interface",
+        "value": "PCIe 2.0 x1 (NVMe SSD Support)"
+      },
+      {
+        "label": "Network",
+        "value": "Gigabit Ethernet (PoE+ capable)"
+      },
+      {
+        "label": "OS",
+        "value": "UmbrelOS / Start9 (Pre-installed)"
+      },
+      {
+        "label": "Cooling",
+        "value": "Full Aluminum Armor Case (Passive)"
+      },
+      {
+        "label": "Power",
+        "value": "USB-C PD (27W Recommended)"
+      },
+      {
+        "label": "Sync Speed",
+        "value": "~2-3 Days (IBD)"
+      }
+    ],
+    "manualLink": "/knowledge/bitnode-personal"
+  },
+  {
+    "id": "bitcoin-hodl-shirt",
+    "category": "shirt",
+    "meta": {
+      "title": "Bitcoin Hodl T-Shirt",
+      "description": "เสื้อยืด Cotton 100% ลาย Bitcoin Hodl ใส่สบาย ระบายอากาศได้ดี เหมาะสำหรับใส่ไปงาน Meetup หรือใส่เล่นอยู่บ้าน",
+      "tags": [
+        "APPAREL",
+        "COTTON",
+        "HODL"
+      ]
+    },
+    "pricing": {
+      "basePrice": 450,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=Bitcoin+Shirt",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=Bitcoin+Shirt"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "S",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+S"
+        },
+        {
+          "name": "M",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+M"
+        },
+        {
+          "name": "L",
+          "price": 450,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+L"
+        },
+        {
+          "name": "XL",
+          "price": 490,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Size+XL"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Wear Your Belief",
+      "subheadline": "บ่งบอกความเป็น Bitcoiner ในตัวคุณ",
+      "benefits": [
+        {
+          "title": "Premium Cotton",
+          "desc": "ผ้าฝ้ายแท้ 100% นุ่มสบาย ไม่ระคายเคืองผิว",
+          "icon": "gift"
+        },
+        {
+          "title": "Durable Print",
+          "desc": "สกรีนลายด้วยเทคโนโลยี DTG สีสด ติดทนนาน ไม่ลอกง่าย",
+          "icon": "shop"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "100% Cotton Comb 32"
+      },
+      {
+        "label": "Size",
+        "value": "S, M, L, XL"
+      }
+    ]
+  },
+  {
+    "id": "btc-metal-keychain",
+    "category": "keychain",
+    "meta": {
+      "title": "BTC Metal Keychain",
+      "description": "พวงกุญแจโลหะลาย Bitcoin สีทอง หรูหรา ทนทาน เหมาะสำหรับห้อยกุญแจรถหรือกระเป๋า",
+      "tags": [
+        "ACCESSORY",
+        "METAL",
+        "GIFT"
+      ]
+    },
+    "pricing": {
+      "basePrice": 199,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=BTC+Keychain",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=BTC+Keychain"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Gold",
+          "price": 199,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Gold"
+        },
+        {
+          "name": "Silver",
+          "price": 199,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Silver"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Carry Bitcoin Everywhere",
+      "subheadline": "พกพาความมั่งคั่งไปกับคุณทุกที่",
+      "benefits": [
+        {
+          "title": "Solid Metal",
+          "desc": "ผลิตจากโลหะผสม Zinc Alloy แข็งแรง ทนทาน",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "Zinc Alloy"
+      },
+      {
+        "label": "Diameter",
+        "value": "40mm"
+      }
+    ]
+  },
+  {
+    "id": "to-the-moon-mug",
+    "category": "mug",
+    "meta": {
+      "title": "To The Moon Mug",
+      "description": "แก้วเซรามิกคุณภาพดี สกรีนลาย To The Moon สำหรับจิบกาแฟยามเช้าพร้อมดูตารางราคา",
+      "tags": [
+        "LIFESTYLE",
+        "CERAMIC",
+        "HOME"
+      ]
+    },
+    "pricing": {
+      "basePrice": 290,
+      "currency": "THB"
+    },
+    "media": {
+      "mainImage": "https://placehold.co/600x800/1a1a1a/FFF?text=Moon+Mug",
+      "gallery": [
+        "https://placehold.co/600x800/1a1a1a/FFF?text=Moon+Mug"
+      ]
+    },
+    "config": {
+      "variantType": "text",
+      "variants": [
+        {
+          "name": "Black",
+          "price": 290,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=Black+Mug"
+        },
+        {
+          "name": "White",
+          "price": 290,
+          "image": "https://placehold.co/600x800/1a1a1a/FFF?text=White+Mug"
+        }
+      ]
+    },
+    "marketing": {
+      "headline": "Morning Pump",
+      "subheadline": "เริ่มต้นวันใหม่ด้วยพลังแห่ง Bitcoin",
+      "benefits": [
+        {
+          "title": "High Quality Ceramic",
+          "desc": "เซรามิกเกรด A ทนความร้อน เข้าไมโครเวฟได้",
+          "icon": "gift"
+        }
+      ]
+    },
+    "techSpecs": [
+      {
+        "label": "Material",
+        "value": "Ceramic"
+      },
+      {
+        "label": "Capacity",
+        "value": "11 oz"
+      }
+    ]
+  }
+]

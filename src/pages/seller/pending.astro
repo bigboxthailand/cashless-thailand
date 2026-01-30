@@ -1,0 +1,309 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import { supabase } from "../../lib/supabase";
+
+// Check authentication
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+
+let shop = null;
+let userId = null;
+
+if (session) {
+    userId = session.user.id;
+    const { data } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("owner_id", userId)
+        .single();
+    shop = data;
+}
+---
+
+<Layout title="Shop Pending Approval">
+    <!-- Loading overlay for wallet users -->
+    <div
+        id="wallet-loading"
+        style="display: none;"
+        class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center"
+    >
+        <div class="text-center">
+            <div
+                class="w-16 h-16 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin mx-auto mb-4"
+            >
+            </div>
+            <p class="text-white/60 text-sm">Loading...</p>
+        </div>
+    </div>
+
+    <Navbar />
+
+    <main
+        id="pending-content"
+        class="relative min-h-screen bg-[#050505] pt-24 pb-16"
+    >
+        <div class="max-w-2xl mx-auto px-6">
+            <!-- Status Icon -->
+            <div class="text-center mb-8">
+                <div
+                    class="w-24 h-24 mx-auto mb-6 bg-[#D4AF37]/10 rounded-full flex items-center justify-center"
+                >
+                    <span class="text-5xl">⏳</span>
+                </div>
+                <h1 class="text-4xl font-black text-white mb-4">
+                    Shop Pending Approval
+                </h1>
+                <p class="text-white/60 text-lg">
+                    Your shop is currently being reviewed by our team
+                </p>
+            </div>
+
+            <!-- Shop Info Card -->
+            <div
+                id="shop-info"
+                class="bg-[#111] border border-white/10 rounded-2xl p-8 mb-6"
+            >
+                <div class="space-y-4">
+                    <div>
+                        <p
+                            class="text-xs font-bold text-white/40 uppercase tracking-widest mb-1"
+                        >
+                            Shop Name
+                        </p>
+                        <p
+                            id="shop-name"
+                            class="text-xl font-bold text-[#D4AF37]"
+                        >
+                            {shop?.name || "Loading..."}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p
+                            class="text-xs font-bold text-white/40 uppercase tracking-widest mb-1"
+                        >
+                            Shop URL
+                        </p>
+                        <p id="shop-slug" class="text-white/60 font-mono">
+                            /shop/{shop?.slug || "..."}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p
+                            class="text-xs font-bold text-white/40 uppercase tracking-widest mb-1"
+                        >
+                            Description
+                        </p>
+                        <p id="shop-description" class="text-white/80">
+                            {shop?.description || "No description"}
+                        </p>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div
+                        id="payment-methods"
+                        class="pt-4 border-t border-white/10"
+                    >
+                        <p
+                            class="text-xs font-bold text-white/40 uppercase tracking-widest mb-3"
+                        >
+                            Payment Methods
+                        </p>
+                        <div class="space-y-2">
+                            <div
+                                id="promptpay-info"
+                                class="flex items-center gap-2"
+                            >
+                                <span>🇹🇭</span>
+                                <span class="text-white/60 text-sm"
+                                    >PromptPay:</span
+                                >
+                                <span
+                                    id="promptpay-value"
+                                    class="text-white font-mono text-sm"
+                                    >{
+                                        shop?.promptpay_id || "Not provided"
+                                    }</span
+                                >
+                            </div>
+                            <div
+                                id="lightning-info"
+                                class="flex items-center gap-2"
+                            >
+                                <span>⚡</span>
+                                <span class="text-white/60 text-sm"
+                                    >Lightning:</span
+                                >
+                                <span
+                                    id="lightning-value"
+                                    class="text-white font-mono text-sm break-all"
+                                    >{
+                                        shop?.lightning_address ||
+                                            "Not provided"
+                                    }</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/10">
+                        <p
+                            class="text-xs font-bold text-white/40 uppercase tracking-widest mb-1"
+                        >
+                            Status
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"
+                            >
+                            </div>
+                            <span
+                                id="shop-status"
+                                class="text-yellow-500 font-bold"
+                                >Pending Review</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div
+                class="bg-[#D4AF37]/5 border border-[#D4AF37]/20 rounded-2xl p-6 mb-6"
+            >
+                <h3
+                    class="text-lg font-bold text-[#D4AF37] mb-3 flex items-center gap-2"
+                >
+                    <span>ℹ️</span> What happens next?
+                </h3>
+                <ul class="space-y-2 text-white/70 text-sm">
+                    <li class="flex items-start gap-2">
+                        <span class="text-[#D4AF37] mt-1">•</span>
+                        <span
+                            >Our team will review your shop details within 24-48
+                            hours</span
+                        >
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-[#D4AF37] mt-1">•</span>
+                        <span>We'll verify your payment information</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-[#D4AF37] mt-1">•</span>
+                        <span
+                            >Once approved, you'll be able to add products and
+                            start selling</span
+                        >
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-[#D4AF37] mt-1">•</span>
+                        <span
+                            >You'll receive a notification when your shop is
+                            approved</span
+                        >
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a
+                    href="/"
+                    class="flex-1 px-6 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-all text-center border border-white/10"
+                >
+                    Back to Homepage
+                </a>
+                <button
+                    id="logout-btn"
+                    class="flex-1 px-6 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold rounded-xl transition-all border border-red-500/20"
+                >
+                    Logout
+                </button>
+            </div>
+        </div>
+    </main>
+</Layout>
+
+<script>
+    // @ts-nocheck
+    import { supabase } from "../../lib/supabase";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const walletAddress = localStorage.getItem("user_wallet");
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+
+        // If no auth at all, redirect to login
+        if (!session && !walletAddress) {
+            window.location.href = "/login";
+            return;
+        }
+
+        // If wallet user, fetch shop data
+        if (!session && walletAddress) {
+            const loadingEl = document.getElementById("wallet-loading");
+            if (loadingEl) loadingEl.style.display = "flex";
+
+            try {
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("id")
+                    .eq("wallet_address", walletAddress)
+                    .single();
+
+                if (!profile) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                const { data: shop } = await supabase
+                    .from("shops")
+                    .select("*")
+                    .eq("owner_id", profile.id)
+                    .single();
+
+                if (!shop) {
+                    window.location.href = "/seller/register";
+                    return;
+                }
+
+                // If shop is approved, redirect to dashboard
+                if (shop.status === "active") {
+                    window.location.href = "/seller/dashboard";
+                    return;
+                }
+
+                // Update UI with shop data
+                document.getElementById("shop-name").textContent = shop.name;
+                document.getElementById("shop-slug").textContent =
+                    `/shop/${shop.slug}`;
+                document.getElementById("shop-description").textContent =
+                    shop.description || "No description";
+                document.getElementById("promptpay-value").textContent =
+                    shop.promptpay_id || "Not provided";
+                document.getElementById("lightning-value").textContent =
+                    shop.lightning_address || "Not provided";
+
+                if (loadingEl) loadingEl.style.display = "none";
+            } catch (error) {
+                console.error("Error:", error);
+                window.location.href = "/login";
+            }
+        }
+
+        // Logout handler
+        document
+            .getElementById("logout-btn")
+            ?.addEventListener("click", async () => {
+                if (session) {
+                    await supabase.auth.signOut();
+                }
+                localStorage.removeItem("user_wallet");
+                window.location.href = "/";
+            });
+    });
+</script>

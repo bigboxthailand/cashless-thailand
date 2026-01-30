@@ -1,0 +1,41 @@
+<div class="relative flex overflow-x-hidden bg-gradient-to-r from-[#996515] via-[#D4AF37] to-[#F9E79F] text-black py-4 border-y-4 border-black/20 shadow-2xl">
+  <div class="animate-marquee whitespace-nowrap flex items-center">
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Not your keys, not your coins</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Be your own bank</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Bitcoin Thailand</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Cashless Society</span>
+    <span class="mx-8 text-xl">★</span>
+  </div>
+
+  <div class="absolute top-0 animate-marquee2 whitespace-nowrap flex items-center h-full">
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Not your keys, not your coins</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Be your own bank</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Bitcoin Thailand</span>
+    <span class="mx-8 text-xl">★</span>
+    <span class="mx-8 text-2xl font-black italic tracking-widest uppercase">Cashless Society</span>
+    <span class="mx-8 text-xl">★</span>
+  </div>
+</div>
+
+<style>
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+  .animate-marquee2 {
+    animation: marquee2 20s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+  @keyframes marquee2 {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0%); }
+  }
+</style>

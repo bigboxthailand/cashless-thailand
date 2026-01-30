@@ -1,0 +1,53 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import ChatCenter from "../../components/chat/ChatCenter.jsx";
+import SellerSidebar from "../../components/seller/SellerSidebar.astro";
+import { supabase } from "../../lib/supabase";
+
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+
+let shop = null;
+if (session) {
+    const { data } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("owner_id", session.user.id)
+        .single();
+    shop = data;
+}
+---
+
+<Layout title="Messages | Cashless Thailand">
+    <Navbar />
+
+    <!-- Loading overlay for wallet users -->
+    <div
+        id="wallet-loading"
+        style="display: none;"
+        class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center pointer-events-none"
+    >
+        <div class="text-center">
+            <div
+                class="w-16 h-16 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin mx-auto mb-4"
+            >
+            </div>
+            <p class="text-white/60 text-sm">Loading Chat...</p>
+        </div>
+    </div>
+
+    <div class="flex h-screen bg-[#050505] overflow-hidden pt-24">
+        <!-- Sidebar - Always render, but hide initially if no session shop -->
+        <SellerSidebar activeTab="messages" shop={shop} show={!!shop} />
+
+        <main class="flex-1 bg-[#050505] flex flex-col min-w-0 overflow-hidden">
+            <ChatCenter client:only="react" />
+        </main>
+    </div>
+</Layout>
+
+<script>
+    import "../../lib/sellerAuthGuard.js";
+</script>

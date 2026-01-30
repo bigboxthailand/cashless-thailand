@@ -1,0 +1,73 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import { supabase } from "../../lib/supabase";
+import SellerSidebar from "../../components/seller/SellerSidebar.astro";
+import SellerSettings from "../../components/seller/SellerSettings";
+
+// Server-side Check (Lenient for wallet users)
+const {
+    data: { session },
+} = await supabase.auth.getSession();
+
+let shop = null;
+if (session) {
+    const { data } = await supabase
+        .from("shops")
+        .select("*")
+        .eq("owner_id", session.user.id)
+        .single();
+    shop = data;
+
+    // Server-side redirect if shop is pending
+    if (shop && shop.status !== "active") {
+        return Astro.redirect("/seller/pending");
+    }
+}
+// If no session, we don't redirect here.
+// The initSellerAuth script (via SellerSidebar or sellerAuthGuard) will handle redirection if no wallet is found either.
+---
+
+<!-- Loading overlay for wallet users -->
+<div
+    id="wallet-loading"
+    style="display: none;"
+    class="fixed inset-0 bg-[#050505] z-50 flex items-center justify-center pointer-events-none"
+>
+    <div class="text-center">
+        <div
+            class="w-16 h-16 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin mx-auto mb-4"
+        >
+        </div>
+        <p class="text-white/60 text-sm">Loading...</p>
+    </div>
+</div>
+
+<Layout title={`Settings | ${shop?.name || "Seller Center"}`}>
+    <Navbar />
+    <div class="flex h-screen bg-[#050505] overflow-hidden pt-24">
+        <SellerSidebar activeTab="settings" shop={shop} />
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto relative bg-[#050505]">
+            <!-- Mobile Header -->
+            <div
+                class="md:hidden p-4 border-b border-white/10 flex justify-between items-center bg-[#111]"
+            >
+                <span class="text-[#D4AF37] font-black uppercase">Settings</span
+                >
+                <a href="/seller/dashboard" class="text-xs text-white/60"
+                    >Back</a
+                >
+            </div>
+
+            <div class="p-4 md:p-8 max-w-7xl mx-auto">
+                <SellerSettings shopId={shop?.id} client:only="react" />
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<script>
+    import "../../lib/sellerAuthGuard.js";
+</script>

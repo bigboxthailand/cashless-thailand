@@ -1,0 +1,193 @@
+---
+// src/components/CommunityEvents.astro
+
+const events = [
+    {
+        date: "22-25 JAN",
+        title: "Block Mountain CNX 2026",
+        location: "Chiang Mai Grandview",
+        // [แก้ไข] เปลี่ยนเป็นลิงก์รูปใหม่ที่คุณให้มา
+        image: "/images/events/block-mountain-2026.jpg",
+        status: "Starting Soon",
+        link: "https://www.facebook.com/BlockMountainOfficial/",
+    },
+    {
+        date: "26 JAN",
+        title: "Satoshi Square Monday",
+        location: "Bangkok (Sukhumvit)",
+        // ใช้รูปเดิมที่อยู่ในเครื่อง
+        image: "/images/events/satoshi-square.webp",
+        status: "Open Entry",
+        link: "https://www.meetup.com/satoshi-square-bangkok/",
+    },
+    {
+        date: "29 JAN",
+        title: "Road to Consensus",
+        location: "Bitkub M Social, BKK",
+        // ใช้รูปเดิมที่อยู่ในเครื่อง
+        image: "/images/events/consensus-road.webp",
+        status: "Registration",
+        link: "https://www.facebook.com/bitkubgroup/",
+    },
+];
+---
+
+<section class="py-24 bg-[#0a0a0a] relative overflow-hidden">
+    <div
+        class="absolute top-0 right-0 w-[500px] h-[500px] bg-[#D4AF37]/5 blur-[120px] rounded-full pointer-events-none"
+    >
+    </div>
+
+    <div
+        class="max-w-[1400px] mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+    >
+        <div class="space-y-10 relative z-10">
+            <div>
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 backdrop-blur-md mb-4"
+                >
+                    <span
+                        class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"
+                    ></span>
+                    <span
+                        class="eng text-[#D4AF37] text-[10px] font-black tracking-[0.2em] uppercase"
+                        >Join the Movement</span
+                    >
+                </div>
+                <h2
+                    class="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none mb-6"
+                >
+                    Thailand's <br />
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F9E79F]"
+                        >Bitcoin Hub.</span
+                    >
+                </h2>
+                <p
+                    class="text-white/60 font-light leading-relaxed max-w-md text-lg"
+                >
+                    เราคือคอมมูนิตี้ที่แข็งแกร่งที่สุด รวมตัว Bitcoiners ตัวจริง
+                    นักพัฒนา และผู้ประกอบการ เพื่อขับเคลื่อนประเทศไทยสู่ยุค
+                    Cashless Society
+                </p>
+            </div>
+            <a
+                href="https://t.me/myCryptoClock"
+                target="_blank"
+                class="inline-flex items-center gap-3 px-8 py-4 bg-white text-black rounded-full font-bold uppercase tracking-widest hover:bg-[#D4AF37] hover:scale-105 transition-all shadow-xl group"
+            >
+                <span>Join Telegram</span>
+                <svg
+                    class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg
+                >
+            </a>
+        </div>
+
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+                <h3
+                    class="text-2xl font-bold text-white uppercase tracking-wide flex items-center gap-3"
+                >
+                    <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"></span>
+                    Upcoming Events
+                </h3>
+                <a
+                    href="/events"
+                    class="text-xs text-[#D4AF37] border-b border-[#D4AF37]/30 pb-1 hover:border-[#D4AF37] hover:text-white transition-colors eng font-bold tracking-widest uppercase"
+                    >View Calendar</a
+                >
+            </div>
+
+            <div class="space-y-5">
+                {
+                    events.map((event, i) => (
+                        // [แก้ไขดีไซน์การ์ด]
+                        <a
+                            href={event.link}
+                            target="_blank"
+                            class="group relative flex items-center gap-6 p-5 rounded-3xl border border-white/10 bg-[#111] transition-all duration-500 cursor-pointer overflow-hidden hover:border-[#D4AF37] hover:shadow-[0_0_40px_-10px_rgba(212,175,55,0.3)] hover:-translate-y-1"
+                        >
+                            <div class="w-28 h-28 rounded-2xl overflow-hidden flex-shrink-0 relative z-10 border border-white/10 bg-[#0a0a0a] group-hover:border-[#D4AF37]/30 transition-colors">
+                                <img
+                                    src={event.image}
+                                    alt={event.title}
+                                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    loading="lazy"
+                                    onerror="this.src='https://placehold.co/200x200/111/333?text=Event'"
+                                />
+                            </div>
+
+                            <div class="flex-1 relative z-10 py-1">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-[#D4AF37] text-[10px] font-black tracking-[0.1em] uppercase bg-[#D4AF37]/10 px-2 py-1 rounded-md border border-[#D4AF37]/20">
+                                        {event.date}
+                                    </span>
+                                    <span
+                                        class={`text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${event.status === "Starting Soon" ? "text-red-400 border-red-500/30 bg-red-500/10 animate-pulse" : "text-white/50 border-white/10 bg-white/5"}`}
+                                    >
+                                        {event.status}
+                                    </span>
+                                </div>
+
+                                <h4 class="text-xl font-bold text-white mb-2 group-hover:text-[#D4AF37] transition-colors leading-tight line-clamp-1">
+                                    {event.title}
+                                </h4>
+
+                                <div class="flex items-center gap-2 text-white/40 text-xs font-light">
+                                    <svg
+                                        class="w-3 h-3 text-[#D4AF37]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <>
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                            />
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                            />
+                                        </>
+                                    </svg>
+                                    <span class="group-hover:text-white transition-colors line-clamp-1">
+                                        {event.location}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/20 group-hover:text-[#D4AF37] group-hover:border-[#D4AF37] group-hover:rotate-[-45deg] group-hover:bg-[#D4AF37]/10 transition-all duration-300 relative z-10">
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                </svg>
+                            </div>
+                        </a>
+                    ))
+                }
+            </div>
+        </div>
+    </div>
+</section>

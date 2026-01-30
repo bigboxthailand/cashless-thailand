@@ -1,0 +1,68 @@
+<div class="relative group">
+    <button
+        id="connect-wallet"
+        class="glass-gold px-6 py-2.5 rounded-xl eng text-[10px] font-black uppercase tracking-[0.2em] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-500 border border-[#D4AF37]/20 flex items-center gap-3 overflow-hidden"
+    >
+        <span
+            id="wallet-status-dot"
+            class="w-1.5 h-1.5 bg-[#D4AF37] rounded-full group-hover:bg-black transition-colors"
+        ></span>
+        <span id="wallet-text">Connect Wallet</span>
+    </button>
+
+    <div
+        class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-[#D4AF37] group-hover:w-full transition-all duration-700 blur-[2px]"
+    >
+    </div>
+</div>
+
+<script>
+    const btn = document.getElementById("connect-wallet");
+    const text = document.getElementById("wallet-text");
+    const dot = document.getElementById("wallet-status-dot");
+
+    async function checkWallet() {
+        const ethereum = (window as any).ethereum;
+        if (typeof ethereum !== "undefined") {
+            try {
+                // Determine if we should even try to connect eagerly
+                // Just checking accounts shouldn't prompt, but some providers are aggressive
+                const accounts = await ethereum.request({
+                    method: "eth_accounts",
+                });
+                if (accounts && accounts.length > 0) {
+                    updateUI(accounts[0]);
+                }
+            } catch (err) {
+                console.warn("Wallet check skipped or failed:", err);
+                // Do not alert or throw here, just silently fail check
+            }
+        }
+    }
+
+    function updateUI(address: string) {
+        if (text && dot) {
+            text.innerText =
+                address.substring(0, 6) +
+                "..." +
+                address.substring(address.length - 4);
+            dot.classList.replace("bg-[#D4AF37]", "bg-green-400");
+            btn?.classList.add("border-green-400/30");
+        }
+    }
+
+    btn?.addEventListener("click", async () => {
+        const ethereum = (window as any).ethereum;
+        if (typeof ethereum !== "undefined") {
+            const accounts = await ethereum.request({
+                method: "eth_requestAccounts",
+            });
+            updateUI(accounts[0]);
+        } else {
+            alert("โปรดติดตั้ง MetaMask เพื่อใช้งานฟีเจอร์นี้");
+        }
+    });
+
+    // ตรวจสอบสถานะเมื่อโหลดหน้าเว็บ
+    document.addEventListener("astro:page-load", checkWallet);
+</script>

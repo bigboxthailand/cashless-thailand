@@ -1,0 +1,33 @@
+/* AGGRESSIVE FIX for cart button not clickable on profile page */
+#cart-trigger {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
+    position: relative !important;
+    cursor: pointer !important;
+    display: block !important;
+}
+
+#cart-trigger * {
+    pointer-events: auto !important;
+}
+
+/* Ensure parent container allows clicks */
+#cart-trigger:hover {
+    pointer-events: auto !important;
+}
+
+/* Override ANY parent pointer-events-none */
+nav #cart-trigger,
+.pointer-events-none #cart-trigger,
+body #cart-trigger,
+html #cart-trigger {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
+}
+
+/* Force on all states */
+#cart-trigger:active,
+#cart-trigger:focus,
+#cart-trigger:visited {
+    pointer-events: auto !important;
+}

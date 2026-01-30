@@ -1,0 +1,1930 @@
+---
+// src/pages/checkout.astro
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Secure Checkout | Cashless Thailand">
+    <Navbar />
+
+    <main class="relative z-10 bg-[#050505] min-h-screen pt-32 pb-20">
+        <form
+            id="checkout-form"
+            class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-8 lg:gap-16"
+        >
+            <div class="absolute opacity-0 -z-10 w-0 h-0 overflow-hidden">
+                <label for="website-honeypot">Website</label>
+                <input
+                    type="text"
+                    name="website_check"
+                    id="website-honeypot"
+                    tabindex="-1"
+                    autocomplete="off"
+                />
+            </div>
+
+            <div class="lg:col-span-7 space-y-10">
+                <div class="border-b border-white/10 pb-6">
+                    <h1
+                        class="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter"
+                    >
+                        Checkout
+                    </h1>
+                    <p class="text-white/40 mt-2 text-sm">
+                        กรอกข้อมูลจัดส่งและยืนยันการชำระเงิน
+                    </p>
+                </div>
+
+                <section class="space-y-6">
+                    <h2
+                        class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3"
+                    >
+                        <span
+                            class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs"
+                            >1</span
+                        >
+                        Shipping Info
+                    </h2>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >First Name</label
+                            >
+                            <input
+                                type="text"
+                                name="firstname"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="ชื่อจริง"
+                            />
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Last Name</label
+                            >
+                            <input
+                                type="text"
+                                name="lastname"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="นามสกุล"
+                            />
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Phone Number</label
+                            >
+                            <input
+                                type="tel"
+                                name="phone"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="เบอร์โทรศัพท์"
+                            />
+                        </div>
+                        <div class="col-span-2 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Address</label
+                            >
+                            <textarea
+                                name="address"
+                                rows="3"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="ที่อยู่จัดส่ง"></textarea>
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Province</label
+                            >
+                            <input
+                                type="text"
+                                name="province"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="จังหวัด"
+                            />
+                        </div>
+                        <div class="col-span-2 md:col-span-1 space-y-2">
+                            <label
+                                class="text-xs text-white/50 uppercase tracking-wider"
+                                >Postal Code</label
+                            >
+                            <input
+                                type="text"
+                                name="zipcode"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-xl p-4 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="รหัสไปรษณีย์"
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="hidden lg:block border-t border-white/10 pt-8">
+                    <h3 class="text-white font-bold mb-6">Order Items</h3>
+                    <div id="checkout-items-desktop" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 relative">
+                <div
+                    class="bg-[#1a1a1a] border border-[#D4AF37]/20 rounded-[2rem] p-6 md:p-8 sticky top-32 shadow-2xl"
+                >
+                    <h2
+                        class="text-xl font-bold text-[#D4AF37] uppercase tracking-widest flex items-center gap-3 mb-6"
+                    >
+                        <span
+                            class="w-6 h-6 rounded-full border border-[#D4AF37] flex items-center justify-center text-xs"
+                            >2</span
+                        >
+                        Payment
+                    </h2>
+
+                    <div
+                        class="flex p-1 bg-black rounded-xl mb-6 border border-white/10"
+                    >
+                        <button
+                            type="button"
+                            id="btn-promptpay"
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider bg-[#D4AF37] text-black shadow-lg transition-all"
+                            >PromptPay</button
+                        >
+                        <button
+                            type="button"
+                            id="btn-crypto"
+                            disabled
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/20 bg-white/5 cursor-not-allowed"
+                            >Crypto</button
+                        >
+                        <button
+                            type="button"
+                            id="btn-bitcoin"
+                            class="flex-1 py-3 rounded-lg text-sm font-bold uppercase tracking-wider text-white/40 hover:text-white transition-all"
+                            >Bitcoin</button
+                        >
+                    </div>
+
+                    <div
+                        id="payment-promptpay"
+                        class="text-center space-y-6 animate-fade-in"
+                    >
+                        <div
+                            class="bg-white p-6 rounded-2xl inline-block shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] relative overflow-hidden group"
+                        >
+                            <img
+                                src="https://www.designil.com/wp-content/uploads/2020/04/prompt-pay-logo.png"
+                                class="h-8 mx-auto mb-4 object-contain"
+                                alt="PromptPay"
+                            />
+                            <div
+                                id="promptpay-qr-target"
+                                class="relative w-48 h-48 flex items-center justify-center"
+                            >
+                                <div class="loading-dots text-black">
+                                    Generating QR...
+                                </div>
+                            </div>
+
+                            <div
+                                class="absolute inset-0 bg-gradient-to-b from-transparent via-[#D4AF37]/20 to-transparent h-[10px] w-full animate-scan pointer-events-none"
+                            >
+                            </div>
+                        </div>
+                        <div
+                            class="text-white/60 text-xs uppercase tracking-widest"
+                        >
+                            <p>นายณัฐพงษ์ สุวรรณจิตต์</p>
+                            <p class="text-[#D4AF37] font-bold mt-1">
+                                090-987-9566 (PromptPay)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        id="payment-crypto"
+                        class="hidden text-center space-y-6 animate-fade-in"
+                    >
+                        <div
+                            class="p-6 border border-dashed border-[#F7931A]/50 rounded-2xl bg-[#F7931A]/5"
+                        >
+                            <p class="text-[#F7931A] font-bold text-lg mb-4">
+                                Crypto Payment
+                            </p>
+
+                            <div class="space-y-4 mb-4">
+                                <div>
+                                    <label
+                                        class="text-white/40 text-xs uppercase block mb-2"
+                                        >เลือกเครือข่าย</label
+                                    >
+                                    <select
+                                        id="network-select"
+                                        class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-sm transition-colors cursor-pointer hover:bg-white/5"
+                                    >
+                                        <option value="ethereum"
+                                            >🔷 Ethereum Mainnet</option
+                                        >
+                                        <option value="bsc"
+                                            >🟡 BNB Smart Chain (BSC)</option
+                                        >
+                                        <option value="polygon"
+                                            >🟣 Polygon</option
+                                        >
+                                        <option value="arbitrum"
+                                            >🔵 Arbitrum One</option
+                                        >
+                                        <option value="optimism"
+                                            >🔴 Optimism</option
+                                        >
+                                        <option value="base">🔵 Base</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="text-white/40 text-xs uppercase block mb-2"
+                                        >เลือกสกุลเงิน</label
+                                    >
+                                    <select
+                                        id="currency-select"
+                                        class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-sm transition-colors cursor-pointer hover:bg-white/5"
+                                    >
+                                        <option value="usdt"
+                                            >💵 USDT (Tether)</option
+                                        >
+                                        <option value="usdc"
+                                            >💵 USDC (USD Coin)</option
+                                        >
+                                        <option value="native"
+                                            >⚡ Native Coin (ETH/BNB/MATIC)</option
+                                        >
+                                    </select>
+                                </div>
+
+                                <div
+                                    class="bg-black/30 rounded-lg p-3 border border-white/5"
+                                >
+                                    <div
+                                        class="flex justify-between items-center mb-1"
+                                    >
+                                        <span class="text-white/40 text-xs"
+                                            >จำนวนที่ต้องชำระ:</span
+                                        >
+                                        <span
+                                            id="crypto-amount-display"
+                                            class="text-[#D4AF37] font-bold text-lg"
+                                        >
+                                            <span class="loading-dots"
+                                                >กำลังคำนวณ...</span
+                                            >
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                        <span class="text-white/40 text-[10px]"
+                                            >อัตราแลกเปลี่ยน:</span
+                                        >
+                                        <span
+                                            id="exchange-rate-display"
+                                            class="text-white/60 text-xs font-mono"
+                                        >
+                                            --
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="metamask-payment-section" class="hidden">
+                                <div class="mb-3 text-center">
+                                    <p class="text-white/60 text-xs mb-2">
+                                        🦊 คุณ login ด้วย Metamask
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    id="btn-metamask-pay"
+                                    class="w-full bg-gradient-to-r from-[#26A17B] to-[#1e8565] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(38,161,123,0.3)] mb-3"
+                                >
+                                    <svg
+                                        class="w-6 h-6"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            d="M22.05 12c0-5.52-4.48-10-10-10S2.05 6.48 2.05 12c0 4.84 3.44 8.87 8 9.8V15h-2v-3h2V9.5c0-2.42 1.58-3.5 3.5-3.5.51 0 1.05.09 1.5.18v2.82h-1.05c-.83 0-1.45.83-1.45 1.5V12h2.5l-.5 3h-2v6.8c4.56-.93 8-4.96 8-9.8z"
+                                        ></path>
+                                    </svg>
+                                    <span id="metamask-pay-btn-text"
+                                        >ชำระด้วย Metamask</span
+                                    >
+                                </button>
+                                <p
+                                    class="text-white/30 text-[10px] uppercase text-center"
+                                >
+                                    ระบบจะสลับเครือข่ายให้อัตโนมัติ
+                                </p>
+                            </div>
+
+                            <div id="qr-payment-section" class="hidden">
+                                <div class="mb-3 text-center">
+                                    <p class="text-white/60 text-xs mb-3">
+                                        📱 สแกน QR Code เพื่อชำระเงิน
+                                    </p>
+                                </div>
+                                <div
+                                    class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] mb-3"
+                                >
+                                    <div
+                                        id="qr-code-container"
+                                        class="w-48 h-48 flex items-center justify-center"
+                                    >
+                                        <div class="loading-dots text-black">
+                                            กำลังสร้าง QR...
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center space-y-1">
+                                    <p class="text-white/40 text-xs">
+                                        ที่อยู่ผู้รับ:
+                                    </p>
+                                    <code
+                                        class="text-white/80 text-[10px] break-all bg-black/50 px-2 py-1 rounded font-mono block"
+                                    >
+                                        0x71C7656EC7ab88b098defB751B7401B5f6d8976F
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        id="payment-bitcoin"
+                        class="hidden text-center space-y-6 animate-fade-in"
+                    >
+                        <div
+                            class="p-6 border border-dashed border-[#F7931A]/50 rounded-2xl bg-[#F7931A]/5"
+                        >
+                            <p class="text-[#F7931A] font-bold text-lg mb-4">
+                                Bitcoin Lightning
+                            </p>
+
+                            <div
+                                class="bg-black/30 rounded-lg p-3 border border-white/5 mb-4"
+                            >
+                                <div
+                                    class="flex justify-between items-center mb-1"
+                                >
+                                    <span class="text-white/40 text-xs"
+                                        >จำนวนที่ต้องชำระ:</span
+                                    >
+                                    <span
+                                        id="bitcoin-amount-sats"
+                                        class="text-[#F7931A] font-bold text-lg"
+                                    >
+                                        <span class="loading-dots"
+                                            >กำลังคำนวณ...</span
+                                        >
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-white/40 text-[10px]"
+                                        >อัตราแลกเปลี่ยน:</span
+                                    >
+                                    <span
+                                        id="bitcoin-rate-display"
+                                        class="text-white/60 text-xs font-mono"
+                                    >
+                                        --
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 text-center">
+                                <p class="text-white/60 text-xs mb-3">
+                                    ⚡ สแกนด้วย Lightning Wallet
+                                </p>
+                            </div>
+                            <div
+                                class="bg-white p-4 rounded-2xl inline-block mx-auto shadow-[0_0_40px_-10px_rgba(247,147,26,0.2)] mb-3"
+                            >
+                                <div
+                                    id="bitcoin-qr-container"
+                                    class="w-48 h-48 flex items-center justify-center"
+                                >
+                                    <div class="loading-dots text-black">
+                                        กำลังสร้าง QR...
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center space-y-1">
+                                <p class="text-white/40 text-xs">
+                                    Lightning Address:
+                                </p>
+                                <code
+                                    class="text-white/80 text-[10px] break-all bg-black/50 px-2 py-1 rounded font-mono block text-[#F7931A]"
+                                >
+                                    cryptoclock@walletofsatoshi.com
+                                </code>
+                            </div>
+
+                            <!-- Alby / WebLN Section -->
+                            <div
+                                id="webln-section"
+                                class="hidden mt-4 pt-4 border-t border-white/5"
+                            >
+                                <button
+                                    type="button"
+                                    id="btn-alby-pay"
+                                    class="w-full bg-[#FFE100] text-black py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(255,225,0,0.3)]"
+                                >
+                                    <img
+                                        src="https://getalby.com/assets/alby-logo-figure.svg"
+                                        class="w-6 h-6"
+                                        alt="Alby"
+                                    />
+                                    <span>Pay with Alby</span>
+                                </button>
+                                <p
+                                    class="text-white/30 text-[10px] uppercase mt-2"
+                                >
+                                    Flash payment via WebLN
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-white/10 space-y-4">
+                        <div class="flex justify-between items-end mb-4">
+                            <span class="text-white/60 text-sm"
+                                >Total Amount</span
+                            >
+                            <span
+                                id="final-total"
+                                class="text-3xl font-black text-white"
+                                >0.00 ฿</span
+                            >
+                        </div>
+
+                        <!-- Coupon Section -->
+                        <div
+                            class="bg-black/40 border border-white/10 p-4 rounded-xl space-y-3 mb-4"
+                        >
+                            <div class="flex gap-2">
+                                <input
+                                    type="text"
+                                    id="coupon-input"
+                                    placeholder="ใส่โค้ดส่วนลด"
+                                    class="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:border-[#D4AF37] outline-none transition-colors"
+                                />
+                                <button
+                                    type="button"
+                                    id="btn-apply-coupon"
+                                    class="bg-white text-black px-4 py-2 rounded-lg font-bold text-xs uppercase hover:bg-[#D4AF37] transition-colors"
+                                >
+                                    Apply
+                                </button>
+                            </div>
+                            <div id="coupon-message" class="text-[10px] hidden">
+                            </div>
+
+                            <div
+                                id="discount-row"
+                                class="hidden flex justify-between items-center pt-2 border-t border-white/5"
+                            >
+                                <span
+                                    class="text-white/40 text-xs uppercase tracking-wider"
+                                    >Discount</span
+                                >
+                                <span
+                                    id="discount-amount"
+                                    class="text-red-500 font-bold text-sm"
+                                    >-0.00 ฿</span
+                                >
+                            </div>
+                        </div>
+
+                        <label
+                            class="flex items-center justify-center w-full py-4 border-2 border-dashed border-white/20 hover:border-[#D4AF37] rounded-xl cursor-pointer transition-all hover:bg-[#D4AF37]/5 group"
+                        >
+                            <div
+                                class="flex items-center gap-3 text-white/50 group-hover:text-[#D4AF37]"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    ><path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                    ></path></svg
+                                >
+                                <span
+                                    class="text-sm font-bold uppercase tracking-wider"
+                                    id="file-label">Attach Slip / Proof</span
+                                >
+                            </div>
+                            <input
+                                type="file"
+                                name="slip"
+                                class="hidden"
+                                id="slip-input"
+                                accept="image/*"
+                                required
+                            />
+                        </label>
+
+                        <div
+                            class="bg-black/50 border border-white/10 p-4 rounded-xl mt-4"
+                        >
+                            <label
+                                class="block text-xs text-white/50 uppercase tracking-wider mb-2 text-center"
+                            >
+                                Security Check: <span
+                                    id="num1"
+                                    class="text-[#D4AF37] font-bold text-lg"
+                                    >0</span
+                                > + <span
+                                    id="num2"
+                                    class="text-[#D4AF37] font-bold text-lg"
+                                    >0</span
+                                > = ?
+                            </label>
+                            <input
+                                type="number"
+                                id="captcha-input"
+                                required
+                                class="w-full bg-[#111] border border-white/10 rounded-lg p-3 text-white focus:border-[#D4AF37] outline-none text-center font-bold text-lg"
+                                placeholder="ใส่ผลลัพธ์"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-black py-4 rounded-xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_40px_-10px_rgba(212,175,55,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        >
+                            Confirm Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <Footer />
+</Layout>
+
+<script>
+    import { cartStore } from "../lib/cartStore.js";
+    import { supabase } from "../lib/supabase";
+    import { ethers } from "ethers";
+    import QRCode from "qrcode";
+    import { generatePromptPayPayload } from "../lib/promptpay";
+
+    document.addEventListener("astro:page-load", () => {
+        // --- [A] MATH CAPTCHA SETUP ---
+        const n1 = Math.floor(Math.random() * 10);
+        const n2 = Math.floor(Math.random() * 10);
+        const correctSum = n1 + n2;
+
+        const num1El = document.getElementById("num1");
+        const num2El = document.getElementById("num2");
+        if (num1El && num2El) {
+            num1El.innerText = n1.toString();
+            num2El.innerText = n2.toString();
+        }
+        // -----------------------------
+
+        // --- PREFILL USER DATA ---
+        async function prefillUserData() {
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                if (!session) return;
+
+                // Fetch Profile
+                const { data: profile } = await supabase
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", session.user.id)
+                    .single();
+
+                // Fetch Default Address
+                const { data: address } = await supabase
+                    .from("addresses")
+                    .select("*")
+                    .eq("user_id", session.user.id)
+                    .eq("is_default", true)
+                    .single();
+
+                if (profile) {
+                    const fnameInput = document.querySelector(
+                        'input[name="firstname"]',
+                    ) as HTMLInputElement;
+                    const lnameInput = document.querySelector(
+                        'input[name="lastname"]',
+                    ) as HTMLInputElement;
+                    const phoneInput = document.querySelector(
+                        'input[name="phone"]',
+                    ) as HTMLInputElement;
+
+                    if (fnameInput && !fnameInput.value)
+                        fnameInput.value = profile.first_name || "";
+                    if (lnameInput && !lnameInput.value)
+                        lnameInput.value = profile.last_name || "";
+                    if (phoneInput && !phoneInput.value)
+                        phoneInput.value = profile.phone || "";
+                }
+
+                if (address) {
+                    const fnameInput = document.querySelector(
+                        'input[name="firstname"]',
+                    ) as HTMLInputElement;
+                    const lnameInput = document.querySelector(
+                        'input[name="lastname"]',
+                    ) as HTMLInputElement;
+                    const phoneInput = document.querySelector(
+                        'input[name="phone"]',
+                    ) as HTMLInputElement;
+                    const addrInput = document.querySelector(
+                        'textarea[name="address"]',
+                    ) as HTMLTextAreaElement;
+                    const distInput = document.querySelector(
+                        'input[name="district"]',
+                    ) as HTMLInputElement;
+                    const provInput = document.querySelector(
+                        'input[name="province"]',
+                    ) as HTMLInputElement;
+                    const zipInput = document.querySelector(
+                        'input[name="zipcode"]',
+                    ) as HTMLInputElement;
+
+                    // Address overrides profile if available
+                    if (fnameInput)
+                        fnameInput.value =
+                            address.first_name || fnameInput.value;
+                    if (lnameInput)
+                        lnameInput.value =
+                            address.last_name || lnameInput.value;
+                    if (phoneInput)
+                        phoneInput.value = address.phone || phoneInput.value;
+
+                    if (addrInput)
+                        addrInput.value = [
+                            address.address_line1,
+                            address.district,
+                        ]
+                            .filter(Boolean)
+                            .join(", ");
+                    if (provInput) provInput.value = address.province || "";
+                    if (zipInput) zipInput.value = address.zip_code || "";
+                }
+            } catch (err) {
+                console.error("Error fetching user data:", err);
+            }
+        }
+        prefillUserData();
+        // -----------------------------
+
+        const cart = cartStore.get();
+        const { total } = cartStore.totals();
+        const shippingFee = 50;
+        const grandTotal = total + shippingFee;
+
+        const container = document.getElementById("checkout-items-desktop");
+        const finalTotalDisplay = document.getElementById("final-total");
+
+        let subtotal = total;
+        let discountAmount = 0;
+        let appliedCoupon: {
+            id: string;
+            code: string;
+            discount_type: string;
+            discount_value: number;
+            usage_count: number;
+        } | null = null;
+
+        function updateTotals() {
+            const grandTotal = subtotal + shippingFee - discountAmount;
+            if (finalTotalDisplay) {
+                finalTotalDisplay.innerText =
+                    grandTotal.toLocaleString() + " THB";
+            }
+            // Update PromptPay QR if visible
+            if (!divPrompt?.classList.contains("hidden")) {
+                generatePromptPayQR(grandTotal);
+            }
+        }
+
+        // --- COUPON LOGIC ---
+        const btnApply = document.getElementById("btn-apply-coupon");
+        const couponInput = document.getElementById(
+            "coupon-input",
+        ) as HTMLInputElement;
+        const couponMsg = document.getElementById("coupon-message");
+        const discountRow = document.getElementById("discount-row");
+        const discountDisplay = document.getElementById("discount-amount");
+
+        btnApply?.addEventListener("click", async () => {
+            const code = couponInput.value.trim().toUpperCase();
+            if (!code) return;
+
+            btnApply.innerText = "Checking...";
+            btnApply.setAttribute("disabled", "true");
+
+            try {
+                const { data: coupon, error } = await supabase
+                    .from("coupons")
+                    .select("*")
+                    .eq("code", code)
+                    .eq("is_active", true)
+                    .single();
+
+                if (error || !coupon) {
+                    showCouponResult(
+                        "โค้ดไม่ถูกต้องหรือหมดอายุ",
+                        "text-red-500",
+                    );
+                    return;
+                }
+
+                // Check Expiry
+                if (
+                    coupon.expiry_date &&
+                    new Date(coupon.expiry_date) < new Date()
+                ) {
+                    showCouponResult("โค้ดนี้หมดอายุแล้ว", "text-red-500");
+                    return;
+                }
+
+                // Check Min Spend
+                if (coupon.min_spend && subtotal < coupon.min_spend) {
+                    showCouponResult(
+                        `ยอดซื้อขั้นต่ำ ${coupon.min_spend.toLocaleString()} ฿`,
+                        "text-red-500",
+                    );
+                    return;
+                }
+
+                // Check usage limit
+                if (
+                    coupon.usage_limit !== null &&
+                    coupon.usage_count >= coupon.usage_limit
+                ) {
+                    showCouponResult(
+                        "โค้ดนี้ถูกใช้จนครบจำนวนแล้ว",
+                        "text-red-500",
+                    );
+                    return;
+                }
+
+                // Check 1 user per 1 use
+                if (coupon.once_per_user) {
+                    const {
+                        data: { session },
+                    } = await supabase.auth.getSession();
+                    if (!session) {
+                        showCouponResult(
+                            "กรุณาเข้าสู่ระบบเพื่อใช้โค้ดนี้",
+                            "text-red-500",
+                        );
+                        return;
+                    }
+
+                    const { data: usedBefore } = await supabase
+                        .from("orders")
+                        .select("id")
+                        .eq("user_id", session.user.id)
+                        .eq("coupon_code", coupon.code)
+                        .limit(1);
+
+                    if (usedBefore && usedBefore.length > 0) {
+                        showCouponResult(
+                            "คุณเคยใช้โค้ดนี้ไปแล้ว",
+                            "text-red-500",
+                        );
+                        return;
+                    }
+                }
+
+                appliedCoupon = coupon;
+
+                if (coupon.discount_type === "percentage") {
+                    discountAmount = (subtotal * coupon.discount_value) / 100;
+                } else {
+                    discountAmount = coupon.discount_value;
+                }
+
+                // Display UI
+                discountRow?.classList.remove("hidden");
+                if (discountDisplay)
+                    discountDisplay.innerText = `-${discountAmount.toLocaleString()} ฿`;
+                showCouponResult(
+                    `✓ ใช้ส่วนลด ${code} สำเร็จ`,
+                    "text-green-500",
+                );
+                updateTotals();
+            } catch (err) {
+                console.error("Coupon Error:", err);
+                showCouponResult(
+                    "เกิดข้อผิดพลาดในการตรวจสอบโค้ด",
+                    "text-red-500",
+                );
+            } finally {
+                btnApply.innerText = "Apply";
+                btnApply.removeAttribute("disabled");
+            }
+        });
+
+        function showCouponResult(msg: string, colorClass: string) {
+            if (couponMsg) {
+                couponMsg.innerText = msg;
+                couponMsg.className = `text-[10px] ${colorClass}`;
+                couponMsg.classList.remove("hidden");
+            }
+        }
+        // -------------------
+
+        if (cart.length === 0) {
+            window.location.href = "/shop";
+            return;
+        }
+
+        if (container) {
+            container.innerHTML = cart
+                .map(
+                    (item: any) => `
+                <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
+                        <img src="${item.image}" class="w-full h-full object-cover opacity-80" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-white font-bold text-sm truncate">${item.title}</h4>
+                        <p class="text-[#D4AF37] text-xs">${item.price.toLocaleString()} ฿ <span class="text-white/30">x ${item.quantity}</span></p>
+                    </div>
+                    <div class="text-white font-bold text-sm">
+                        ${(item.price * item.quantity).toLocaleString()} ฿
+                    </div>
+                </div>
+            `,
+                )
+                .join("");
+
+            // Add Shipping Row
+            container.innerHTML += `
+                <div class="flex gap-4 items-center bg-[#D4AF37]/5 p-3 rounded-xl border border-[#D4AF37]/20 mt-2">
+                    <div class="w-16 h-16 bg-[#D4AF37]/10 rounded-lg flex items-center justify-center shrink-0">
+                        <span class="text-xl">🚚</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-[#D4AF37] font-bold text-sm">ค่าจัดส่ง (Flat Rate)</h4>
+                        <p class="text-white/40 text-xs">จัดส่งทั่วประเทศ</p>
+                    </div>
+                    <div class="text-[#D4AF37] font-bold text-sm">
+                        ${shippingFee.toLocaleString()} ฿
+                    </div>
+                </div>
+            `;
+        }
+
+        updateTotals();
+
+        const fileInput = document.getElementById("slip-input");
+        const fileLabel = document.getElementById("file-label");
+
+        fileInput?.addEventListener("change", (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
+            if (file) {
+                if (file.size > 3 * 1024 * 1024) {
+                    alert(
+                        "⚠️ ไฟล์ภาพมีขนาดใหญ่เกินไป (ต้องไม่เกิน 3MB)\nกรุณาลดขนาดภาพหรือถ่ายภาพหน้าจอใหม่",
+                    );
+                    target.value = "";
+                    if (fileLabel) {
+                        fileLabel.innerText = "Attach Slip / Proof";
+                        fileLabel.classList.remove("text-[#D4AF37]");
+                    }
+                    return;
+                }
+                if (fileLabel) {
+                    fileLabel.innerText = "✓ Attached: " + file.name;
+                    fileLabel.classList.add("text-[#D4AF37]");
+                }
+            }
+        });
+
+        const btnPrompt = document.getElementById("btn-promptpay");
+        const btnCrypto = document.getElementById("btn-crypto");
+        const btnBitcoin = document.getElementById("btn-bitcoin");
+        const divPrompt = document.getElementById("payment-promptpay");
+        const divCrypto = document.getElementById("payment-crypto");
+        const divBitcoin = document.getElementById("payment-bitcoin");
+
+        function resetTabs() {
+            divPrompt?.classList.add("hidden");
+            divCrypto?.classList.add("hidden");
+            divBitcoin?.classList.add("hidden");
+
+            [btnPrompt, btnCrypto, btnBitcoin].forEach((btn) => {
+                btn?.classList.remove("bg-[#D4AF37]", "text-black");
+                btn?.classList.add("text-white/40");
+            });
+        }
+
+        btnPrompt?.addEventListener("click", () => {
+            resetTabs();
+            divPrompt?.classList.remove("hidden");
+            btnPrompt?.classList.add("bg-[#D4AF37]", "text-black");
+            btnPrompt?.classList.remove("text-white/40");
+            generatePromptPayQR();
+        });
+
+        async function generatePromptPayQR(
+            amount = subtotal + shippingFee - discountAmount,
+        ) {
+            const container = document.getElementById("promptpay-qr-target");
+            if (!container) return;
+
+            const phoneNumber = "090-987-9566";
+            const payload = generatePromptPayPayload(phoneNumber, amount);
+
+            try {
+                const url = await QRCode.toDataURL(payload, {
+                    width: 200,
+                    margin: 1,
+                    color: {
+                        dark: "#000000",
+                        light: "#FFFFFF",
+                    },
+                });
+                container.innerHTML = `<img src="${url}" class="w-full h-full mix-blend-multiply" />`;
+            } catch (err) {
+                console.error("QR Error", err);
+                container.innerHTML = `<span class="text-red-500 text-xs">Error generating QR</span>`;
+            }
+        }
+
+        // Initial generation if default
+        if (!divPrompt?.classList.contains("hidden")) {
+            generatePromptPayQR();
+        }
+
+        btnCrypto?.addEventListener("click", () => {
+            resetTabs();
+            divCrypto?.classList.remove("hidden");
+            btnCrypto?.classList.add("bg-[#D4AF37]", "text-black");
+            btnCrypto?.classList.remove("text-white/40");
+        });
+
+        btnBitcoin?.addEventListener("click", () => {
+            resetTabs();
+            divBitcoin?.classList.remove("hidden");
+            btnBitcoin?.classList.add("bg-[#D4AF37]", "text-black");
+            btnBitcoin?.classList.remove("text-white/40");
+            updateBitcoinDisplay();
+        });
+
+        // --- ENHANCED METAMASK & CRYPTO PAYMENT LOGIC ---
+        let metamaskTxHash: string | null = null;
+        const btnMetamask = document.getElementById("btn-metamask-pay");
+        const merchantAddress = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
+
+        // --- BITCOIN LIGHTNING LOGIC ---
+        async function updateBitcoinDisplay() {
+            if (!cryptoPrices || !cryptoPrices.btc) {
+                // Force re-fetch if btc is missing from cache
+                cryptoPrices = await fetchCryptoPrices();
+            }
+            if (!cryptoPrices || !cryptoPrices.btc) {
+                console.error("Failed to fetch Bitcoin price");
+                // Fallback display
+                const satsDisplay = document.getElementById(
+                    "bitcoin-amount-sats",
+                );
+                if (satsDisplay)
+                    satsDisplay.innerHTML =
+                        "Error <span class='text-sm text-red-500'>Try again</span>";
+                return;
+            }
+
+            const btcPrice = cryptoPrices.btc;
+            // Formula: (THB / BTC_Price) * 100,000,000
+            const currentGrandTotal = subtotal + shippingFee - discountAmount;
+            const sats = Math.ceil((currentGrandTotal / btcPrice) * 100000000);
+
+            const satsDisplay = document.getElementById("bitcoin-amount-sats");
+            const rateDisplay = document.getElementById("bitcoin-rate-display");
+            const qrContainer = document.getElementById("bitcoin-qr-container");
+            const lightningAddress = "cryptoclock@walletofsatoshi.com";
+
+            if (satsDisplay) {
+                satsDisplay.innerHTML = `${sats.toLocaleString()} <span class="text-sm text-[#F7931A]">sats</span>`;
+            }
+            if (rateDisplay) {
+                rateDisplay.textContent = `1 BTC = ${btcPrice.toLocaleString()} THB`;
+            }
+
+            if (qrContainer) {
+                try {
+                    const url = await QRCode.toDataURL(lightningAddress, {
+                        width: 200,
+                        margin: 2,
+                    });
+                    qrContainer.innerHTML = `<img src="${url}" class="w-full h-full rounded-xl" alt="Lightning QR" />`;
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            // WebLN / Alby Detection
+            const weblnSection = document.getElementById("webln-section");
+            if (weblnSection && (window as any).webln) {
+                weblnSection.classList.remove("hidden");
+            }
+        }
+
+        // --- ALBY / WEBLN PAYMENT LOGIC ---
+        const btnAlby = document.getElementById("btn-alby-pay");
+        let lightningTxHash: string | null = null;
+
+        btnAlby?.addEventListener("click", async () => {
+            const webln = (window as any).webln;
+            if (!webln) {
+                alert("Please install Alby or a WebLN compatible wallet!");
+                return;
+            }
+
+            try {
+                const btn = btnAlby as HTMLButtonElement;
+                btn.disabled = true;
+                btn.innerHTML = `<span>Connecting...</span>`;
+
+                await webln.enable();
+
+                // 1. Get current sats amount
+                const btcPrice = cryptoPrices?.btc || 2500000;
+                const currentGrandTotal =
+                    subtotal + shippingFee - discountAmount;
+                const sats = Math.ceil(
+                    (currentGrandTotal / btcPrice) * 100000000,
+                );
+
+                btn.innerHTML = `<span>Getting Invoice...</span>`;
+
+                // 2. Resolve Lightning Address to Invoice (LNURL-pay)
+                const lnAddress = "cryptoclock@walletofsatoshi.com";
+                const [username, domain] = lnAddress.split("@");
+                const callbackUrl = `https://${domain}/.well-known/lnurlp/${username}`;
+
+                const response = await fetch(callbackUrl);
+                const lnurlData = await response.json();
+
+                if (!lnurlData.callback) {
+                    throw new Error("Could not resolve Lightning Address");
+                }
+
+                const amountMsat = sats * 1000;
+                const invoiceRes = await fetch(
+                    `${lnurlData.callback}?amount=${amountMsat}`,
+                );
+                const invoiceData = await invoiceRes.json();
+
+                if (!invoiceData.pr) {
+                    throw new Error("Could not fetch invoice");
+                }
+
+                btn.innerHTML = `<span>Paying ${sats.toLocaleString()} sats...</span>`;
+
+                // 3. Pay Invoice
+                const result = await webln.sendPayment(invoiceData.pr);
+
+                if (result.preimage) {
+                    lightningTxHash = result.preimage;
+                    btn.innerHTML = `<span>✓ Paid Succesfully</span>`;
+                    btn.classList.add("bg-green-500", "text-white");
+                    btn.classList.remove("bg-[#FFE100]");
+
+                    alert("Bitcoin Payment Success!");
+
+                    const fileLabel = document.getElementById("file-label");
+                    if (fileLabel) {
+                        fileLabel.innerText = "✓ Verified by Alby (Lightning)";
+                        fileLabel.classList.add("text-[#D4AF37]");
+                    }
+                }
+            } catch (err: any) {
+                console.error("Alby Error:", err);
+                alert(
+                    "Alby Payment Failed: " + (err.message || "Unknown error"),
+                );
+                if (btnAlby) {
+                    (btnAlby as HTMLButtonElement).disabled = false;
+                    btnAlby.innerHTML = `<img src="https://getalby.com/assets/alby-logo-figure.svg" class="w-6 h-6" alt="Alby" /><span>Pay with Alby</span>`;
+                }
+            }
+        });
+
+        // Generate QR Code Helper
+        const qrContainer = document.getElementById("qr-code-container");
+
+        // แก้ไข: เพิ่มพารามิเตอร์ chainId เพื่อให้ QR Code เปลี่ยนตาม Chain ได้
+        async function updateQRCode(
+            address: string,
+            amount: string | number,
+            symbol: string,
+            chainId: number,
+        ) {
+            if (!qrContainer) return;
+
+            // สร้าง URI แบบ EIP-681 เพื่อให้ QR Code เปลี่ยนทุกครั้งที่เปลี่ยนเชนหรือยอดเงิน
+            let qrData = `ethereum:${address}@${chainId}?amount=${amount}`;
+
+            try {
+                const url = await QRCode.toDataURL(qrData, {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: "#000000",
+                        light: "#ffffff",
+                    },
+                });
+                qrContainer.innerHTML = `<img src="${url}" class="w-full h-full rounded-xl" alt="Address QR" />`;
+
+                // Add a small flash animation
+                qrContainer.classList.remove("animate-pulse");
+                void qrContainer.offsetWidth; // trigger reflow
+                qrContainer.classList.add("animate-pulse");
+                setTimeout(
+                    () => qrContainer.classList.remove("animate-pulse"),
+                    500,
+                );
+            } catch (err) {
+                console.error("QR Gen Error:", err);
+                qrContainer.innerHTML = `<p class="text-red-500 text-xs">QR Error</p>`;
+            }
+        }
+
+        // --- ENHANCED NETWORK CONFIG (6 Networks) ---
+        const NETWORKS: any = {
+            ethereum: {
+                chainId: "0x1",
+                chainIdDecimal: 1,
+                chainName: "Ethereum Mainnet",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://eth.llamarpc.com"],
+                blockExplorerUrls: ["https://etherscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            bsc: {
+                chainId: "0x38",
+                chainIdDecimal: 56,
+                chainName: "BNB Smart Chain",
+                nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+                rpcUrls: ["https://bsc-dataseed.binance.org/"],
+                blockExplorerUrls: ["https://bscscan.com/"],
+                tokens: {
+                    usdt: {
+                        address: "0x55d398326f99059fF775485246999027B3197955",
+                        decimals: 18,
+                    },
+                    usdc: {
+                        address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+                        decimals: 18,
+                    },
+                },
+                priceKey: "bnb",
+            },
+            polygon: {
+                chainId: "0x89",
+                chainIdDecimal: 137,
+                chainName: "Polygon",
+                nativeCurrency: {
+                    name: "MATIC",
+                    symbol: "MATIC",
+                    decimals: 18,
+                },
+                rpcUrls: ["https://polygon-rpc.com/"],
+                blockExplorerUrls: ["https://polygonscan.com/"],
+                tokens: {
+                    usdt: {
+                        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "matic",
+            },
+            arbitrum: {
+                chainId: "0xa4b1",
+                chainIdDecimal: 42161,
+                chainName: "Arbitrum One",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+                blockExplorerUrls: ["https://arbiscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            optimism: {
+                chainId: "0xa",
+                chainIdDecimal: 10,
+                chainName: "Optimism",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.optimism.io"],
+                blockExplorerUrls: ["https://optimistic.etherscan.io/"],
+                tokens: {
+                    usdt: {
+                        address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+                        decimals: 6,
+                    },
+                    usdc: {
+                        address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+            base: {
+                chainId: "0x2105",
+                chainIdDecimal: 8453,
+                chainName: "Base",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org/"],
+                tokens: {
+                    usdc: {
+                        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "eth",
+            },
+
+            tron: {
+                chainId: "0x2b6653dc",
+                chainIdDecimal: 728126428,
+                chainName: "Tron Mainnet",
+                nativeCurrency: { name: "TRX", symbol: "TRX", decimals: 6 },
+                rpcUrls: ["https://api.trongrid.io"],
+                blockExplorerUrls: ["https://tronscan.org/"],
+                tokens: {
+                    usdt: {
+                        address: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                        decimals: 6,
+                    },
+                },
+                priceKey: "tron",
+                isTron: true,
+            },
+        };
+
+        const networkSelect = document.getElementById(
+            "network-select",
+        ) as HTMLSelectElement;
+        const currencySelect = document.getElementById(
+            "currency-select",
+        ) as HTMLSelectElement;
+
+        // === REAL-TIME PRICE FETCHING ===
+        type PriceCache = {
+            eth: number;
+            bnb: number;
+            matic: number;
+            usdt: number;
+            usdc: number;
+            [key: string]: number;
+        } | null;
+
+        let cryptoPrices: PriceCache = null;
+        let priceCache: PriceCache = null;
+        let lastFetchTime = 0;
+        const CACHE_DURATION = 60000;
+
+        async function fetchCryptoPrices(): Promise<PriceCache> {
+            const now = Date.now();
+            if (priceCache && now - lastFetchTime < CACHE_DURATION) {
+                return priceCache;
+            }
+
+            try {
+                // 1. Fetch BTC from Bitkub (v3 API)
+                let btcPrice = 2500000;
+                try {
+                    const bitkubResponse = await fetch(
+                        "https://api.bitkub.com/api/v3/market/ticker?sym=BTC_THB",
+                    );
+                    const bitkubData = await bitkubResponse.json();
+                    // Bitkub v3 returns array: [{ symbol: 'BTC_THB', last: '...' }]
+                    if (Array.isArray(bitkubData) && bitkubData[0]?.last) {
+                        btcPrice = parseFloat(bitkubData[0].last);
+                    }
+                } catch (e) {
+                    console.warn(
+                        "Bitkub v3 fetch failed, using fallback/coingecko for BTC",
+                    );
+                }
+
+                // 2. Fetch others from CoinGecko
+                const response = await fetch(
+                    "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,binancecoin,matic-network,tether,usd-coin,bitcoin&vs_currencies=thb",
+                );
+                const data = await response.json();
+
+                priceCache = {
+                    eth: data.ethereum?.thb || 85000,
+                    bnb: data.binancecoin?.thb || 12000,
+                    matic: data["matic-network"]?.thb || 25,
+                    usdt: data.tether?.thb || 35,
+                    usdc: data["usd-coin"]?.thb || 35,
+                    // Prefer Bitkub BTC price if available, else CoinGecko
+                    btc:
+                        btcPrice !== 2500000
+                            ? btcPrice
+                            : data.bitcoin?.thb || 2500000,
+                };
+                lastFetchTime = now;
+                console.log("✅ Prices fetched (Bitkub+CG):", priceCache);
+                return priceCache;
+            } catch (error) {
+                console.error("❌ Price fetch error:", error);
+                return (
+                    priceCache || {
+                        eth: 85000,
+                        bnb: 12000,
+                        matic: 25,
+                        usdt: 35,
+                        usdc: 35,
+                        btc: 2500000,
+                    }
+                );
+            }
+        }
+
+        // Helper to reset button text
+        function updatePayButtonText() {
+            if (metamaskPayBtn) {
+                metamaskPayBtn.innerText = "ชำระด้วย Metamask";
+            }
+        }
+
+        const metamaskPayBtn = document.getElementById("metamask-pay-btn-text");
+        const cryptoAmountDisplay = document.getElementById(
+            "crypto-amount-display",
+        );
+        const exchangeRateDisplay = document.getElementById(
+            "exchange-rate-display",
+        );
+        const metamaskSection = document.getElementById(
+            "metamask-payment-section",
+        );
+        const qrSection = document.getElementById("qr-payment-section");
+
+        // Metamask Detection
+        const isMetamaskUser = localStorage.getItem("user_wallet") !== null;
+        console.log("🦊 Metamask user:", isMetamaskUser);
+
+        if (isMetamaskUser) {
+            metamaskSection?.classList.remove("hidden");
+            qrSection?.classList.add("hidden");
+        } else {
+            metamaskSection?.classList.add("hidden");
+            qrSection?.classList.remove("hidden");
+        }
+
+        // Update Price Display
+        async function updatePriceDisplay() {
+            if (!networkSelect || !currencySelect) return;
+
+            const network = networkSelect.value;
+            const currency = currencySelect.value;
+            const config = NETWORKS[network];
+
+            if (!cryptoPrices) {
+                cryptoPrices = await fetchCryptoPrices();
+            }
+            if (!cryptoPrices) return;
+
+            let priceKey = currency === "native" ? config.priceKey : currency;
+            let price = cryptoPrices[priceKey];
+            const currentGrandTotal = subtotal + shippingFee - discountAmount;
+            let amount = currentGrandTotal / price;
+            let symbol =
+                currency === "native"
+                    ? config.nativeCurrency.symbol
+                    : currency.toUpperCase();
+
+            const decimals = ["usdt", "usdc"].includes(currency) ? 2 : 6;
+            const formattedAmount = amount.toFixed(decimals);
+
+            console.log(
+                "💰",
+                formattedAmount,
+                symbol,
+                "=",
+                total,
+                "THB @",
+                price,
+            );
+
+            if (cryptoAmountDisplay) {
+                cryptoAmountDisplay.innerHTML = `${formattedAmount} ${symbol}`;
+            }
+            if (exchangeRateDisplay) {
+                exchangeRateDisplay.textContent = `1 ${symbol} = ${price.toLocaleString()} THB`;
+            }
+            if (metamaskPayBtn) {
+                const networkName = config.chainName.split(" ")[0];
+                metamaskPayBtn.textContent = `ชำระ ${formattedAmount} ${symbol} (${networkName})`;
+            }
+
+            // แก้ไข: Update QR Code โดยส่ง config.chainIdDecimal เข้าไปด้วย
+            updateQRCode(
+                merchantAddress,
+                formattedAmount,
+                symbol,
+                config.chainIdDecimal,
+            );
+        }
+
+        networkSelect?.addEventListener("change", updatePriceDisplay);
+        currencySelect?.addEventListener("change", updatePriceDisplay);
+
+        // Initial load
+        (async () => {
+            try {
+                cryptoPrices = await fetchCryptoPrices();
+                await updatePriceDisplay();
+                console.log("✅ Crypto payment ready");
+            } catch (error) {
+                console.error("❌ Init failed:", error);
+            }
+        })();
+
+        btnMetamask?.addEventListener("click", () => {
+            // WRAPPER FUNCTION TO HANDLE ASYNC
+            (async () => {
+                const ethereum = (window as any).ethereum;
+                if (!ethereum) {
+                    alert("กรุณาติดตั้ง Metamask ก่อนใช้งาน!");
+                    return;
+                }
+
+                if (!networkSelect || !currencySelect) return;
+
+                const selectedNetKey = networkSelect.value;
+                const selectedCurrency = currencySelect.value;
+                const config = NETWORKS[selectedNetKey];
+
+                const metamaskBtn = btnMetamask as HTMLButtonElement;
+
+                try {
+                    metamaskBtn.innerText = "กำลังสลับเครือข่าย...";
+                    metamaskBtn.disabled = true;
+
+                    // 1. Switch Network logic
+                    try {
+                        await ethereum.request({
+                            method: "wallet_switchEthereumChain",
+                            params: [{ chainId: config.chainId }],
+                        });
+                    } catch (switchError: any) {
+                        // This error code indicates that the chain has not been added to MetaMask.
+                        if (switchError.code === 4902) {
+                            try {
+                                await ethereum.request({
+                                    method: "wallet_addEthereumChain",
+                                    params: [
+                                        {
+                                            chainId: config.chainId,
+                                            chainName: config.chainName,
+                                            nativeCurrency:
+                                                config.nativeCurrency,
+                                            rpcUrls: config.rpcUrls,
+                                            blockExplorerUrls:
+                                                config.blockExplorerUrls,
+                                        },
+                                    ],
+                                });
+                            } catch (addError) {
+                                throw addError;
+                            }
+                        } else {
+                            throw switchError;
+                        }
+                    }
+
+                    metamaskBtn.innerText = "กำลังเชื่อมต่อ...";
+
+                    // 2. Connect Provider
+                    const provider = new ethers.BrowserProvider(ethereum);
+                    const signer = await provider.getSigner();
+
+                    // 3. Payment Logic with Real-Time Pricing
+                    let tx;
+
+                    // Fetch latest prices
+                    if (!cryptoPrices) {
+                        cryptoPrices = await fetchCryptoPrices();
+                    }
+                    if (!cryptoPrices) {
+                        alert("Data fetch failed. Please try again.");
+                        metamaskBtn.disabled = false;
+                        return;
+                    }
+
+                    if (
+                        selectedCurrency === "usdt" ||
+                        selectedCurrency === "usdc"
+                    ) {
+                        // --- STABLECOIN PAYMENT (USDT/USDC) ---
+                        const tokenConfig = config.tokens[selectedCurrency];
+                        if (!tokenConfig) {
+                            alert(
+                                `${selectedCurrency.toUpperCase()} not supported on ${config.chainName}`,
+                            );
+                            metamaskBtn.disabled = false;
+                            return;
+                        }
+
+                        const tokenAbi = [
+                            "function transfer(address to, uint amount) returns (bool)",
+                            "function decimals() view returns (uint8)",
+                        ];
+                        const contract = new ethers.Contract(
+                            tokenConfig.address,
+                            tokenAbi,
+                            signer,
+                        );
+
+                        // Calculate Amount using real-time price
+                        const price = cryptoPrices[selectedCurrency];
+                        const currentGrandTotal =
+                            subtotal + shippingFee - discountAmount;
+                        const amount = (currentGrandTotal / price).toFixed(2);
+                        metamaskBtn.innerText = `กำลังชำระ ${amount} ${selectedCurrency.toUpperCase()}...`;
+
+                        const amountInWei = ethers.parseUnits(
+                            amount,
+                            tokenConfig.decimals,
+                        );
+
+                        const txResponse = await contract.transfer(
+                            merchantAddress,
+                            amountInWei,
+                        );
+                        tx = txResponse;
+                    } else {
+                        // --- NATIVE COIN PAYMENT ---
+                        const priceKey = config.priceKey;
+                        const price = cryptoPrices[priceKey];
+                        const currentGrandTotal =
+                            subtotal + shippingFee - discountAmount;
+                        const amount = (currentGrandTotal / price).toFixed(6);
+                        metamaskBtn.innerText = `กำลังชำระ ${amount} ${config.nativeCurrency.symbol}...`;
+
+                        const txResponse = await signer.sendTransaction({
+                            to: merchantAddress,
+                            value: ethers.parseEther(amount),
+                        });
+                        tx = txResponse;
+                    }
+
+                    if (tx) {
+                        metamaskTxHash = tx.hash;
+                        metamaskBtn.innerText = "กำลังตรวจสอบ...";
+                        await tx.wait();
+
+                        // 4. Success using the outer tx variable or local if logic preserved
+                        metamaskBtn.innerText = "✓ ชำระเงินสำเร็จ";
+                        metamaskBtn.classList.add(
+                            "bg-green-500",
+                            "border-green-500",
+                        );
+                        metamaskBtn.classList.remove("bg-[#26A17B]");
+
+                        alert(`ชำระเงินเรียบร้อยแล้ว!\nTx Hash: ${tx.hash}`);
+
+                        const fileLabel = document.getElementById("file-label");
+                        if (fileLabel) {
+                            fileLabel.innerText = "✓ ตรวจสอบโดย Metamask แล้ว";
+                            fileLabel.classList.add("text-[#D4AF37]");
+                        }
+                    }
+                } catch (err: any) {
+                    console.error(err);
+                    alert("การชำระเงินล้มเหลว: " + (err.reason || err.message));
+                    updatePayButtonText(); // Reset text
+                    metamaskBtn.disabled = false;
+                }
+            })();
+        });
+
+        // -----------------------------------------------------------
+        // HANDLE SUBMIT
+        // -----------------------------------------------------------
+        const form = document.getElementById("checkout-form");
+
+        const fileToBase64 = (file: File) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+            });
+        };
+
+        form?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            // [B] HONEYPOT CHECK
+            const honeypot = (
+                document.getElementById("website-honeypot") as HTMLInputElement
+            ).value;
+            if (honeypot) {
+                console.warn("Bot detected!");
+                return;
+            }
+
+            // [C] MATH CAPTCHA CHECK
+            const userAnswer = parseInt(
+                (document.getElementById("captcha-input") as HTMLInputElement)
+                    .value,
+            );
+            if (userAnswer !== correctSum) {
+                alert(`❌ คำตอบผิดครับ! กรุณาตรวจสอบผลบวก (${n1} + ${n2})`);
+                return;
+            }
+
+            const submitBtn = form.querySelector(
+                'button[type="submit"]',
+            ) as HTMLButtonElement;
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Processing Order...";
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+            const formData = new FormData(e.target as HTMLFormElement);
+            // @ts-ignore
+            const customerInfo = Object.fromEntries(formData.entries());
+            const items = cartStore.get();
+            const { total: rawSubtotal } = cartStore.totals();
+            const finalDiscount = discountAmount;
+            const finalTotalValue = subtotal + shippingFee - discountAmount;
+            const orderId = `ORD-${new Date().getFullYear()}${Math.floor(Math.random() * 100000)}`;
+
+            // Payment Method Logic
+            const isCrypto = document
+                .getElementById("btn-crypto")
+                ?.classList.contains("bg-[#D4AF37]");
+            const isBitcoin = document
+                .getElementById("btn-bitcoin")
+                ?.classList.contains("bg-[#D4AF37]");
+
+            let paymentMethod = "PromptPay";
+            if (isCrypto) paymentMethod = "Crypto";
+            if (isBitcoin) paymentMethod = "Bitcoin Lightning";
+
+            let slipData: {
+                image: string | null;
+                name: string | null;
+                type: string | null;
+            } = { image: null, name: null, type: null };
+
+            const file = (
+                document.getElementById("slip-input") as HTMLInputElement
+            ).files?.[0];
+
+            if (file) {
+                try {
+                    const base64: any = await fileToBase64(file);
+                    // Store full Base64/DataURL for now (simplest for demo)
+                    // In production, upload to Supabase Storage -> get URL
+                    slipData.image = base64;
+                    slipData.name = file.name;
+                    slipData.type = file.type;
+                } catch (err) {
+                    console.error("File error", err);
+                }
+            }
+
+            const GOOGLE_SCRIPT_URL =
+                "https://script.google.com/macros/s/YOUR_SCRIPT_URL/exec"; // Placeholder
+
+            try {
+                // 1. Get Current User (if any)
+                let {
+                    data: { user },
+                } = await supabase.auth.getUser();
+
+                // 1.1 If no session, check for Wallet User
+                if (!user) {
+                    const wallet = localStorage.getItem("user_wallet");
+                    if (wallet) {
+                        const { data: profile } = await supabase
+                            .from("profiles")
+                            .select("id")
+                            .eq("wallet_address", wallet)
+                            .single();
+
+                        if (profile) {
+                            // Mock a user object with just the ID for the logic below
+                            user = { id: profile.id } as any;
+                        }
+                    }
+                }
+
+                // 2. Prepare Order Data for DB
+                // If Metamask was used, we might want to store the hash in slip_name or a note
+                if (metamaskTxHash) {
+                    slipData.name = "Metamask Tx: " + metamaskTxHash;
+                    if (!slipData.image)
+                        slipData.image = "TX:" + metamaskTxHash;
+                }
+
+                const dbOrder = {
+                    id: orderId,
+                    user_id: user?.id || null, // Guest allowed
+                    customer_name: (
+                        customerInfo.firstname +
+                        " " +
+                        customerInfo.lastname
+                    ).trim(),
+                    customer_email: "guest@example.com",
+                    customer_phone: customerInfo.phone,
+                    shipping_address: customerInfo.address,
+                    province: customerInfo.province,
+                    zipcode: customerInfo.zipcode,
+                    total_price: finalTotalValue, // Use discounted total
+                    total_sats:
+                        document
+                            .getElementById("bitcoin-amount-sats")
+                            ?.innerText.replace(/\D/g, "") || 0,
+                    payment_method: paymentMethod,
+                    payment_status: "pending",
+                    slip_image: slipData.image,
+                    slip_name: slipData.name,
+                    lightning_preimage: lightningTxHash || null,
+                    coupon_code: appliedCoupon?.code || null,
+                    discount_amount: finalDiscount || 0,
+                };
+
+                // 3. Insert Order
+                const { error: orderError } = await supabase
+                    .from("orders")
+                    .insert(dbOrder);
+
+                if (orderError) throw orderError;
+
+                // 4. Update Coupon Usage Count if applied
+                if (appliedCoupon) {
+                    const { error: couponUpdateError } = await supabase.rpc(
+                        "increment_coupon_usage",
+                        { coupon_id: appliedCoupon.id },
+                    );
+                    // Fallback to simple update if RPC doesn't exist yet
+                    if (couponUpdateError) {
+                        await supabase
+                            .from("coupons")
+                            .update({
+                                usage_count: appliedCoupon.usage_count + 1,
+                            })
+                            .eq("id", appliedCoupon.id);
+                    }
+                }
+
+                // 5. Insert Order Items
+                const dbItems = items.map((item: any) => ({
+                    order_id: orderId,
+                    product_id: item.product_id, // Critical for stock deduction
+                    title: item.title,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image_url: item.image,
+                    variant_name: item.variant_name || null, // Critical for variant stock
+                }));
+
+                const { error: itemsError } = await supabase
+                    .from("order_items")
+                    .insert(dbItems);
+
+                if (itemsError) throw itemsError;
+
+                // 5. Submit to Google Sheets (Legacy/Backup) - Optional
+                // await fetch(GOOGLE_SCRIPT_URL, ...);
+
+                // 5. Notify Telegram (Async - don't block)
+                fetch("/api/telegram-notify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        orderId,
+                        customerName: dbOrder.customer_name,
+                        total,
+                        paymentMethod,
+                        couponCode: appliedCoupon?.code || null,
+                        discountAmount: finalDiscount || 0,
+                        items: items.map((i: any) => ({
+                            product_id: i.product_id,
+                            title: i.title,
+                            quantity: i.quantity,
+                            variant_name: i.variant_name || null,
+                        })),
+                    }),
+                }).catch((err) =>
+                    console.error("Telegram Notification Failed:", err),
+                );
+
+                // Success
+                localStorage.setItem(
+                    "lastOrder",
+                    JSON.stringify({
+                        id: orderId,
+                        total: total + 50, // Including shipping in display
+                        items: items,
+                    }),
+                );
+                cartStore.clear();
+                window.location.href = "/thankyou"; // Make sure this page exists or redirect home
+            } catch (error: any) {
+                alert(
+                    "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " +
+                        (error.message || error),
+                );
+                console.error("Checkout Error:", error);
+
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes scan {
+        0% {
+            top: 0%;
+            opacity: 0;
+        }
+        10% {
+            opacity: 1;
+        }
+        90% {
+            opacity: 1;
+        }
+        100% {
+            top: 100%;
+            opacity: 0;
+        }
+    }
+    .animate-scan {
+        animation: scan 2s linear infinite;
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

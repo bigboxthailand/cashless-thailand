@@ -1,0 +1,85 @@
+---
+import { ViewTransitions } from "astro:transitions";
+import "../styles/global.css";
+import AdminSidebar from "../components/admin/AdminSidebar.astro";
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
+---
+
+<!doctype html>
+<html lang="en" class="bg-[#050505]">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/images/ui/favicon.svg" />
+        <title>{title} | Cashless Admin</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Anuphan:wght@100;300;400;500;600;700&family=Inter:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,900&display=swap"
+            rel="stylesheet"
+        />
+        <ViewTransitions />
+    </head>
+    <body
+        class="text-white/90 antialiased selection:bg-[#D4AF37] selection:text-black font-sans flex h-screen overflow-hidden relative"
+    >
+        <!-- SIDEBAR (New Unified Component) -->
+        <AdminSidebar activeTab={currentPath} />
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-auto bg-[#050505] relative pt-0">
+            <!-- Background Image -->
+            <div class="fixed inset-0 z-[-10] pointer-events-none">
+                <div
+                    class="absolute inset-0 bg-[url('/bg-crypto.webp')] bg-cover bg-center opacity-40 mix-blend-luminosity"
+                >
+                </div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-[#050505]/80"
+                >
+                </div>
+            </div>
+
+            <div
+                class="fixed inset-0 z-[-10] pointer-events-none opacity-[0.04] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"
+            >
+            </div>
+            <div class="relative z-10 p-4 md:p-8 max-w-7xl mx-auto">
+                <slot />
+            </div>
+        </main>
+
+        <script>
+            import { supabase } from "../lib/supabase";
+
+            // Auth Check
+            const checkAuth = async () => {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                // Security: Restrict Admin Access
+                const allowedAdmins = ["mycryptoclock@gmail.com"];
+                const userEmail = session.user.email || "";
+                if (!allowedAdmins.includes(userEmail)) {
+                    alert("Access Denied: You are not an admin.");
+                    window.location.href = "/"; // Redirect normal users to home
+                }
+            };
+            // Temporarily commented out to allow testing without login during dev
+            checkAuth();
+        </script>
+
+        <style>
+            .glass-backdrop {
+                backdrop-filter: blur(4px);
+            }
+        </style>
+    </body>
+</html>
