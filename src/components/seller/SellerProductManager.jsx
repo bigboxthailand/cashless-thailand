@@ -8,14 +8,13 @@ const SellerProductManager = ({ shopId: propShopId }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('basic'); // basic, media, sales, marketing, attributes
+    const [activeTab, setActiveTab] = useState('basic'); // basic, media, sales, shipping, attributes
 
-    // Initial Form State matching Admin
+    // Initial Form State
     const initialFormState = {
         id: null,
         name: '',
         category: 'Hardware Wallet',
-        subcategory: '',
         description: '',
         images: ['', '', '', '', ''],
         video: '',
@@ -40,6 +39,8 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         length: '',
         height: '',
 
+        subcategory: '', // New field
+
         // Marketing
         marketing: {
             headline: '',
@@ -56,7 +57,7 @@ const SellerProductManager = ({ shopId: propShopId }) => {
 
     const [formData, setFormData] = useState(initialFormState);
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('list');
+    const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
 
     const CATEGORY_DATA = {
         "Hardware Wallet": ["Trezor", "Ledger", "Tangem", "OneKey", "BitBox", "Keystone"],
@@ -72,15 +73,42 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         "Mug": ["Ceramic", "Thermal", "Travel"]
     };
 
-    // Resolve Shop ID for Wallet Users if not provided
+    // Resolve Shop ID: Handle Props, Wallet, and Client Session
     useEffect(() => {
         if (propShopId) {
             setShopId(propShopId);
         } else {
-            const wallet = localStorage.getItem('user_wallet');
-            if (wallet) resolveWalletShop(wallet);
+            initializeShop();
         }
     }, [propShopId]);
+
+    const initializeShop = async () => {
+        // 1. Try Wallet
+        const wallet = localStorage.getItem('user_wallet');
+        if (wallet) {
+            await resolveWalletShop(wallet);
+            return; // Prioritize wallet if present (or remove return if we want to fallback)
+        }
+
+        // 2. Try Client Session (Fallback for SSR misses)
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            try {
+                const { data: shop } = await supabase
+                    .from('shops')
+                    .select('id')
+                    .eq('owner_id', user.id)
+                    .single();
+
+                if (shop) {
+                    console.log("Resolved shop from client session:", shop.id);
+                    setShopId(shop.id);
+                }
+            } catch (err) {
+                console.error("Error resolving shop from session:", err);
+            }
+        }
+    };
 
     const resolveWalletShop = async (wallet) => {
         try {
@@ -96,15 +124,14 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         }
     };
 
-    // Helper: Format Currency
-    const formatCurrency = (amount) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(amount);
-
-    // Fetch Products
+    // Fetch Products (Scoped to Shop)
     useEffect(() => {
+        console.log("SellerProductManager: shopId changed to:", shopId);
         if (shopId) fetchProducts();
     }, [shopId]);
 
     const fetchProducts = async () => {
+        console.log("Fetching products for shop:", shopId);
         try {
             const { data, error } = await supabase
                 .from('products')
@@ -112,35 +139,23 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                 .eq('shop_id', shopId)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase fetch error:", error);
+                throw error;
+            }
+            console.log("Fetched products:", data);
             setProducts(data || []);
         } catch (error) {
             console.error('Error fetching products:', error);
         }
     };
 
-    // Helper: Stock Calculation
-    const helperGetStock = (product) => {
-        if (product.config?.hasVariants && product.config?.variants?.length > 0) {
-            return product.config.variants.reduce((a, b) => a + (parseInt(b.stock) || 0), 0);
-        }
-        return parseInt(product.config?.inventory?.stock || product.inventory?.stock || product.stock || 0);
-    };
-
-    const helperGetStockColor = (stock) => {
-        if (stock === 0) return "text-red-500";
-        if (stock < 10) return "text-yellow-500";
-        return "text-green-500";
-    };
-
-    // Variant Helper: Generate Combinations (Effect)
+    // Variant Helper: Generate Combinations
     useEffect(() => {
         if (!formData.hasVariants || formData.variantOptions.length === 0) return;
-        // Logic to auto-update combos if needed, but we usually trigger this manually on option change
+        // Only regenerate if structure changes significantly
     }, [formData.variantOptions]);
 
-
-    // Handlers
     const openAddModal = () => {
         setIsEditing(false);
         setFormData(initialFormState);
@@ -157,13 +172,16 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         const pricing = product.pricing || {};
         const inventory = product.inventory || config.inventory || {};
         const media = product.media || {};
-        const shipping = product.shipping || {};
+        const shipping = product.shipping || {}; // Assuming stored in shipping column if exists, else inventory
 
+        // Check for variants in config
         const hasVariants = !!(config.variants && config.variants.length > 0);
         let variantOptions = config.variantOptions || [];
         let variantCombinations = config.variants || [];
 
+        // Backwards compatibility for flat variants list
         if (hasVariants && variantOptions.length === 0) {
+            // Implicit 'Option'
             variantOptions = [{ name: "Variation", values: variantCombinations.map(v => v.name) }];
         }
 
@@ -193,13 +211,10 @@ const SellerProductManager = ({ shopId: propShopId }) => {
             variantOptions,
             variantCombinations,
 
-            // Shipping
-            weight: shipping.weight || inventory.weight || '',
             length: shipping.length || inventory.dimensions?.length || '',
-            width: shipping.width || inventory.dimensions?.width || '',
             height: shipping.height || inventory.dimensions?.height || '',
 
-            // Marketing
+            // Content
             marketing: config.marketing || { headline: '', subheadline: '', benefits: [] },
             techSpecs: config.techSpecs || [],
             manualLink: config.manualLink || '',
@@ -209,33 +224,54 @@ const SellerProductManager = ({ shopId: propShopId }) => {
 
     const handleSave = async (e) => {
         e.preventDefault();
+
+        // Safety Check: Ensure Shop ID exists
+        const activeShopId = shopId || propShopId;
+        if (!activeShopId) {
+            alert("Error: Shop Identity missing. Please reload the page.");
+            console.error("Missing shopId during save. Prop:", propShopId, "State:", shopId);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
-            // Logic for Price
-            let finalBasePrice = parseFloat(formData.price) || 0;
-            if ((finalBasePrice === 0 || !formData.price) && formData.hasVariants && formData.variantCombinations.length > 0) {
-                const prices = formData.variantCombinations.map(v => parseFloat(v.price) || 0).filter(p => p > 0);
-                if (prices.length > 0) finalBasePrice = Math.min(...prices);
-            }
-
+            // Generate slug for ID (only used for new products)
             const slug = formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
+            // Construct the payload matching the ACTUAL schema
+            // Determine Base price logic
+            let finalBasePrice = parseFloat(formData.price) || 0;
+            if ((finalBasePrice === 0 || !formData.price) && formData.hasVariants && formData.variantCombinations.length > 0) {
+                // Auto-pick the lowest price from variants as base price
+                const prices = formData.variantCombinations.map(v => parseFloat(v.price) || 0).filter(p => p > 0);
+                if (prices.length > 0) {
+                    finalBasePrice = Math.min(...prices);
+                }
+            }
+
             const productPayload = {
-                shop_id: shopId, // CRITICAL: Link to Seller Shop
+                shop_id: activeShopId, // CRITICAL: Link to Seller Shop (Filtered Verified)
                 category: formData.category,
+
+                // Meta holds the display title and description
                 meta: {
                     title: formData.name,
                     description: formData.description,
                     brand: formData.brand,
                     model: formData.model,
                     condition: formData.condition,
+                    // Preserve other meta fields if they existed but are not in form? 
+                    // ideally we'd merge, but for now we write what we control.
                 },
+
+                // Config holds variants AND now Inventory (since invalid column removed)
                 config: {
                     hasVariants: formData.hasVariants,
                     variantOptions: formData.hasVariants ? formData.variantOptions : [],
                     variants: formData.hasVariants ? formData.variantCombinations : [],
                     subcategory: formData.subcategory,
+                    // Storing inventory here since 'inventory' column doesn't exist
                     inventory: {
                         stock: parseInt(formData.stock) || 0,
                         sku: formData.sku || `SKU-${Date.now()}`,
@@ -246,15 +282,18 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                             height: parseFloat(formData.height) || 0
                         }
                     },
+                    // New Fields
                     marketing: formData.marketing,
                     techSpecs: formData.techSpecs,
                     manualLink: formData.manualLink,
                 },
+
                 media: {
                     mainImage: formData.images[0] || 'https://placehold.co/400',
                     gallery: formData.images.slice(1).filter(url => url),
                     video: formData.video
                 },
+
                 pricing: {
                     basePrice: finalBasePrice,
                     comparePrice: parseFloat(formData.comparePrice) || null,
@@ -264,137 +303,49 @@ const SellerProductManager = ({ shopId: propShopId }) => {
 
             let error;
             if (isEditing) {
-                const { data, error: updateError } = await supabase
+                // Update existing
+                const { data: updated, error: updateError } = await supabase
                     .from('products')
                     .update(productPayload)
                     .eq('id', formData.id)
-                    .eq('shop_id', shopId) // Security: Ensure ownership
+                    .eq('shop_id', activeShopId) // Ensure ownership
                     .select()
                     .single();
 
-                if (!updateError && data) {
-                    setProducts(prev => prev.map(p => p.id === data.id ? data : p));
+                if (!updateError && updated) {
+                    setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
                 }
                 error = updateError;
             } else {
-                const newId = `${slug}-${Date.now().toString().slice(-4)}`;
-                const { data, error: insertError } = await supabase
+                // Insert new - we must specify the ID since it's not auto-generated UUID
+                const newId = slug || `product-${Date.now()}`;
+
+                const { data: inserted, error: insertError } = await supabase
                     .from('products')
                     .insert([{ ...productPayload, id: newId }])
                     .select()
                     .single();
 
-                if (!insertError && data) {
-                    setProducts(prev => [data, ...prev]);
+                if (!insertError && inserted) {
+                    setProducts(prev => [inserted, ...prev]);
                 }
                 error = insertError;
             }
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase Error:", error);
+                throw error;
+            }
             setIsModalOpen(false);
 
         } catch (err) {
             console.error('Error saving product:', err);
-            alert('Failed to save product: ' + err.message);
+            alert('Failed to save product: ' + (err.message || JSON.stringify(err)));
         } finally {
             setIsLoading(false);
         }
     };
 
-    // --- Image Upload Logic ---
-    const resizeImage = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    const MAX_WIDTH = 1200;
-                    const MAX_HEIGHT = 1200;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        resolve(new File([blob], file.name, { type: file.type, lastModified: Date.now() }));
-                    }, file.type, 0.7);
-                };
-            };
-        });
-    };
-
-    const handleImageUpload = async (e, index) => {
-        let file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) file = await resizeImage(file);
-
-        try {
-            setIsLoading(true);
-            const fileExt = file.name.split('.').pop();
-            const fileName = `seller/${shopId}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`; // Organize by Shop
-
-            const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
-
-            const newImages = [...formData.images];
-            newImages[index] = publicUrl;
-            setFormData({ ...formData, images: newImages });
-
-        } catch (error) {
-            alert("Upload failed: " + error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleVariantImageUpload = async (e, comboIndex) => {
-        let file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 2 * 1024 * 1024) file = await resizeImage(file);
-
-        try {
-            setIsLoading(true);
-            const fileExt = file.name.split('.').pop();
-            const fileName = `variant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-
-            const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
-
-            updateCombinationField(comboIndex, 'image', publicUrl);
-        } catch (error) {
-            console.error("Upload Error:", error);
-            alert("Upload failed: " + error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm('Delete this product?')) return;
-        try {
-            const { error } = await supabase.from('products').delete().eq('id', id).eq('shop_id', shopId);
-            if (error) throw error;
-            setProducts(prev => prev.filter(p => p.id !== id));
-        } catch (err) {
-            alert('Failed to delete: ' + err.message);
-        }
-    };
-
-    // --- Variant Logic ---
     const handleAddVariantOption = () => {
         setFormData(prev => ({
             ...prev,
@@ -405,7 +356,11 @@ const SellerProductManager = ({ shopId: propShopId }) => {
     const handleRemoveVariantOption = (index) => {
         const newOptions = [...formData.variantOptions];
         newOptions.splice(index, 1);
-        setFormData(prev => ({ ...prev, variantOptions: newOptions }));
+        setFormData(prev => ({
+            ...prev,
+            variantOptions: newOptions
+        }));
+        // Note: Needs logic to clear combinations if options removed
     };
 
     const handleOptionNameChange = (index, val) => {
@@ -432,13 +387,17 @@ const SellerProductManager = ({ shopId: propShopId }) => {
     };
 
     const updateCombinations = (options) => {
+        // Generate Cartesian Product
+        // Only supports 1 level for now for simplicity, or 2 levels max
         if (options.length === 0) {
             setFormData(prev => ({ ...prev, variantCombinations: [] }));
             return;
         }
 
         const firstOption = options[0];
+        // If 2nd option exists
         const secondOption = options[1];
+
         let combos = [];
 
         if (secondOption && secondOption.values.length > 0) {
@@ -468,7 +427,8 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                 });
             });
         }
-        // TODO: Merge existing values if names match to preserve data
+
+        // Ideally merge with existing to keep values, but for now reset:
         setFormData(prev => ({ ...prev, variantCombinations: combos }));
     };
 
@@ -478,12 +438,184 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         setFormData(prev => ({ ...prev, variantCombinations: newCombos }));
     };
 
-    // --- Media Helpers ---
+    // Helper: Get Total Stock
+    const helperGetStock = (product) => {
+        if (product.config?.hasVariants && product.config?.variants?.length > 0) {
+            return product.config.variants.reduce((a, b) => a + (parseInt(b.stock) || 0), 0);
+        }
+        return parseInt(product.config?.inventory?.stock || product.inventory?.stock || product.stock || 0);
+    };
+
+    // Helper: Get Stock Color Class
+    const helperGetStockColor = (stock) => {
+        if (stock === 0) return "text-red-500";
+        if (stock < 10) return "text-yellow-500";
+        return "text-green-500";
+    };
+
+
+    // --- Existing Utility Functions ---
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this product?')) return;
+        try {
+            const { error } = await supabase.from('products').delete().eq('id', id).eq('shop_id', shopId);
+            if (error) throw error;
+            setProducts(prev => prev.filter(p => p.id !== id));
+        } catch (err) {
+            console.error('Error deleting product:', err);
+            alert('Failed to delete product');
+        }
+    };
+
+    const filteredProducts = products.filter(p => {
+        const name = p.name || p.title || p.meta?.title || '';
+        const category = p.config?.category || p.category || '';
+        return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            category.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    const formatCurrency = (amount) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(amount);
+    const tabs = [
+        { id: 'basic', label: 'Basic Info', icon: '📝' },
+        { id: 'media', label: 'Media', icon: '🖼️' },
+        { id: 'sales', label: 'Sales Info', icon: '💰' },
+        { id: 'marketing', label: 'Marketing & Specs', icon: '📢' },
+        // { id: 'shipping', label: 'Shipping', icon: '🚚' },
+        { id: 'attributes', label: 'Attributes', icon: '🏷️' },
+    ];
     const updateImage = (index, value) => {
         const newImages = [...formData.images];
         newImages[index] = value;
         setFormData({ ...formData, images: newImages });
     };
+
+    const resizeImage = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        const resizedFile = new File([blob], file.name, {
+                            type: file.type,
+                            lastModified: Date.now(),
+                        });
+                        resolve(resizedFile);
+                    }, file.type, 0.7); // 0.7 quality
+                };
+            };
+        });
+    };
+
+    const handleImageUpload = async (e, index) => {
+        let file = e.target.files[0];
+        if (!file) return;
+
+        // Auto Resize if > 2MB
+        if (file.size > 2 * 1024 * 1024) {
+            try {
+                // Show temporary loading state or toast if possible, but for now just process
+                file = await resizeImage(file);
+            } catch (err) {
+                console.error("Resize error:", err);
+                alert("Failed to resize image. Please upload a smaller file.");
+                return;
+            }
+        }
+
+        try {
+            setIsLoading(true);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `seller/${shopId}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`; // Scoped to Shop
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('products')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('products')
+                .getPublicUrl(filePath);
+
+            updateImage(index, publicUrl);
+
+        } catch (error) {
+            console.error("Upload Error:", error);
+            alert("Upload failed: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVariantImageUpload = async (e, comboIndex) => {
+        let file = e.target.files[0];
+        if (!file) return;
+
+        // Auto Resize if > 2MB
+        if (file.size > 2 * 1024 * 1024) {
+            try {
+                file = await resizeImage(file);
+            } catch (err) {
+                console.error("Resize error:", err);
+                alert("Failed to resize image.");
+                return;
+            }
+        }
+
+        try {
+            setIsLoading(true);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `variant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('products')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('products')
+                .getPublicUrl(filePath);
+
+            updateCombinationField(comboIndex, 'image', publicUrl);
+
+        } catch (error) {
+            console.error("Upload Error:", error);
+            alert("Upload failed: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
 
     // --- Marketing Helpers ---
     const handleMarketingChange = (field, value) => {
@@ -541,52 +673,45 @@ const SellerProductManager = ({ shopId: propShopId }) => {
         setFormData(prev => ({ ...prev, techSpecs: newSpecs }));
     };
 
-
-    const filteredProducts = products.filter(p =>
-        (p.name || p.meta?.title || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const tabs = [
-        { id: 'basic', label: 'Basic Info', icon: '📝' },
-        { id: 'media', label: 'Media', icon: '🖼️' },
-        { id: 'sales', label: 'Sales Info', icon: '💰' },
-        { id: 'marketing', label: 'Marketing & Specs', icon: '📢' },
-        { id: 'attributes', label: 'Attributes', icon: '🏷️' },
-    ];
-
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-2xl font-black text-white uppercase">Products</h2>
-                    <p className="text-white/50 text-sm">{products.length} items listed</p>
-                </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <div className="flex bg-black/50 backdrop-blur-md rounded border border-white/10 p-1">
-                        <button onClick={() => setViewMode('list')} className={`p-2 rounded ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}>
+                <div className="text-white/50 text-sm mt-1">{products.length} Products</div>
+                <div className="flex w-full md:w-auto gap-3">
+                    <div className="flex bg-black/10 backdrop-blur-md rounded border border-white/10 p-1">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-2 rounded ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
+                        >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                         </button>
-                        <button onClick={() => setViewMode('grid')} className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}>
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
+                        >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                         </button>
                     </div>
                     <input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[#D4AF37] w-full"
+                        type="text" placeholder="Search..."
+                        value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-black/10 backdrop-blur-md border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-[#D4AF37] w-full md:w-64"
                     />
-                    <button onClick={openAddModal} className="bg-[#D4AF37] text-black font-bold px-6 py-2 rounded-xl whitespace-nowrap hover:bg-[#b89530]">
-                        + Add New
+                    <button
+                        onClick={openAddModal}
+                        className="px-4 py-2 bg-[#D4AF37] text-black font-bold rounded text-sm hover:bg-white transition-colors flex items-center gap-2"
+                    >
+                        <span>+</span> Add New
                     </button>
                 </div>
             </div>
 
-            {/* Product View */}
+            {/* Product View: List vs Grid */}
             {viewMode === 'list' ? (
-                <div className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden">
+                /* List View */
+                /* List View */
+                <div className="bg-black/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden animate-in fade-in">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm text-white/70">
                             <thead className="bg-white/5 text-white font-bold uppercase text-xs tracking-wider">
@@ -638,21 +763,56 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                     </div>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {filteredProducts.map(product => (
-                        <div key={product.id} className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden group hover:border-[#D4AF37] transition-all relative">
-                            <div className="aspect-square relative">
-                                <img src={product.media?.mainImage || product.image_url || 'https://placehold.co/400'} className="w-full h-full object-cover" />
+                /* Grid View */
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 animate-in fade-in">
+                    {filteredProducts.map((product) => (
+                        <div key={product.id} className="bg-black/10 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden hover:border-[#D4AF37] transition-all group relative flex flex-col">
+                            {/* Image */}
+                            <div className="aspect-square bg-white/5 relative overflow-hidden">
+                                <img
+                                    src={product.media?.mainImage || product.image_url || "https://placehold.co/400"}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                {/* Overlay Actions */}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                    <button onClick={() => openEditModal(product)} className="bg-white text-black px-3 py-1 rounded-full text-xs font-bold">Edit</button>
-                                    <button onClick={() => handleDelete(product.id)} className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">Del</button>
+                                    <button
+                                        onClick={() => openEditModal(product)}
+                                        className="bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold hover:bg-[#D4AF37] transition-colors"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(product.id)}
+                                        className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold hover:bg-red-600 transition-colors"
+                                    >
+                                        Del
+                                    </button>
                                 </div>
+                                {/* Category Badge */}
+                                <span className="absolute top-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[10px] uppercase font-bold text-white/80 border border-white/10">
+                                    {product.config?.category || product.category || "Uncat"}
+                                </span>
                             </div>
-                            <div className="p-4">
-                                <h3 className="font-bold text-white text-sm line-clamp-2 min-h-[40px]">{product.name || product.meta?.title}</h3>
-                                <div className="flex justify-between items-end mt-2">
-                                    <span className="text-[#D4AF37] font-bold">{formatCurrency(product.pricing?.basePrice || product.price)}</span>
-                                    <span className={`text-xs font-bold ${helperGetStockColor(helperGetStock(product))}`}>{helperGetStock(product)} in stock</span>
+
+                            {/* Info */}
+                            <div className="p-3 flex-1 flex flex-col">
+                                <h3 className="text-white font-bold text-sm line-clamp-2 mb-1 min-h-[2.5rem]">
+                                    {product.name || product.title || product.meta?.title}
+                                </h3>
+                                <div className="mt-auto flex justify-between items-end">
+                                    <div>
+                                        <div className="text-[10px] text-white/40 uppercase font-bold mb-0.5">Price</div>
+                                        <div className="text-[#D4AF37] font-bold text-sm">
+                                            {formatCurrency(product.pricing?.basePrice || product.price || 0)}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-white/40 uppercase font-bold mb-0.5">Stock</div>
+                                        <div className={`text-xs font-bold ${helperGetStockColor(helperGetStock(product))}`}>
+                                            {helperGetStock(product)}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -660,193 +820,274 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                 </div>
             )}
 
-            {/* MODAL */}
+            {/* Modal */}
             <AnimatePresence>
                 {isModalOpen && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsModalOpen(false)}></div>
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-[#1a1a1a] border border-white/10 rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col relative z-10 shadow-2xl overflow-hidden"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            onClick={() => setIsModalOpen(false)}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-[#111] border border-white/10 rounded-xl w-full max-w-5xl h-[90vh] flex flex-col relative z-20 shadow-2xl overflow-hidden"
                         >
-                            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#111]">
-                                <h2 className="text-xl font-black text-white uppercase">{isEditing ? 'Edit Product' : 'Add Product'}</h2>
+                            {/* Header */}
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-[#161616]">
+                                <h2 className="text-lg font-bold text-white">
+                                    {isEditing ? 'Edit Product' : 'Add New Product'}
+                                </h2>
                                 <button onClick={() => setIsModalOpen(false)} className="text-white/50 hover:text-white">✕</button>
                             </div>
 
+                            {/* Body */}
                             <div className="flex flex-1 overflow-hidden">
-                                {/* Tabs */}
-                                <div className="w-48 bg-[#111] border-r border-white/5 overflow-y-auto">
-                                    <div className="p-4 space-y-2">
+                                {/* Sidebar */}
+                                <div className="w-1/5 bg-[#0A0A0A] border-r border-white/5 overflow-y-auto">
+                                    <div className="flex flex-col p-2 gap-1">
                                         {tabs.map(tab => (
                                             <button
                                                 key={tab.id}
                                                 onClick={() => setActiveTab(tab.id)}
-                                                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20' : 'text-white/40 hover:text-white'}`}
+                                                className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${activeTab === tab.id
+                                                    ? 'bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20'
+                                                    : 'text-white/50 hover:bg-white/5 hover:text-white'
+                                                    }`}
                                             >
-                                                <span className="mr-2">{tab.icon}</span>
+                                                <span>{tab.icon}</span>
                                                 {tab.label}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Form Content */}
-                                <div className="flex-1 overflow-y-auto p-8 space-y-8 bg-[#161616]">
-                                    <form id="seller-product-form" onSubmit={handleSave} className="max-w-3xl mx-auto space-y-8">
+                                {/* Content */}
+                                <div className="flex-1 overflow-y-auto p-8 bg-[#111]">
+                                    <form id="product-form" onSubmit={handleSave} className="space-y-8 max-w-4xl">
 
                                         {/* 1. BASIC INFO */}
                                         {activeTab === 'basic' && (
-                                            <div className="space-y-6 animate-fade-in">
-                                                <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2 mb-4">Basic Information</h3>
-                                                <div className="grid md:grid-cols-2 gap-6">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] uppercase font-bold text-white/40">Product Name</label>
-                                                        <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" placeholder="e.g. Ledger Nano X" />
+                                            <div className="space-y-6">
+                                                <h3 className="section-title">Basic Information</h3>
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div>
+                                                        <label className="input-label">Product Name *</label>
+                                                        <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="input-field" />
                                                     </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] uppercase font-bold text-white/40">Category</label>
-                                                        <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none">
-                                                            {Object.keys(CATEGORY_DATA).map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                                    <div>
+                                                        <label className="input-label">Category *</label>
+                                                        <select
+                                                            value={formData.category}
+                                                            onChange={e => setFormData({ ...formData, category: e.target.value, subcategory: '' })}
+                                                            className="input-field"
+                                                        >
+                                                            {Object.keys(CATEGORY_DATA).map(cat => (
+                                                                <option key={cat} value={cat}>{cat}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="input-label">Subcategory</label>
+                                                        <select
+                                                            value={formData.subcategory}
+                                                            onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
+                                                            className="input-field"
+                                                            disabled={!formData.category}
+                                                        >
+                                                            <option value="">Select Subcategory</option>
+                                                            {formData.category && CATEGORY_DATA[formData.category]?.map(sub => (
+                                                                <option key={sub} value={sub}>{sub}</option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Subcategory</label>
-                                                    <select
-                                                        value={formData.subcategory}
-                                                        onChange={e => setFormData({ ...formData, subcategory: e.target.value })}
-                                                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none"
-                                                        disabled={!formData.category}
-                                                    >
-                                                        <option value="">Select Subcategory</option>
-                                                        {formData.category && CATEGORY_DATA[formData.category]?.map(sub => (
-                                                            <option key={sub} value={sub}>{sub}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Description</label>
-                                                    <textarea required rows="5" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none resize-none"></textarea>
+                                                <div>
+                                                    <label className="input-label">Description</label>
+                                                    <textarea rows="5" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="input-field resize-none" />
                                                 </div>
                                             </div>
                                         )}
 
                                         {/* 2. MEDIA */}
                                         {activeTab === 'media' && (
-                                            <div className="space-y-6 animate-fade-in">
-                                                <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2 mb-4">Product Images</h3>
-                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                                    {formData.images.map((img, idx) => (
-                                                        <div key={idx} className="aspect-square bg-black/50 border border-white/10 rounded-xl relative overflow-hidden group">
-                                                            {img ? (
-                                                                <>
-                                                                    <img src={img} className="w-full h-full object-cover" />
-                                                                    <button type="button" onClick={() => updateImage(idx, '')} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
-                                                                </>
-                                                            ) : (
-                                                                <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                                                                    <span className="text-2xl text-white/20">+</span>
-                                                                    <span className="text-[8px] uppercase font-bold text-white/30 mt-2">{idx === 0 ? 'Main' : 'Gallery'}</span>
-                                                                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, idx)} />
-                                                                </label>
-                                                            )}
-                                                            {isLoading && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><div className="w-5 h-5 border-2 border-[#D4AF37] rounded-full animate-spin border-t-transparent"></div></div>}
-                                                        </div>
+                                            <div className="space-y-6">
+                                                <h3 className="section-title">Product Media</h3>
+
+                                                {/* Hidden File Inputs */}
+                                                <div className="hidden">
+                                                    <input type="file" id="cover-upload" accept="image/*" onChange={(e) => handleImageUpload(e, 0)} />
+                                                    {[1, 2, 3, 4].map(i => (
+                                                        <input key={i} type="file" id={`gallery-upload-${i}`} accept="image/*" onChange={(e) => handleImageUpload(e, i)} />
                                                     ))}
                                                 </div>
+
+                                                <div className="flex gap-4">
+                                                    <div className="w-1/3">
+                                                        <label className="input-label">Cover Image</label>
+                                                        <div
+                                                            onClick={() => document.getElementById('cover-upload').click()}
+                                                            className="aspect-square bg-white/5 rounded-lg border border-dashed border-white/20 flex flex-col items-center justify-center overflow-hidden mb-2 cursor-pointer hover:border-[#D4AF37] hover:bg-white/10 transition-colors group"
+                                                        >
+                                                            {formData.images[0] ? (
+                                                                <img src={formData.images[0]} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <>
+                                                                    <span className="text-2xl mb-1">📷</span>
+                                                                    <span className="text-white/30 text-xs font-bold uppercase group-hover:text-white">Upload</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <input type="url" placeholder="Or paste URL..." value={formData.images[0]} onChange={e => updateImage(0, e.target.value)} className="input-field text-xs" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <label className="input-label">Gallery</label>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            {[1, 2, 3, 4].map(i => (
+                                                                <div key={i} className="relative">
+                                                                    <div
+                                                                        onClick={() => document.getElementById(`gallery-upload-${i}`).click()}
+                                                                        className="aspect-video bg-white/5 rounded-lg border border-dashed border-white/20 flex items-center justify-center overflow-hidden mb-1 cursor-pointer hover:border-[#D4AF37] hover:bg-white/10 group"
+                                                                    >
+                                                                        {formData.images[i] ? (
+                                                                            <img src={formData.images[i]} className="w-full h-full object-cover" />
+                                                                        ) : (
+                                                                            <span className="text-white/30 text-xl group-hover:text-white">+</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <input type="url" placeholder="URL" value={formData.images[i] || ''} onChange={e => updateImage(i, e.target.value)} className="input-field text-xs py-1" />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div className="pt-4 border-t border-white/10">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Product Video (YouTube URL)</label>
-                                                    <input type="url" value={formData.video} onChange={e => setFormData({ ...formData, video: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none mt-2" placeholder="https://youtube.com/..." />
+                                                    <label className="input-label">Product Video (YouTube URL)</label>
+                                                    <input type="url" value={formData.video} onChange={e => setFormData({ ...formData, video: e.target.value })} className="input-field" placeholder="https://youtube.com/..." />
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* 3. SALES INFO */}
+                                        {/* 3. SALES INFO (Dual Mode) */}
                                         {activeTab === 'sales' && (
-                                            <div className="space-y-8 animate-fade-in">
-                                                <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2 mb-4">Sales & Variants</h3>
-                                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
-                                                    <input type="checkbox" checked={formData.hasVariants} onChange={e => setFormData({ ...formData, hasVariants: e.target.checked })} className="w-5 h-5 accent-[#D4AF37]" />
-                                                    <div>
-                                                        <h4 className="font-bold text-white">Product has variations?</h4>
-                                                        <p className="text-xs text-white/40">Enable this for sizes, colors, etc.</p>
-                                                    </div>
+                                            <div className="space-y-6">
+                                                <h3 className="section-title">Sales Information</h3>
+
+                                                {/* Enable Variations Toggle */}
+                                                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border border-white/10 mb-6">
+                                                    <label className="text-sm font-bold text-white flex-1">Enable Variations?</label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, hasVariants: !formData.hasVariants })}
+                                                        className={`w-12 h-6 rounded-full transition-colors relative ${formData.hasVariants ? 'bg-[#D4AF37]' : 'bg-white/20'}`}
+                                                    >
+                                                        <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${formData.hasVariants ? 'left-7' : 'left-1'}`} />
+                                                    </button>
                                                 </div>
 
                                                 {!formData.hasVariants ? (
-                                                    <div className="grid md:grid-cols-4 gap-6">
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] uppercase font-bold text-white/40">Price (THB)</label>
-                                                            <input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-[#D4AF37] font-bold focus:border-[#D4AF37] outline-none" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] uppercase font-bold text-white/40">Compare Price (Old)</label>
-                                                            <input type="number" value={formData.comparePrice} onChange={e => setFormData({ ...formData, comparePrice: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white/50 focus:border-[#D4AF37] outline-none" placeholder="Original Price" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] uppercase font-bold text-white/40">Stock</label>
-                                                            <input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <label className="text-[10px] uppercase font-bold text-white/40">SKU</label>
-                                                            <input type="text" value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" />
-                                                        </div>
+                                                    // SINGLE MODE
+                                                    <div className="grid grid-cols-4 gap-6 animate-in fade-in">
+                                                        <div><label className="input-label">Price</label><input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="input-field" /></div>
+                                                        <div><label className="input-label">Compare Price (Old)</label><input type="number" value={formData.comparePrice} onChange={e => setFormData({ ...formData, comparePrice: e.target.value })} className="input-field" placeholder="Full Price" /></div>
+                                                        <div><label className="input-label">Stock</label><input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="input-field" /></div>
+                                                        <div><label className="input-label">SKU</label><input type="text" value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} className="input-field" /></div>
                                                     </div>
                                                 ) : (
-                                                    <div className="space-y-6">
-                                                        {formData.variantOptions.map((opt, idx) => (
-                                                            <div key={idx} className="bg-black/30 border border-white/10 p-4 rounded-xl relative group">
-                                                                <button type="button" onClick={() => handleRemoveVariantOption(idx)} className="absolute top-2 right-2 text-white/30 hover:text-red-500">×</button>
-                                                                <div className="flex gap-4 mb-3">
-                                                                    <input type="text" placeholder="Option Name (e.g. Color)" value={opt.name} onChange={(e) => handleOptionNameChange(idx, e.target.value)} className="bg-transparent border-b border-white/20 text-white text-sm focus:border-[#D4AF37] outline-none px-2 py-1 w-full" />
+                                                    // VARIANT MODE
+                                                    <div className="space-y-6 animate-in fade-in">
+                                                        {/* Tier 1: Variation Types */}
+                                                        <div className="space-y-4">
+                                                            {formData.variantOptions.map((opt, idx) => (
+                                                                <div key={idx} className="bg-white/5 p-4 rounded-lg border border-white/10 relative group">
+                                                                    <button type="button" onClick={() => handleRemoveVariantOption(idx)} className="absolute top-2 right-2 text-white/30 hover:text-red-500">×</button>
+                                                                    <div className="mb-3">
+                                                                        <label className="input-label">Variation Name (e.g. Color)</label>
+                                                                        <input
+                                                                            type="text" value={opt.name}
+                                                                            onChange={e => handleOptionNameChange(idx, e.target.value)}
+                                                                            className="input-field" placeholder="Color, Size, etc."
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="input-label">Options (Press Enter)</label>
+                                                                        <div className="flex flex-wrap gap-2 mb-2">
+                                                                            {opt.values.map((val, vIdx) => (
+                                                                                <span key={vIdx} className="px-2 py-1 bg-[#D4AF37]/20 text-[#D4AF37] text-xs rounded border border-[#D4AF37]/30 flex items-center gap-2">
+                                                                                    {val}
+                                                                                    <button type="button" onClick={() => handleRemoveOptionValue(idx, vIdx)} className="hover:text-white">×</button>
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                        <input
+                                                                            type="text" placeholder="Add option..."
+                                                                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddOptionValue(idx, e.target.value); e.target.value = ''; } }}
+                                                                            className="input-field text-xs"
+                                                                        />
+                                                                    </div>
                                                                 </div>
-                                                                <div className="flex flex-wrap gap-2">
-                                                                    {opt.values.map((val, vIdx) => (
-                                                                        <span key={vIdx} className="px-3 py-1 bg-white/10 rounded-full text-xs text-white flex items-center gap-2">
-                                                                            {val} <button type="button" onClick={() => handleRemoveOptionValue(idx, vIdx)} className="text-white/50 hover:text-white">x</button>
-                                                                        </span>
-                                                                    ))}
-                                                                    <input type="text" placeholder="+ Add Value & Enter" onKeyDown={(e) => {
-                                                                        if (e.key === 'Enter') { e.preventDefault(); handleAddOptionValue(idx, e.target.value); e.target.value = ''; }
-                                                                    }} className="bg-transparent text-xs text-white placeholder:text-white/30 outline-none w-32" />
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                        {formData.variantOptions.length < 2 && (
-                                                            <button type="button" onClick={handleAddVariantOption} className="text-xs text-[#D4AF37] font-bold uppercase hover:underline">+ Add Another Option</button>
-                                                        )}
+                                                            ))}
 
-                                                        {/* Combinations Table */}
+                                                            {formData.variantOptions.length < 2 && (
+                                                                <button type="button" onClick={handleAddVariantOption} className="w-full py-2 border border-dashed border-white/20 text-white/50 hover:text-[#D4AF37] hover:border-[#D4AF37] rounded-lg text-sm">
+                                                                    + Add Variation Tier
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Tier 2: Table */}
                                                         {formData.variantCombinations.length > 0 && (
-                                                            <div className="overflow-x-auto border border-white/10 rounded-xl">
-                                                                <table className="w-full text-sm text-left text-white">
-                                                                    <thead className="bg-white/5 text-xs font-bold uppercase text-white/50">
+                                                            <div className="overflow-x-auto border border-white/10 rounded-lg">
+                                                                <table className="w-full text-left text-sm text-white/70">
+                                                                    <thead className="bg-white/10 font-bold uppercase text-xs">
                                                                         <tr>
-                                                                            <th className="p-3 w-16">Img</th>
-                                                                            <th className="p-3">Variant</th>
-                                                                            <th className="p-3">Price</th>
-                                                                            <th className="p-3">Old</th>
-                                                                            <th className="p-3">Stock</th>
-                                                                            <th className="p-3">SKU</th>
+                                                                            <th className="p-3 w-16 text-center">Image</th>
+                                                                            <th className="p-3">Variation</th>
+                                                                            <th className="p-3 w-32">Price</th>
+                                                                            <th className="p-3 w-32">Old Price</th>
+                                                                            <th className="p-3 w-32">Stock</th>
+                                                                            <th className="p-3 w-40">SKU</th>
+                                                                            <th className="p-3 w-28">Weight</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-white/5">
                                                                         {formData.variantCombinations.map((combo, idx) => (
                                                                             <tr key={idx}>
                                                                                 <td className="p-3">
-                                                                                    <div className="w-8 h-8 bg-white/10 rounded overflow-hidden cursor-pointer hover:border-[#D4AF37] border border-transparent relative group">
-                                                                                        {combo.image ? <img src={combo.image} className="w-full h-full object-cover" /> : <span className="flex items-center justify-center h-full text-[8px]">+</span>}
-                                                                                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => handleVariantImageUpload(e, idx)} />
+                                                                                    <input
+                                                                                        type="file"
+                                                                                        id={`variant-upload-${idx}`}
+                                                                                        className="hidden"
+                                                                                        accept="image/*"
+                                                                                        onChange={(e) => handleVariantImageUpload(e, idx)}
+                                                                                    />
+                                                                                    <div
+                                                                                        onClick={() => document.getElementById(`variant-upload-${idx}`).click()}
+                                                                                        className="w-10 h-10 bg-white/5 rounded border border-white/20 flex items-center justify-center cursor-pointer hover:border-[#D4AF37] overflow-hidden relative group"
+                                                                                    >
+                                                                                        {combo.image ? (
+                                                                                            <img src={combo.image} className="w-full h-full object-cover" />
+                                                                                        ) : (
+                                                                                            <span className="text-white/30 text-xs">+</span>
+                                                                                        )}
+                                                                                        {combo.image && (
+                                                                                            <button
+                                                                                                onClick={(e) => { e.stopPropagation(); updateCombinationField(idx, 'image', ''); }}
+                                                                                                className="absolute inset-0 bg-black/60 text-white text-[10px] opacity-0 group-hover:opacity-100 flex items-center justify-center font-bold"
+                                                                                            >
+                                                                                                DEL
+                                                                                            </button>
+                                                                                        )}
                                                                                     </div>
                                                                                 </td>
-                                                                                <td className="p-3 font-bold">{combo.name}</td>
-                                                                                <td className="p-3"><input type="number" value={combo.price} onChange={e => updateCombinationField(idx, 'price', e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 w-24 text-[#D4AF37] font-bold text-xs" /></td>
-                                                                                <td className="p-3"><input type="number" placeholder="Old" value={combo.comparePrice} onChange={e => updateCombinationField(idx, 'comparePrice', e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 w-20 text-white/50 text-xs" /></td>
-                                                                                <td className="p-3"><input type="number" value={combo.stock} onChange={e => updateCombinationField(idx, 'stock', e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 w-20 text-white text-xs" /></td>
-                                                                                <td className="p-3"><input type="text" value={combo.sku} onChange={e => updateCombinationField(idx, 'sku', e.target.value)} className="bg-black/50 border border-white/10 rounded px-2 py-1 w-28 text-white text-xs" /></td>
+                                                                                <td className="p-3 text-white">{combo.name}</td>
+                                                                                <td className="p-3"><input type="number" value={combo.price} onChange={e => updateCombinationField(idx, 'price', e.target.value)} className="input-field py-1" /></td>
+                                                                                <td className="p-3"><input type="number" placeholder="Old" value={combo.comparePrice} onChange={e => updateCombinationField(idx, 'comparePrice', e.target.value)} className="input-field py-1 text-[#D4AF37]" /></td>
+                                                                                <td className="p-3"><input type="number" value={combo.stock} onChange={e => updateCombinationField(idx, 'stock', e.target.value)} className="input-field py-1" /></td>
+                                                                                <td className="p-3"><input type="text" value={combo.sku} onChange={e => updateCombinationField(idx, 'sku', e.target.value)} className="input-field py-1" /></td>
+                                                                                <td className="p-3"><input type="number" placeholder="kg" value={combo.weight} onChange={e => updateCombinationField(idx, 'weight', e.target.value)} className="input-field py-1" /></td>
                                                                             </tr>
                                                                         ))}
                                                                     </tbody>
@@ -855,98 +1096,172 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                                                         )}
                                                     </div>
                                                 )}
+
                                             </div>
                                         )}
 
-                                        {/* 4. MARKETING & SPECS */}
+                                        {/* MARKETING & SPECS */}
                                         {activeTab === 'marketing' && (
-                                            <div className="space-y-6 animate-fade-in">
-                                                <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2 mb-4">Marketing & Specs</h3>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Marketing Headline</label>
-                                                    <input type="text" value={formData.marketing.headline} onChange={e => handleMarketingChange('headline', e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" placeholder="Short catchy phrase" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Subheadline</label>
-                                                    <input type="text" value={formData.marketing.subheadline} onChange={e => handleMarketingChange('subheadline', e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" placeholder="Secondary text" />
+                                            <div className="space-y-8 animate-in fade-in">
+                                                {/* Marketing Header */}
+                                                <div className="space-y-4">
+                                                    <h3 className="section-title">Marketing Copy</h3>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        <div>
+                                                            <label className="input-label">Headline</label>
+                                                            <input
+                                                                value={formData.marketing?.headline || ''}
+                                                                onChange={e => handleMarketingChange('headline', e.target.value)}
+                                                                className="input-field"
+                                                                placeholder="e.g. Why Basic?"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="input-label">Subheadline</label>
+                                                            <input
+                                                                value={formData.marketing?.subheadline || ''}
+                                                                onChange={e => handleMarketingChange('subheadline', e.target.value)}
+                                                                className="input-field"
+                                                                placeholder="e.g. จุดเริ่มต้นของการเป็น Bitcoiner"
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 {/* Benefits */}
-                                                <div className="space-y-4 pt-4 border-t border-white/10">
-                                                    <div className="flex justify-between items-center">
-                                                        <h4 className="font-bold text-white">Benefits</h4>
-                                                        <button type="button" onClick={handleAddBenefit} className="text-[#D4AF37] text-xs font-bold">+ Add Benefit</button>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                        <h3 className="section-title mb-0 border-0 pb-0">Key Benefits</h3>
+                                                        <button type="button" onClick={handleAddBenefit} className="text-[#D4AF37] text-xs font-bold hover:underline">+ Add Benefit</button>
                                                     </div>
-                                                    {formData.marketing.benefits.map((benefit, idx) => (
-                                                        <div key={idx} className="bg-black/30 border border-white/10 p-4 rounded-xl relative group space-y-2">
-                                                            <button type="button" onClick={() => handleRemoveBenefit(idx)} className="absolute top-2 right-2 text-white/30 hover:text-red-500">×</button>
-                                                            <div className="grid grid-cols-2 gap-2">
-                                                                <input placeholder="Title" value={benefit.title} onChange={e => handleBenefitChange(idx, 'title', e.target.value)} className="bg-black/50 rounded px-2 py-1 text-sm text-white border border-white/10" />
-                                                                <input placeholder="Icon Name" value={benefit.icon} onChange={e => handleBenefitChange(idx, 'icon', e.target.value)} className="bg-black/50 rounded px-2 py-1 text-sm text-white border border-white/10" />
+                                                    <div className="space-y-4">
+                                                        {(formData.marketing?.benefits || []).map((benefit, idx) => (
+                                                            <div key={idx} className="bg-white/5 p-4 rounded-lg border border-white/10 relative group">
+                                                                <button type="button" onClick={() => handleRemoveBenefit(idx)} className="absolute top-2 right-2 text-white/30 hover:text-red-500">×</button>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <label className="input-label">Title</label>
+                                                                        <input
+                                                                            value={benefit.title}
+                                                                            onChange={e => handleBenefitChange(idx, 'title', e.target.value)}
+                                                                            className="input-field"
+                                                                            placeholder="e.g. Minimal Design"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="input-label">Icon (Phosphor/FontAwesome name)</label>
+                                                                        <input
+                                                                            value={benefit.icon}
+                                                                            onChange={e => handleBenefitChange(idx, 'icon', e.target.value)}
+                                                                            className="input-field"
+                                                                            placeholder="e.g. gift, chart, shop"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="col-span-2">
+                                                                        <label className="input-label">Description</label>
+                                                                        <textarea
+                                                                            rows="2"
+                                                                            value={benefit.desc}
+                                                                            onChange={e => handleBenefitChange(idx, 'desc', e.target.value)}
+                                                                            className="input-field resize-none"
+                                                                            placeholder="Benefit description..."
+                                                                        />
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <textarea placeholder="Description" value={benefit.desc} onChange={e => handleBenefitChange(idx, 'desc', e.target.value)} rows="2" className="w-full bg-black/50 rounded px-2 py-1 text-sm text-white border border-white/10 resize-none" />
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                        {(formData.marketing?.benefits || []).length === 0 && (
+                                                            <div className="text-center py-8 text-white/30 text-sm border border-dashed border-white/10 rounded-lg">
+                                                                No benefits added.
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 {/* Tech Specs */}
-                                                <div className="space-y-4 pt-4 border-t border-white/10">
-                                                    <div className="flex justify-between items-center">
-                                                        <h4 className="font-bold text-white">Tech Specs</h4>
-                                                        <button type="button" onClick={handleAddTechSpec} className="text-[#D4AF37] text-xs font-bold">+ Add Spec</button>
+                                                <div className="space-y-4">
+                                                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                                                        <h3 className="section-title mb-0 border-0 pb-0">Tech Specs</h3>
+                                                        <button type="button" onClick={handleAddTechSpec} className="text-[#D4AF37] text-xs font-bold hover:underline">+ Add Spec</button>
                                                     </div>
-                                                    {formData.techSpecs.map((spec, idx) => (
-                                                        <div key={idx} className="flex gap-2 items-center">
-                                                            <input placeholder="Label" value={spec.label} onChange={e => handleTechSpecChange(idx, 'label', e.target.value)} className="w-1/3 bg-black/50 rounded px-2 py-1 text-sm text-white border border-white/10" />
-                                                            <input placeholder="Value" value={spec.value} onChange={e => handleTechSpecChange(idx, 'value', e.target.value)} className="flex-1 bg-black/50 rounded px-2 py-1 text-sm text-white border border-white/10" />
-                                                            <button type="button" onClick={() => handleRemoveTechSpec(idx)} className="text-white/30 hover:text-red-500">×</button>
-                                                        </div>
-                                                    ))}
+                                                    <div className="space-y-2">
+                                                        {(formData.techSpecs || []).map((spec, idx) => (
+                                                            <div key={idx} className="flex gap-2 items-start">
+                                                                <div className="w-1/3">
+                                                                    <input
+                                                                        value={spec.label}
+                                                                        onChange={e => handleTechSpecChange(idx, 'label', e.target.value)}
+                                                                        className="input-field"
+                                                                        placeholder="Label (e.g. CPU)"
+                                                                    />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <input
+                                                                        value={spec.value}
+                                                                        onChange={e => handleTechSpecChange(idx, 'value', e.target.value)}
+                                                                        className="input-field"
+                                                                        placeholder="Value (e.g. Dual-core...)"
+                                                                    />
+                                                                </div>
+                                                                <button type="button" onClick={() => handleRemoveTechSpec(idx)} className="p-2 text-white/30 hover:text-red-500">×</button>
+                                                            </div>
+                                                        ))}
+                                                        {(formData.techSpecs || []).length === 0 && (
+                                                            <div className="text-center py-8 text-white/30 text-sm border border-dashed border-white/10 rounded-lg">
+                                                                No specs added.
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 {/* Manual Link */}
-                                                <div className="pt-4 border-t border-white/10">
-                                                    <label className="text-[10px] uppercase font-bold text-white/40">Manual Link</label>
-                                                    <input type="text" value={formData.manualLink} onChange={e => setFormData({ ...formData, manualLink: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none mt-2" placeholder="/knowledge/..." />
+                                                <div className="space-y-4 pt-4 border-t border-white/10">
+                                                    <h3 className="section-title">Documentation</h3>
+                                                    <div>
+                                                        <label className="input-label">Manual Link (Path)</label>
+                                                        <input
+                                                            value={formData.manualLink}
+                                                            onChange={e => setFormData({ ...formData, manualLink: e.target.value })}
+                                                            className="input-field"
+                                                            placeholder="/knowledge/product-id"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* 5. ATTRIBUTES */}
+                                        {/* 4. ATTRIBUTES */}
                                         {activeTab === 'attributes' && (
-                                            <div className="space-y-6 animate-fade-in">
-                                                <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2 mb-4">Attributes</h3>
-                                                <div className="grid md:grid-cols-2 gap-6">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] uppercase font-bold text-white/40">Brand</label>
-                                                        <input type="text" value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] uppercase font-bold text-white/40">Model</label>
-                                                        <input type="text" value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] uppercase font-bold text-white/40">Condition</label>
-                                                        <select value={formData.condition} onChange={e => setFormData({ ...formData, condition: e.target.value })} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none">
-                                                            <option>New</option><option>Used</option><option>Refurbished</option>
-                                                        </select>
-                                                    </div>
+                                            <div className="space-y-6">
+                                                <h3 className="section-title">Attributes</h3>
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div><label className="input-label">Brand</label><input value={formData.brand} onChange={e => setFormData({ ...formData, brand: e.target.value })} className="input-field" /></div>
+                                                    <div><label className="input-label">Model</label><input value={formData.model} onChange={e => setFormData({ ...formData, model: e.target.value })} className="input-field" /></div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        <div className="pt-8 border-t border-white/5 flex gap-4">
-                                            <button type="submit" disabled={isLoading} className="flex-1 bg-[#D4AF37] text-black font-black uppercase tracking-widest py-4 rounded-xl hover:bg-[#b89530] transition-transform active:scale-95 disabled:opacity-50">
-                                                {isLoading ? 'Saving...' : 'Save Product'}
-                                            </button>
-                                        </div>
                                     </form>
                                 </div>
                             </div>
+
+                            {/* Footer */}
+                            <div className="p-4 border-t border-white/10 bg-[#161616] flex justify-end gap-3 shrink-0">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2 text-white/70 hover:text-white text-sm font-bold">Cancel</button>
+                                <button onClick={(e) => document.getElementById('product-form').requestSubmit()} disabled={isLoading} className="px-8 py-2 bg-[#D4AF37] text-black rounded text-sm font-bold hover:bg-white">{isLoading ? 'Saving...' : 'Save & Publish'}</button>
+                            </div>
+
                         </motion.div>
                     </div>
                 )}
             </AnimatePresence>
+
+            <style>{`
+                .section-title { font-size: 1.125rem; font-weight: 800; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+                .input-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); margin-bottom: 0.5rem; }
+                .input-field { width: 100%; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.5rem; padding: 0.625rem 0.875rem; color: white; transition: all 0.2s; font-size: 0.875rem; }
+                .input-field:focus { border-color: #D4AF37; outline: none; background-color: rgba(255, 255, 255, 0.08); }
+            `}</style>
         </div>
     );
 };

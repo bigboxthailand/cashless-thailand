@@ -24,6 +24,20 @@ if (shopError || !shop) {
     return Astro.redirect("/404");
 }
 
+// Security Check: Only allow active shops
+if (shop.status !== "active") {
+    // Check if current user is owner (for preview)
+    const {
+        data: { session },
+    } = await supabase.auth.getSession();
+    const isOwner = session?.user?.id === shop.owner_id;
+
+    // If not active and not owner, block access
+    if (!isOwner) {
+        return Astro.redirect("/404"); // Or a specific "Shop Pending" page
+    }
+}
+
 // 2. Fetch Shop Products
 const { data: products, error: productsError } = await supabase
     .from("products")
@@ -36,8 +50,25 @@ if (productsError) {
 
 // Map products to card props
 const productItems = (products || []).map((product) => {
-    // Extract price from pricing jsonb
-    const price = product.pricing?.basePrice || 0;
+    // Extract price from pricing jsonb or variants
+    let price = product.pricing?.basePrice || 0;
+
+    // Logic: If variants exist, find the LOWEST price among them
+    if (product.config?.variants && product.config.variants.length > 0) {
+        const variantPrices = product.config.variants
+            .map((v: any) => {
+                // Handle string or number prices
+                return typeof v.price === "string"
+                    ? parseFloat(v.price)
+                    : v.price;
+            })
+            .filter((p: number) => !isNaN(p) && p > 0);
+
+        if (variantPrices.length > 0) {
+            price = Math.min(...variantPrices);
+        }
+    }
+
     const comparePrice = product.pricing?.comparePrice || 0;
 
     // Extract main image
@@ -83,6 +114,16 @@ const pageImage = shop.banner_url || shop.logo_url;
     <Navbar />
 
     <main class="min-h-screen bg-[#050505] relative overflow-hidden pb-20">
+        {/* Preview Banner for Owner */}
+        {
+            shop.status !== "active" && (
+                <div class="fixed top-20 left-0 right-0 z-50 bg-yellow-500/90 text-black text-center py-2 font-bold px-4 shadow-lg backdrop-blur-sm">
+                    ⚠️ This shop is currently {shop.status}. You are viewing
+                    this page as the owner.
+                </div>
+            )
+        }
+
         {/* Background Gradients */}
         <div class="fixed inset-0 pointer-events-none">
             <div

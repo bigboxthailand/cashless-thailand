@@ -20,7 +20,7 @@ const Reviews = ({ productId = null, shopId = null }) => {
                     .select(`
                         *,
                         profile:profiles (full_name, avatar_url),
-                        product:products (name, media)
+                        product:products (meta, media)
                     `)
                     .eq('product_id', productId)
                     .order('created_at', { ascending: false });
@@ -30,7 +30,7 @@ const Reviews = ({ productId = null, shopId = null }) => {
                     .select(`
                         *,
                         profile:profiles (full_name, avatar_url),
-                        product:products!inner (name, media, shop_id)
+                        product:products!inner (meta, media, shop_id)
                     `)
                     .eq('products.shop_id', shopId)
                     .order('created_at', { ascending: false });
@@ -154,7 +154,7 @@ const Reviews = ({ productId = null, shopId = null }) => {
                                     {/* Show Product Name if browsing shop-wide */}
                                     {shopId && review.product && (
                                         <span className="block text-white/40 text-[10px] mt-1 line-clamp-1 max-w-[150px]">
-                                            {review.product.name}
+                                            {review.product.meta?.title || 'Unknown Product'}
                                         </span>
                                     )}
                                 </div>

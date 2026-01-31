@@ -6,7 +6,7 @@ import Hero from "../components/Hero.astro";
 import Marquee from "../components/Marquee.astro";
 import Features from "../components/Features.astro"; // Ecosystem
 import ProductGallery from "../components/ProductGallery.astro";
-import ShopExplorer from "../components/ShopExplorer.astro";
+
 import FeaturedGrid from "../components/FeaturedGrid.astro"; // Shop
 import Partners from "../components/Partners.astro";
 import Testimonials from "../components/Testimonials.astro";
@@ -76,24 +76,12 @@ const pageKeywords =
             <ProductGallery />
         </div>
 
-        <div class="relative z-10">
-            <CouponBanner />
-        </div>
-
-        <div class="relative z-10">
-            <ShopExplorer />
-        </div>
-
         <div id="shop" class="relative pt-32 pb-10 z-10">
             <div
                 class="absolute top-0 right-0 w-[60%] h-[60%] bg-[#D4AF37]/5 blur-[180px] rounded-full pointer-events-none"
             >
             </div>
             <FeaturedGrid />
-        </div>
-
-        <div class="relative z-10 border-t border-[#D4AF37]/10">
-            <Partners />
         </div>
 
         <div class="relative z-10">

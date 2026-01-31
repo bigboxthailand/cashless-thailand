@@ -52,21 +52,35 @@ const hasMarketing =
 const hasSpecs = product.techSpecs && product.techSpecs.length > 0;
 const hasGallery = product.media.gallery && product.media.gallery.length > 1;
 
-let initialPrice = product.pricing.basePrice;
+// --- Pricing Logic (Server Side) ---
+let initialPrice = product.pricing?.basePrice || 0;
+let initialComparePrice = product.pricing?.comparePrice || 0;
 
-// Check if we need to get price from variants
-if (
-    product.config &&
-    product.config.variants &&
-    product.config.variants.length > 0
-) {
-    if (!initialPrice || initialPrice === 0) {
-        initialPrice = product.config.variants[0].price;
+if (product.config?.variants && product.config.variants.length > 0) {
+    // Find the variant with the lowest price to show as default
+    let minPrice = Infinity;
+    let selectedVariant = product.config.variants[0];
+
+    product.config.variants.forEach((v: any) => {
+        const p = typeof v.price === "string" ? parseFloat(v.price) : v.price;
+        if (p > 0 && p < minPrice) {
+            minPrice = p;
+            selectedVariant = v;
+        }
+    });
+
+    if (minPrice !== Infinity) {
+        initialPrice = minPrice;
+        initialComparePrice =
+            typeof selectedVariant.comparePrice === "string"
+                ? parseFloat(selectedVariant.comparePrice)
+                : selectedVariant.comparePrice || 0;
     }
 }
 
 const formattedPrice = (initialPrice || 0).toLocaleString();
 const currency = product.pricing.currency || "THB";
+const hasDiscount = initialComparePrice > initialPrice;
 
 const productJson = JSON.stringify(product);
 ---
@@ -199,23 +213,49 @@ const productJson = JSON.stringify(product);
                             <span class="text-xl text-[#D4AF37] font-bold eng"
                                 >{currency}</span
                             >
-                            {
-                                product.pricing.comparePrice > initialPrice && (
-                                    <div class="flex flex-col ml-2">
-                                        <span class="text-lg text-white/30 line-through decoration-[#D4AF37]/40">
-                                            {product.pricing.comparePrice.toLocaleString()}
-                                        </span>
-                                        <span class="text-[10px] bg-[#D4AF37] text-black font-black px-2 py-0.5 rounded uppercase tracking-wider">
-                                            ประหยัดไป{" "}
-                                            {(
-                                                product.pricing.comparePrice -
+                            <div
+                                id="discount-container"
+                                class="flex flex-col ml-2"
+                                style={hasDiscount
+                                    ? "display: flex"
+                                    : "display: none"}
+                            >
+                                <span
+                                    id="compare-price-display"
+                                    class="text-lg text-white/30 line-through decoration-[#D4AF37]/40"
+                                >
+                                    {initialComparePrice.toLocaleString()}
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        id="save-percent-display"
+                                        class="text-[10px] bg-red-600 text-white font-black px-2 py-0.5 rounded uppercase tracking-wider animate-pulse"
+                                    >
+                                        {
+                                            initialComparePrice > 0
+                                                ? Math.round(
+                                                      ((initialComparePrice -
+                                                          initialPrice) /
+                                                          initialComparePrice) *
+                                                          100,
+                                                  )
+                                                : 0
+                                        }% OFF
+                                    </span>
+                                    <span
+                                        id="save-amount-display"
+                                        class="text-[10px] bg-[#D4AF37] text-black font-black px-2 py-0.5 rounded uppercase tracking-wider"
+                                    >
+                                        ประหยัดไป {
+                                            (
+                                                initialComparePrice -
                                                 initialPrice
-                                            ).toLocaleString()}{" "}
-                                            {currency}
-                                        </span>
-                                    </div>
-                                )
-                            }
+                                            ).toLocaleString()
+                                        }
+                                        {currency}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                         <p
                             class="text-[10px] text-[#D4AF37] font-bold uppercase tracking-widest mt-1"
@@ -253,6 +293,9 @@ const productJson = JSON.stringify(product);
                                                     data-image={variant.image}
                                                     data-name={variant.name}
                                                     data-price={variant.price}
+                                                    data-compare-price={
+                                                        variant.comparePrice
+                                                    }
                                                     aria-label={variant.name}
                                                 >
                                                     <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 whitespace-nowrap pointer-events-none border border-white/10 z-10 hidden md:block">
@@ -265,6 +308,9 @@ const productJson = JSON.stringify(product);
                                                     data-image={variant.image}
                                                     data-name={variant.name}
                                                     data-price={variant.price}
+                                                    data-compare-price={
+                                                        variant.comparePrice
+                                                    }
                                                 >
                                                     {variant.name}
                                                 </button>
@@ -718,11 +764,22 @@ const productJson = JSON.stringify(product);
             });
         });
 
+        // Find the variant with the lowest price to pre-select it
+        let lowestPrice = Infinity;
+        let lowestIdx = 0;
+        variantBtns.forEach((btn, idx) => {
+            const p = parseFloat((btn as HTMLElement).dataset.price || "0");
+            if (p > 0 && p < lowestPrice) {
+                lowestPrice = p;
+                lowestIdx = idx;
+            }
+        });
+
         variantBtns.forEach((btn, index) => {
-            const newBtn = btn.cloneNode(true);
+            const newBtn = btn.cloneNode(true) as HTMLElement;
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
-            if (index === 0) {
+            if (index === lowestIdx) {
                 if (newBtn.classList.contains("rounded-full")) {
                     newBtn.classList.add(
                         "border-[#D4AF37]",
@@ -756,27 +813,48 @@ const productJson = JSON.stringify(product);
                     priceDisplay.innerText = price.toLocaleString();
 
                     // Update dynamic discount display
-                    const comparePrice = productData.pricing?.comparePrice || 0;
-                    const discountDisplay =
-                        priceDisplay.parentElement.querySelector(
-                            ".flex.flex-col.ml-2",
-                        );
+                    const vCompareStr = target.dataset.comparePrice;
+                    const vComparePrice = vCompareStr
+                        ? parseFloat(vCompareStr)
+                        : 0;
+                    const baseComparePrice =
+                        productData.pricing?.comparePrice || 0;
+
+                    // Priority: Variant Compare Price > Base Compare Price
+                    const comparePrice =
+                        vComparePrice > 0 ? vComparePrice : baseComparePrice;
+
+                    const discountContainer =
+                        document.getElementById("discount-container");
+                    const comparePriceDisplay = document.getElementById(
+                        "compare-price-display",
+                    );
+                    const saveAmountDisplay = document.getElementById(
+                        "save-amount-display",
+                    );
 
                     if (comparePrice > price) {
-                        if (discountDisplay) {
-                            discountDisplay.style.display = "flex";
-                            discountDisplay.querySelector(
-                                "span.line-through",
-                            ).innerText = comparePrice.toLocaleString();
-                            discountDisplay.querySelector(
-                                "span.bg-\\[\\#D4AF37\\]",
-                            ).innerText =
-                                `ประหยัดไป ${(comparePrice - price).toLocaleString()} ${productData.pricing?.currency || "THB"}`;
-                        } else {
-                            // If missing, we could recreate it, but it should be there from SSR if the product has a discount
+                        if (discountContainer) {
+                            discountContainer.style.display = "flex";
+                            if (comparePriceDisplay)
+                                comparePriceDisplay.innerText =
+                                    comparePrice.toLocaleString();
+                            if (saveAmountDisplay)
+                                saveAmountDisplay.innerText = `ประหยัดไป ${(comparePrice - price).toLocaleString()} ${productData.pricing?.currency || "THB"}`;
+
+                            const savePercentDisplay = document.getElementById(
+                                "save-percent-display",
+                            );
+                            if (savePercentDisplay && comparePrice > 0) {
+                                const percent = Math.round(
+                                    ((comparePrice - price) / comparePrice) *
+                                        100,
+                                );
+                                savePercentDisplay.innerText = `${percent}% OFF`;
+                            }
                         }
-                    } else if (discountDisplay) {
-                        discountDisplay.style.display = "none";
+                    } else if (discountContainer) {
+                        discountContainer.style.display = "none";
                     }
 
                     priceDisplay.classList.add("scale-110", "text-[#D4AF37]");
@@ -894,13 +972,27 @@ const productJson = JSON.stringify(product);
                 if (comparePrice > finalPrice) {
                     if (discountDisplay) {
                         discountDisplay.style.display = "flex";
-                        discountDisplay.querySelector(
-                            "span.line-through",
-                        ).innerText = comparePrice.toLocaleString();
-                        discountDisplay.querySelector(
-                            "span.bg-\\[\\#D4AF37\\]",
-                        ).innerText =
-                            `ประหยัดไป ${(comparePrice - finalPrice).toLocaleString()} ${productData.pricing?.currency || "THB"}`;
+                        const cpDisplay = discountDisplay.querySelector(
+                            "#compare-price-display",
+                        );
+                        const saDisplay = discountDisplay.querySelector(
+                            "#save-amount-display",
+                        );
+                        const spDisplay = document.getElementById(
+                            "save-percent-display",
+                        );
+
+                        if (cpDisplay)
+                            cpDisplay.innerText = comparePrice.toLocaleString();
+                        if (saDisplay)
+                            saDisplay.innerText = `ประหยัดไป ${(comparePrice - finalPrice).toLocaleString()} ${productData.pricing?.currency || "THB"}`;
+                        if (spDisplay && comparePrice > 0) {
+                            const percent = Math.round(
+                                ((comparePrice - finalPrice) / comparePrice) *
+                                    100,
+                            );
+                            spDisplay.innerText = `${percent}% OFF`;
+                        }
                     }
                 } else if (discountDisplay) {
                     discountDisplay.style.display = "none";

@@ -172,17 +172,67 @@ const categories = uniqueCategorySlugs
                                         media: parse(rawItem.media) || {},
                                     };
 
-                                    let displayPrice =
-                                        item.pricing.basePrice || 0;
-                                    if (
-                                        (displayPrice === 0 || !displayPrice) &&
+                                    let displayPrice = 0;
+                                    let comparePrice = 0;
+                                    const hasVariants =
                                         item.config.variants &&
-                                        item.config.variants.length > 0
-                                    ) {
+                                        item.config.variants.length > 0;
+
+                                    if (hasVariants) {
+                                        // Priority: ONLY use prices from variants if they exist
+                                        item.config.variants.forEach(
+                                            (v: any) => {
+                                                const vPrice =
+                                                    typeof v.price === "string"
+                                                        ? parseFloat(v.price)
+                                                        : v.price;
+                                                const vCompare = v.comparePrice
+                                                    ? typeof v.comparePrice ===
+                                                      "string"
+                                                        ? parseFloat(
+                                                              v.comparePrice,
+                                                          )
+                                                        : v.comparePrice
+                                                    : 0;
+
+                                                if (
+                                                    vPrice > 0 &&
+                                                    (displayPrice === 0 ||
+                                                        vPrice < displayPrice)
+                                                ) {
+                                                    displayPrice = vPrice;
+                                                }
+                                                if (
+                                                    vCompare > 0 &&
+                                                    vCompare > comparePrice
+                                                ) {
+                                                    comparePrice = vCompare;
+                                                }
+                                            },
+                                        );
+                                    } else {
+                                        // Product Level pricing
                                         displayPrice =
-                                            item.config.variants[0].price || 0;
+                                            item.pricing.basePrice || 0;
+                                        comparePrice =
+                                            item.pricing.comparePrice || 0;
                                     }
 
+                                    const discount =
+                                        comparePrice > displayPrice &&
+                                        comparePrice > 0
+                                            ? Math.round(
+                                                  ((comparePrice -
+                                                      displayPrice) /
+                                                      comparePrice) *
+                                                      100,
+                                              )
+                                            : 0;
+
+                                    const finalComparePrice =
+                                        comparePrice > displayPrice
+                                            ? comparePrice
+                                            : 0;
                                     return (
                                         <a
                                             href={`/products/${item.id}`}
@@ -214,6 +264,15 @@ const categories = uniqueCategorySlugs
                                                         View Details
                                                     </span>
                                                 </div>
+
+                                                {discount > 0 && (
+                                                    <div class="absolute top-0 right-0 w-24 h-24 overflow-hidden pointer-events-none z-30">
+                                                        <div class="absolute top-4 -right-8 w-32 bg-gradient-to-r from-[#ff0000] to-[#cc0000] text-white text-[10px] font-black tracking-widest uppercase py-1 text-center rotate-45 shadow-[0_4px_10px_rgba(255,0,0,0.4)] border-y border-white/20">
+                                                            SALE -{discount}%
+                                                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer-simple_3s_infinite]" />
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div class="p-6 relative bg-[#111]">
@@ -241,11 +300,10 @@ const categories = uniqueCategorySlugs
                                                                         "THB"}
                                                                 </span>
                                                             </span>
-                                                            {item.pricing
-                                                                .comparePrice >
+                                                            {finalComparePrice >
                                                                 displayPrice && (
                                                                 <span class="text-xs text-white/30 line-through decoration-[#D4AF37]/40">
-                                                                    {item.pricing.comparePrice.toLocaleString()}
+                                                                    {finalComparePrice.toLocaleString()}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -266,12 +324,6 @@ const categories = uniqueCategorySlugs
                                                         </svg>
                                                     </div>
                                                 </div>
-                                                {item.pricing.comparePrice >
-                                                    displayPrice && (
-                                                    <div class="absolute top-4 right-4 bg-[#D4AF37] text-black text-[10px] font-bold px-2 py-0.5 rounded-full z-20">
-                                                        10% OFF
-                                                    </div>
-                                                )}
                                             </div>
                                         </a>
                                     );
@@ -315,6 +367,24 @@ const categories = uniqueCategorySlugs
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%) rotate(45deg);
+        }
+        100% {
+            transform: translateX(200%) rotate(45deg);
+        }
+    }
+
+    .shimmer-effect {
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer-simple {
+        100% {
+            transform: translateX(200%);
         }
     }
 </style>

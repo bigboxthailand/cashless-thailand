@@ -2,32 +2,69 @@
 // src/components/FeaturedGrid.astro
 import { supabase } from "../lib/supabase";
 
+const ORDER = [
+    "cryptoclock-basic",
+    "bitterm-series",
+    "bitnode-personal",
+    "bitcoin-t-shirt--by-blc",
+];
+
 const { data: dbProducts } = await supabase
     .from("products")
     .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(8);
+    .in("id", ORDER);
 
-const items = (dbProducts || []).map((p) => {
-    const price = p.pricing?.basePrice || 0;
-    const comparePrice = p.pricing?.comparePrice || 0;
-    const discount =
-        comparePrice > price
-            ? Math.round(((comparePrice - price) / comparePrice) * 100)
-            : 0;
+// Sort by defined order
+const sortedProducts = dbProducts?.sort((a, b) => {
+    return ORDER.indexOf(a.id) - ORDER.indexOf(b.id);
+});
+
+const items = (sortedProducts || []).map((p) => {
+    let price = 0;
+    let comparePrice = 0;
+    const hasVariants = p.config?.variants && p.config.variants.length > 0;
+
+    if (hasVariants) {
+        // Source pricing ONLY from variants
+        p.config.variants.forEach((v: any) => {
+            const vPrice =
+                typeof v.price === "string" ? parseFloat(v.price) : v.price;
+            const vCompare = v.comparePrice
+                ? typeof v.comparePrice === "string"
+                    ? parseFloat(v.comparePrice)
+                    : v.comparePrice
+                : 0;
+
+            if (vPrice > 0 && (price === 0 || vPrice < price)) {
+                price = vPrice;
+            }
+            if (vCompare > 0 && vCompare > comparePrice) {
+                comparePrice = vCompare;
+            }
+        });
+    } else {
+        // Fallback to base pricing
+        price = p.pricing?.basePrice || 0;
+        comparePrice = p.pricing?.comparePrice || 0;
+    }
+
+    const hasDiscount = comparePrice > price && comparePrice > 0;
+    const discount = hasDiscount
+        ? Math.round(((comparePrice - price) / comparePrice) * 100)
+        : 0;
 
     return {
         id: p.id,
         title: p.meta?.title || p.name || "Untitled Product",
-        category: p.category || "General",
-        price: price.toLocaleString(),
-        originalPrice: comparePrice,
+        price: price,
+        originalPrice: hasDiscount ? comparePrice : null,
         discount: discount,
-        image: p.media?.mainImage || "/placeholder.png",
-        hoverImage:
-            p.media?.gallery?.[0] || p.media?.mainImage || "/placeholder.png",
-        tag: p.meta?.tags?.[0] || "Featured",
+        image: p.media?.mainImage || "/images/placeholder.webp",
+        // Add second image for hover effect
+        hoverImage: p.media?.gallery?.[1] || null,
+        category: p.category || "General",
+        tag: p.tags?.[0] || (discount > 0 ? "SALE" : null),
+        slug: p.id, // Using ID as slug for reliable linking to [id].astro
     };
 });
 ---
@@ -78,82 +115,78 @@ const items = (dbProducts || []).map((p) => {
                     class="group relative reveal"
                     style={`animation-delay: ${0.2 * i}s`}
                 >
-                    <div class="absolute -inset-2 bg-gradient-to-b from-[#D4AF37]/20 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-all duration-700 rounded-[3rem]" />
-
-                    <div class="relative">
-                        <a
-                            href={`/products/${item.id}`}
-                            class="block aspect-[4/5] bg-[#0a0a0a] rounded-[2.5rem] overflow-hidden border border-white/5 group-hover:border-[#D4AF37]/30 transition-all duration-500 shadow-2xl flex flex-col relative cursor-pointer"
-                        >
+                    <a
+                        href={`/products/${item.slug || item.id}`}
+                        class="group relative block space-y-6 isolate cursor-pointer"
+                    >
+                        <div class="aspect-square bg-[#0a0a0a] rounded-[2rem] overflow-hidden border border-white/5 group-hover:border-[#D4AF37]/30 transition-all relative">
+                            {/* Main Image */}
                             <img
                                 src={item.image}
                                 alt={item.title}
-                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
-                                loading="lazy"
+                                class={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110 ${item.hoverImage ? "group-hover:opacity-0" : ""}`}
                             />
 
-                            <img
-                                src={item.hoverImage}
-                                alt={`${item.title} side view`}
-                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-                                loading="lazy"
-                            />
+                            {/* Hover Image (Second Image) */}
+                            {item.hoverImage && (
+                                <img
+                                    src={item.hoverImage}
+                                    alt={item.title}
+                                    class="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110"
+                                />
+                            )}
 
-                            <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+                            {/* Sale Ribbon */}
+                            {item.discount > 0 && (
+                                <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none z-30">
+                                    <div class="absolute top-6 -right-10 w-40 bg-gradient-to-r from-[#ff0000] to-[#cc0000] text-white text-[10px] font-black tracking-widest uppercase py-1.5 text-center rotate-45 shadow-lg border-y border-white/20">
+                                        SALE -{item.discount}%
+                                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer-simple_3s_infinite]" />
+                                    </div>
+                                </div>
+                            )}
 
-                            <div class="absolute top-6 left-6 flex flex-col gap-2 z-10">
-                                <span class="px-4 py-1 bg-black/80 backdrop-blur-md border border-[#D4AF37]/30 rounded-full eng text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">
-                                    {item.tag}
-                                </span>
-                                {item.originalPrice > 0 &&
-                                    item.originalPrice >
-                                        parseFloat(
-                                            item.price.replace(/,/g, ""),
-                                        ) && (
-                                        <span class="px-4 py-1 bg-red-600/90 backdrop-blur-md text-white rounded-full eng text-[10px] font-black uppercase tracking-widest animate-pulse shadow-lg shadow-red-900/20">
-                                            Sale -{item.discount}%
-                                        </span>
-                                    )}
-                            </div>
+                            {!item.discount && item.tag && (
+                                <div class="absolute top-4 left-4 bg-black/80 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg pointer-events-none">
+                                    <span class="text-[10px] font-black tracking-[0.2em] text-[#D4AF37] uppercase">
+                                        {item.tag}
+                                    </span>
+                                </div>
+                            )}
 
-                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span class="bg-[#D4AF37] text-black px-8 py-4 rounded-2xl font-black eng text-sm uppercase tracking-tighter opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 shadow-[0_0_20px_#D4AF37]">
+                            {/* Overlay Button */}
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                <div class="bg-[#D4AF37] text-black px-6 py-3 rounded-xl font-black text-xs tracking-widest uppercase transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
                                     View Details
-                                </span>
-                            </div>
-                        </a>
-
-                        <div class="mt-6 space-y-1 px-2">
-                            <p class="eng text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/60">
-                                {item.category}
-                            </p>
-                            <h3 class="text-lg font-bold text-white leading-tight group-hover:text-[#D4AF37] transition-colors">
-                                {item.title}
-                            </h3>
-                            <div class="flex items-center gap-3 pt-1">
-                                {item.originalPrice > 0 &&
-                                    item.originalPrice >
-                                        parseFloat(
-                                            item.price.replace(/,/g, ""),
-                                        ) && (
-                                        <span class="text-sm eng font-medium text-white/30 line-through">
-                                            {item.originalPrice.toLocaleString()}{" "}
-                                            ฿
-                                        </span>
-                                    )}
-                                <div class="flex items-center gap-1">
-                                    <span
-                                        class={`text-xl eng font-black ${item.originalPrice > 0 && item.originalPrice > parseFloat(item.price.replace(/,/g, "")) ? "text-red-500" : "text-white"}`}
-                                    >
-                                        {item.price}
-                                    </span>
-                                    <span class="text-[10px] eng font-medium text-white/30 uppercase tracking-widest">
-                                        THB
-                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <span class="text-[10px] font-black tracking-[0.2em] text-[#D4AF37] uppercase">
+                                    {item.category}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold leading-tight group-hover:text-[#D4AF37] transition-colors">
+                                {item.title}
+                            </h3>
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-xl font-black text-white font-mono">
+                                    {item.price.toLocaleString()}
+                                    <span class="text-xs ml-1 text-white/50 font-sans font-bold">
+                                        THB
+                                    </span>
+                                </span>
+                                {item.originalPrice &&
+                                    item.originalPrice > item.price && (
+                                        <span class="text-sm text-white/30 line-through font-mono">
+                                            {item.originalPrice.toLocaleString()}
+                                        </span>
+                                    )}
+                            </div>
+                        </div>
+                    </a>
                 </div>
             ))
         }
@@ -170,6 +203,11 @@ const items = (dbProducts || []).map((p) => {
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+    @keyframes shimmer-simple {
+        to {
+            transform: translateX(200%);
         }
     }
 </style>

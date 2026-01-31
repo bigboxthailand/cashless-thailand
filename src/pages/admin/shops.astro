@@ -281,12 +281,6 @@ const suspendedShops = shops?.filter((s) => s.status === "suspended") || [];
 </AdminLayout>
 
 <script>
-    import { createClient } from "@supabase/supabase-js";
-    const supabase = createClient(
-        import.meta.env.PUBLIC_SUPABASE_URL,
-        import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-    );
-
     document.querySelectorAll(".action-btn").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
             const el = e.currentTarget as HTMLButtonElement;
@@ -299,36 +293,24 @@ const suspendedShops = shops?.filter((s) => s.status === "suspended") || [];
             el.disabled = true;
             el.innerHTML = "...";
 
-            let updates = {};
-            let isDelete = false;
+            try {
+                const response = await fetch("/api/admin/shop-action", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ shopId, action }),
+                });
 
-            if (action === "approve") updates = { status: "active" };
-            if (action === "reject") updates = { status: "rejected" };
-            if (action === "suspend") updates = { status: "suspended" };
-            if (action === "restore") updates = { status: "active" };
-            if (action === "delete") isDelete = true;
+                const result = await response.json();
 
-            let error;
+                if (!response.ok) {
+                    throw new Error(result.error || "Request failed");
+                }
 
-            if (isDelete) {
-                const { error: err } = await supabase
-                    .from("shops")
-                    .delete()
-                    .eq("id", shopId);
-                error = err;
-            } else {
-                const { error: err } = await supabase
-                    .from("shops")
-                    .update(updates)
-                    .eq("id", shopId);
-                error = err;
-            }
-
-            if (error) {
+                window.location.reload();
+            } catch (error) {
                 alert("Action failed: " + error.message);
                 el.disabled = false;
-            } else {
-                window.location.reload();
+                el.innerHTML = action; // Reset text
             }
         });
     });

@@ -1,0 +1,95 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { supabase } from "../../lib/supabase";
+
+// Fetch subscribers
+const { data: subscribers, error } = await supabase
+    .from("newsletter_subscribers")
+    .select("*")
+    .order("created_at", { ascending: false });
+---
+
+<AdminLayout title="Newsletter Subscribers">
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <h1
+                class="text-3xl font-black text-white uppercase tracking-tighter"
+            >
+                Newsletter <span class="text-[#D4AF37]">Subscribers</span>
+            </h1>
+            <div class="bg-white/5 px-4 py-2 rounded-lg border border-white/10">
+                <span class="text-white/60 text-sm">Total:</span>
+                <span class="text-[#D4AF37] font-bold ml-2"
+                    >{subscribers?.length || 0}</span
+                >
+            </div>
+        </div>
+
+        <div
+            class="bg-[#111] border border-white/10 rounded-2xl overflow-hidden"
+        >
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-white/5 border-b border-white/5">
+                            <th
+                                class="p-4 text-xs font-bold text-white/40 uppercase tracking-widest"
+                                >Email</th
+                            >
+                            <th
+                                class="p-4 text-xs font-bold text-white/40 uppercase tracking-widest"
+                                >Date</th
+                            >
+                            <th
+                                class="p-4 text-xs font-bold text-white/40 uppercase tracking-widest"
+                                >Status</th
+                            >
+                            <th
+                                class="p-4 text-xs font-bold text-white/40 uppercase tracking-widest"
+                                >IP Address</th
+                            >
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {
+                            subscribers?.map((sub) => (
+                                <tr class="hover:bg-white/5 transition-colors">
+                                    <td class="p-4 font-mono text-white/80">
+                                        {sub.email}
+                                    </td>
+                                    <td class="p-4 text-white/60 text-sm">
+                                        {new Date(
+                                            sub.created_at,
+                                        ).toLocaleString("en-GB")}
+                                    </td>
+                                    <td class="p-4">
+                                        <span
+                                            class={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${sub.status === "active" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"}`}
+                                        >
+                                            {sub.status}
+                                        </span>
+                                    </td>
+                                    <td class="p-4 font-mono text-white/40 text-xs">
+                                        {sub.ip_address}
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                        {
+                            (!subscribers || subscribers.length === 0) && (
+                                <tr>
+                                    <td
+                                        colspan="4"
+                                        class="p-8 text-center text-white/40 italic"
+                                    >
+                                        No subscribers yet.
+                                    </td>
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</AdminLayout>
