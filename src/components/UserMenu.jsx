@@ -50,12 +50,20 @@ export default function UserMenu() {
     }, []);
 
     const fetchProfile = async (userId, walletAddr) => {
-        let query = supabase.from('profiles').select('avatar_url, full_name, id, role');
+        let query = supabase.from('profiles').select('avatar_url, full_name, id, role, tier');
         if (userId) query = query.eq('id', userId);
         else if (walletAddr) query = query.eq('wallet_address', walletAddr);
 
         const { data } = await query.single();
-        if (data) setProfile(data);
+        if (data) {
+            console.log("👤 User Profile Debug:", {
+                id: data.id,
+                full_name: data.full_name,
+                role: data.role,
+                tier: data.tier
+            });
+            setProfile(data);
+        }
     };
 
     const handleLogout = async () => {
