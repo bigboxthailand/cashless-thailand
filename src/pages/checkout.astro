@@ -2058,8 +2058,17 @@ import Footer from "../components/Footer.astro";
             try {
                 const cart = cartStore.get();
                 const productIds = [
-                    ...new Set(cart.map((item) => item.product_id)),
+                    ...new Set(
+                        cart
+                            .map((item: any) => String(item.product_id))
+                            .filter(
+                                (id: string) =>
+                                    id && id !== "undefined" && id !== "null",
+                            ),
+                    ),
                 ];
+
+                if (productIds.length === 0) return;
 
                 const { data: latestProducts, error: stockFetchError } =
                     await supabase
@@ -2071,7 +2080,7 @@ import Footer from "../components/Footer.astro";
 
                 for (const item of cart) {
                     const product = latestProducts?.find(
-                        (p) => p.id === item.product_id,
+                        (p: any) => p.id === item.product_id,
                     );
                     if (!product) {
                         alert(`❌ สินค้า ${item.title} ไม่มีในระบบแล้ว`);
@@ -2087,9 +2096,7 @@ import Footer from "../components/Footer.astro";
                         );
                         currentStock = variant ? parseInt(variant.stock) : 0;
                     } else {
-                        currentStock = parseInt(
-                            config?.inventory?.stock || product.stock || 0,
-                        );
+                        currentStock = parseInt(config?.inventory?.stock || 0);
                     }
 
                     if (item.quantity > currentStock) {

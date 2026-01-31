@@ -109,8 +109,11 @@
             const productIds = [
                 ...new Set(
                     currentCart
-                        .map((item: any) => item.product_id)
-                        .filter((id: any) => !!id),
+                        .map((item: any) => String(item.product_id))
+                        .filter(
+                            (id: string) =>
+                                id && id !== "undefined" && id !== "null",
+                        ),
                 ),
             ];
 
@@ -119,7 +122,7 @@
             try {
                 const { data: latestProducts, error } = await supabase
                     .from("products")
-                    .select("id, config, stock")
+                    .select("id, config")
                     .in("id", productIds);
 
                 if (error) throw error;
@@ -144,9 +147,7 @@
                         );
                         stock = variant ? parseInt(variant.stock) : 0;
                     } else {
-                        stock = parseInt(
-                            config?.inventory?.stock || product.stock || 0,
-                        );
+                        stock = parseInt(config?.inventory?.stock || 0);
                     }
 
                     if (stock <= 0) {
