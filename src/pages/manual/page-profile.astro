@@ -1,0 +1,684 @@
+---
+// src/pages/manual/page-profile.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import MembershipTierCard from "../../components/MembershipTierCard.jsx";
+import {
+    AvatarVisual,
+    AddressVisual,
+    OrderHistoryVisual,
+    ReviewVisual,
+    DisputeVisual,
+    AffiliateVisual,
+    ChatVisual,
+    AuthVisual,
+    PersonalInfoVisual,
+} from "../../components/manual/ProfileManualVisuals.jsx";
+
+const sections = [
+    {
+        id: "hybrid-auth",
+        name: "1. Hybrid Authentication Logic",
+        role: "แกนหลักการระบุตัวตนแบบควบคู่ (Web2 + Web3)",
+        source: "Supabase Auth / localStorage",
+        details: [
+            {
+                label: "Supabase Native",
+                desc: "ใช้ supabase.auth.getUser() เพื่อดึงข้อมูลผู้ใช้ที่ล็อกอินด้วยอีเมล/รหัสผ่าน",
+            },
+            {
+                label: "Wallet Identity",
+                desc: "ตรวจสอบ 'user_wallet' จาก localStorage เพื่อระบุตัวตนผู้ใช้ระดับ Web3 (Metamask/Safe)",
+            },
+            {
+                label: "Profile Lookup",
+                desc: "ทำการ Cross-match ระหว่าง Auth ID หรือ Wallet Address กับตาราง 'profiles' ในฐานข้อมูล",
+            },
+            {
+                label: "Security Guard",
+                desc: "ระบบ Redirect อัตโนมัติ: หากไม่พบทั้ง Session และ Wallet จะถูกส่งไปหน้า /login ทันที",
+            },
+        ],
+    },
+    {
+        id: "membership-system",
+        name: "2. Visual Membership Hierarchy",
+        role: "ระบบชนชั้นสมาชิกและสิทธิพิเศษเชิงภาพลักษณ์",
+        source: "Profiles Table (tier column)",
+        details: [
+            {
+                label: "Tier Styles",
+                desc: "6 ระดับ: Bronze (Deer), Silver (Wolf), Gold (Phoenix), Platinum (Unicorn), Rare Earth (Dragon), Bitcoin (Lion)",
+            },
+            {
+                label: "Dynamic Card UI",
+                desc: "ใช้ฟังก์ชัน getTierStyle เพื่อเปลี่ยนสี Gradient, แอนิเมชัน และไอคอนตามระดับสมาชิกแบบ Real-time",
+            },
+            {
+                label: "Verification Status",
+                desc: "Badges แสดงสถานะ: 'Identity Verified (KYC)' สำหรับคนผ่านยืนยันตัวตน และ 'Email Verified' สำหรับคนยืนยันอีเมล",
+            },
+            {
+                label: "Tier Up Logic",
+                desc: "ระดับสมาชิกจะถูกอัปเดตอัตโนมัติจากหลังบ้านตามยอดการสั่งซื้อสะสม (Total Spent)",
+            },
+        ],
+    },
+    {
+        id: "avatar-engine",
+        name: "3. Avatar Customization Engine",
+        role: "ระบบสร้างและจัดการตัวตนเสมือน",
+        source: "DiceBear API / Supabase Storage",
+        details: [
+            {
+                label: "DiceBear Integration",
+                desc: "เชื่อมต่อกับ api.dicebear.com เพื่อสร้าง SVG Avatar ตามสไตล์ต่างๆ (Avataaars, Bottts, etc.)",
+            },
+            {
+                label: "Seed Generation",
+                desc: "ระบบ Randomize Seed เพื่อให้ผู้ใช้สามารถสุ่มเลือกรูปแบบที่พอใจได้ไม่จำกัด",
+            },
+            {
+                label: "Custom Upload",
+                desc: "รองรับการอัปโหลดไฟล์ภาพจริง (.jpg, .png) จำกัดขนาด 2MB ต่อไฟล์ เก็บในบักเก็ต 'avatars'",
+            },
+            {
+                label: "Persistence",
+                desc: "รูปโปรไฟล์จะถูกบันทึกลงฟิลด์ avatar_url ในโปรไฟล์ เพื่อใช้แสดงผลถาวรทั่วทั้งเว็บไซต์",
+            },
+        ],
+    },
+    {
+        id: "personal-information",
+        name: "4. Personal Info & Metadata",
+        role: "การจัดการข้อมูลพื้นฐานและฐานข้อมูลส่วนบุคคล",
+        source: "Profiles Table",
+        details: [
+            {
+                label: "Full Name Split",
+                desc: "ระบะจัดการแยกชื่อ-นามสกุล และรวมเข้าด้วยกันเพื่อเก็บในฟิลด์ full_name อัตโนมัติ",
+            },
+            {
+                label: "Tax Identification",
+                desc: "ฟิลด์ Tax ID สำหรับใช้ในการออกใบกำกับภาษีหรือทำธุรกรรมที่เป็นทางการ",
+            },
+            {
+                label: "Gender & DOB",
+                desc: "เก็บข้อมูลเพศและวันเกิดเพื่อใช้ในการคัดกรองโปรโมชันหรือวิเคราะห์ข้อมูลลูกค้า (Analytic segments)",
+            },
+            {
+                label: "Bio Summary",
+                desc: "พื้นที่สำหรับใส่คำแนะนำตัวสั้นๆ เพื่อแสดงผลในระบบ Community หรือหน้า Profile สาธารณะในอนาคต",
+            },
+        ],
+    },
+    {
+        id: "address-crud",
+        name: "5. Smart Address Management",
+        role: "ระบบจัดการที่อยู่จัดส่งอัจฉริยะ",
+        source: "Addresses Table",
+        details: [
+            {
+                label: "Multiple Entries",
+                desc: "ผู้ใช้สามารถเพิ่มที่อยู่บ้าน, ที่ทำงาน หรือที่อยู่เพื่อนได้หลายรายการ (Unlimited entries)",
+            },
+            {
+                label: "Set as Default",
+                desc: "ระบบป้องกันความผิดพลาด: การตั้งค่าที่อยู่หลักจะไปยกเลิก is_default ของที่อยู่อื่นให้อัตโนมัติ",
+            },
+            {
+                label: "Validation Logic",
+                desc: "ฟอร์มบังคับใส่ข้อมูลที่จำเป็นครบถ้วน: ชื่อผู้รับ, เบอร์โทร, รพัสไปรษณีย์ และรายละเอียดที่อยู่",
+            },
+            {
+                label: "Edit/Delete Flow",
+                desc: "ระบบ Modal แก้ไขที่อยู่แบบ In-place ไม่ต้องโหลดหน้าใหม่ (No-reload UI)",
+            },
+        ],
+    },
+    {
+        id: "order-management",
+        name: "6. Order Lifecycle & Fulfillment",
+        role: "ประวัติการสั่งซื้อและสถานะการจัดส่ง",
+        source: "Orders / Order Items / Products",
+        details: [
+            {
+                label: "Automated Sync",
+                desc: "รัน rpc 'check_order_automations' ทุกครั้งที่โหลดหน้าประวัติเพื่อซิงก์สถานะล่าสุดจาก Gateway",
+            },
+            {
+                label: "Rich Order Items",
+                desc: "ดึงรูปภาพและชื่อสินค้าจาก Metadata ของสินค้าจริงมาแสดงแม้ในประวัติย้อนหลัง",
+            },
+            {
+                label: "Shipping Linkage",
+                desc: "แสดง Tracking Number พร้อมระบุ Shipping Provider (Kerry, Flash, EMS) อย่างชัดเจน",
+            },
+            {
+                label: "Receipt Confirmation",
+                desc: "ปุ่ม 'Confirm Receipt' สำหรับผู้ใช้เพื่อยืนยันการรับของ ซึ่งจะไปกระตุ้นการคำนวณคะแนน/Tier",
+            },
+        ],
+    },
+    {
+        id: "review-system",
+        name: "7. Customer Satisfaction Review",
+        role: "ระบบให้คะแนนสินค้า (Post-Purchase Feedback)",
+        source: "Reviews Table",
+        details: [
+            {
+                label: "Dynamic Star Rating",
+                desc: "ใช้ Interactive Star UI ให้ผู้ใช้เลือก 1-5 ดาว พร้อมคำอธิบายความพึงพอใจ",
+            },
+            {
+                label: "Variant-base Link",
+                desc: "ระบบฉลาดพอที่จะ Clean Product ID (ตัด Variant ออก) เพื่อให้คะแนนรวมไปอยู่ที่สินค้าหลัก",
+            },
+            {
+                label: "Anti-re-review",
+                desc: "เช็คสถานะ hasReviewed ในแต่ละรายการสินค้าเพื่อปิดปุ่มรีวิวหากทำไปแล้ว",
+            },
+            {
+                label: "Real-time Display",
+                desc: "รีวิวที่บันทึกแล้วจะมีผลต่อคะแนนเฉลี่ยหน้าสินค้า (Product Page) ทันที",
+            },
+        ],
+    },
+    {
+        id: "dispute-center",
+        name: "8. Dispute & Escrow Protection",
+        role: "ศูนย์ช่วยเหลือและแจ้งปัญหาออเดอร์",
+        source: "Disputes Table / Cloud Storage",
+        details: [
+            {
+                label: "Guided Dispute",
+                desc: "หมวดหมู่ปัญหา: ไม่ได้รับสินค้า (Not Received), สินค้าเสียหาย (Damaged), ได้ไม่ตรงปก (Wrong Item)",
+            },
+            {
+                label: "Evidence Collection",
+                desc: "จุดอัปโหลดไฟล์หลักฐาน (Evidence Images) จำกัด 3 รูป เก็บในบักเก็ต 'chat-images' เพื่อความเป็นส่วนตัว",
+            },
+            {
+                label: "Resolution Status",
+                desc: "ออเดอร์จะถูกล็อกสถานะเป็น 'dispute' ทันที ทำให้แอดมินรู้ว่าห้ามโอนเงินให้ผู้ขาย (Escrow Logic)",
+            },
+            {
+                label: "Admin Alerts",
+                desc: "เมื่อเปิด Dispute ระบบจะส่งสัญญาณเตือนไปยัง Admin Dashboard เพื่อให้เข้ามาดูแลแบบเร่งด่วน",
+            },
+        ],
+    },
+    {
+        id: "affiliate-marketing",
+        name: "9. Affiliate Revenue & Payouts",
+        role: "ศูนย์สร้างรายได้จากการแนะนำ (Partnership)",
+        source: "Affiliate Referrals / Database Functions",
+        details: [
+            {
+                label: "Real-time Stats",
+                desc: "Dashboard สรุป: จำนวนผู้สมัครผ่านลิงก์ (Referral Count), ยอดขายรวม และรายได้คอมมิชชันสะสม",
+            },
+            {
+                label: "payout Tiers",
+                desc: "แยกยอดเงินคอมมิชชันตามสถานะ: Pending (รอตรวจ), Approved (อนุมัติแล้ว), Paid (จ่ายแล้ว)",
+            },
+            {
+                label: "Request Withdrawal",
+                desc: "ปุ่มถอนเงินสำหรับยอดที่ 'Approved' โดยจะส่งลิงก์พร้อมข้อความอัตโนมัติไปหาแอดมินทาง Telegram",
+            },
+            {
+                label: "Withdrawal Cooldown",
+                desc: "ล็อคการถอนเงิน 24 ชั่วโมงต่อครั้งเพื่อความปลอดภัยและป้องกันการสแปมระบบ",
+            },
+        ],
+    },
+    {
+        id: "chat-system",
+        name: "10. Integrated Chat Center",
+        role: "ระบบสื่อสารสดกับฝ่ายสนับสนุน (Concierge)",
+        source: "ChatCenter.jsx / Messages",
+        details: [
+            {
+                label: "Persistence Chat",
+                desc: "ประวัติการแชทถูกเก็บไว้ใน Database ทำให้สามารถคุยต่อเนื่องได้แม้จะย้ายเครื่อง",
+            },
+            {
+                label: "File/Image Support",
+                desc: "รองรับการส่งรูปหลักฐานและ Attachment ต่างๆ ผ่าน UI แชทที่ทำความสะอาดมาอย่างดี",
+            },
+            {
+                label: "Order Referencing",
+                desc: "สามารถเลือก 'แนบเลขที่ใบสั่งซื้อ' ไปในแชทเพื่อให้แอดมินตรวจสอบข้อมูลได้รวดเร็วขึ้น",
+            },
+            {
+                label: "Emoji & Stickers",
+                desc: "ระบบ Emoji Picker และ Sticker Gallery ที่ช่วยสร้างบรรยากาศที่ดีในการรับบริการ",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            {
+                title: "User Profile",
+                link: "/manual/page-profile",
+                active: true,
+            },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Deep Technical Detail: User Profile | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Profile Components</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        User Profile Features
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เจาะลึกทุกกลไกภายในหน้า Profile ของผู้ใช้งาน
+                        ตั้งแต่ระบบยืนยันตัวตนแบบไฮบริด
+                        ไปจนถึงระบบจัดการข้อพิพาทและศูนย์รายได้จากพันธมิตร
+                        (Affiliate)
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Insanely Detailed Features
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >40+ Points of Interest</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* --- Visual Injection --- */}
+
+                                        {section.id === "hybrid-auth" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <AuthVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "membership-system" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                                                    <MembershipTierCard
+                                                        tier="Bronze"
+                                                        currentSpent={0}
+                                                        client:only="react"
+                                                    />
+                                                    <MembershipTierCard
+                                                        tier="Gold"
+                                                        currentSpent={55000}
+                                                        client:only="react"
+                                                    />
+                                                    <MembershipTierCard
+                                                        tier="Bitcoin"
+                                                        currentSpent={1000000}
+                                                        client:only="react"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "avatar-engine" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <AvatarVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {/* --- Visual Injection --- */}
+                                        {section.id === "avatar-engine" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <AvatarVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id ===
+                                            "personal-information" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <PersonalInfoVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "address-crud" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <AddressVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "order-management" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <OrderHistoryVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "review-system" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <ReviewVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "dispute-center" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <DisputeVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id ===
+                                            "affiliate-marketing" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <AffiliateVisual client:only="react" />
+                                            </div>
+                                        )}
+
+                                        {section.id === "chat-system" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <ChatVisual client:only="react" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">/</span> Data Flow & States
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div
+                            class="bg-white/5 p-8 rounded-[2rem] border border-white/10"
+                        >
+                            <h4
+                                class="text-[#D4AF37] font-black text-xs uppercase tracking-widest mb-4"
+                            >
+                                State Store
+                            </h4>
+                            <p class="text-sm text-white/30 leading-relaxed">
+                                เก็บ User Context ไว้ใน React State
+                                เพื่อลดการยิง API ซ้ำซ้อน (Caching mechanism
+                                locally)
+                            </p>
+                        </div>
+                        <div
+                            class="bg-white/5 p-8 rounded-[2rem] border border-white/10"
+                        >
+                            <h4
+                                class="text-[#D4AF37] font-black text-xs uppercase tracking-widest mb-4"
+                            >
+                                RLS Policies
+                            </h4>
+                            <p class="text-sm text-white/30 leading-relaxed">
+                                ข้อมูลทุกส่วนถูกป้องกันด้วย Row Level Security
+                                (RLS)
+                                ทำให้ผู้ใช้ดึงได้เฉพาะข้อมูลของตัวเองเท่านั้น
+                            </p>
+                        </div>
+                        <div
+                            class="bg-white/5 p-8 rounded-[2rem] border border-white/10"
+                        >
+                            <h4
+                                class="text-[#D4AF37] font-black text-xs uppercase tracking-widest mb-4"
+                            >
+                                Asset Buckets
+                            </h4>
+                            <p class="text-sm text-white/30 leading-relaxed">
+                                จัดสรร 'avatars' และ 'chat-images'
+                                แยกออกจากกันชัดเจนเพื่อจัดการนโยบายการเข้าถึงไฟล์ต่างกัน
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/page-index"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← Core Index</a
+                    >
+                    <a
+                        href="/manual/course-system"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Course Hub →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

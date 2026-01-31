@@ -1,0 +1,386 @@
+---
+// src/pages/manual/module-checkout.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "shipping-security",
+        name: "1. Shipping & Data Integrity",
+        role: "ระบบจัดการข้อมูลผู้ซื้อและการป้องกันความปลอดภัย",
+        source: "checkout.astro - Form Section",
+        details: [
+            {
+                label: "Honeypot Protection",
+                desc: "ใช้ฟิลด์ลับ (Hidden Input) เพื่อดักจับบอทที่พยายามกรอกข้อมูลอัตโนมัติ ช่วยลดขยะในระบบฐานข้อมูล",
+            },
+            {
+                label: "Billing Metadata",
+                desc: "รองรับการเก็บข้อมูล Tax ID และ Company Name เพื่อใช้ในการออกใบกำกับภาษี (Invoice) แบบถูกระเบียบ",
+            },
+            {
+                label: "Validation Layer",
+                desc: "ระบบตรวจสอบความถูกต้องของเบอร์โทรศัพท์และรูปแบบอีเมลก่อนเข้าสู่กระบวนการชำระเงิน",
+            },
+        ],
+    },
+    {
+        id: "benefit-engine",
+        name: "2. Tier & Loyalty Engine",
+        role: "ระบบคำนวณสิทธิประโยชน์สมาชิกอัตโนมัติ",
+        source: "Checkout Logic - Tier Module",
+        details: [
+            {
+                label: "Dynamic Discounting",
+                desc: "ตรวจสอบ Tier ของผู้ใช้รายคนเพื่อมอบส่วนลดพิเศษ (เช่น Bitcoin Tier ลด 21%) โดยอ้างอิงจากยอด Wallet",
+            },
+            {
+                label: "Free Shipping Logic",
+                desc: "คำนวณสิทธิ์การจัดส่งฟรีอัตโนมัติสำหรับสมาชิก Tier สูง หรือตามเงื่อนไขโปรโมชั่นที่แอดมินกำหนด",
+            },
+            {
+                label: "Tier Mirroring",
+                desc: "แสดงผลชื่อ Tier และเปอร์เซ็นต์ส่วนลดแบบเรียลไทม์บนหน้าสรุปยอดเพื่อให้ผู้ใช้รับทราบสิทธิพิเศษ",
+            },
+        ],
+    },
+    {
+        id: "coupon-points",
+        name: "3. Redemption & Coupons",
+        role: "ระบบแลกแต้มและโค้ดส่วนลดเชิงพาณิชย์",
+        source: "PointRedemption.jsx / Coupon Logic",
+        details: [
+            {
+                label: "Point Redemption",
+                desc: "อัลกอริทึมการแลกแต้มสะสม (เช่น 100 แต้ม = 1 บาท) เพื่อใช้ลดทอนราคาสินค้าสุทธิ",
+            },
+            {
+                label: "Voucher Validation",
+                desc: "ระบบตรวจสอบความถูกต้องของวอยเชอร์ (Expiration, Min Spend) จากฐานข้อมูล Supabase",
+            },
+            {
+                label: "Cumulative Stack",
+                desc: "ลอจิกการคำนวณส่วนลดแบบทับซ้อน (Tier + Coupon + Points) ภายใต้ลำดับความสำคัญที่ถูกต้อง",
+            },
+        ],
+    },
+    {
+        id: "payment-gateways",
+        name: "4. Multi-Gateway Payment",
+        role: "ระบบ Gateway รองรับทั้ง Fiat และ Crypto",
+        source: "PromptPay / Web3 / Lightning",
+        details: [
+            {
+                label: "PromptPay QR",
+                desc: "การสร้าง QR Code มาตรฐาน EMVCo แบบไดนามิกตามราคาสินค้าจริง พร้อมระบบสแกนตรวจสอบสลิป",
+            },
+            {
+                label: "Web3 Integration",
+                desc: "รองรับการจ่ายด้วย Metamask ผ่านเครือข่าย EVM (ETH, BSC, Polygon) พร้อมระบบตรวจจับเครือข่ายอัตโนมัติ",
+            },
+            {
+                label: "Lightning Network",
+                desc: "การคำนวณยอด Satoshis แบบเรียลไทม์และสร้าง QR Lightning สำหรับการจ่ายที่รวดเร็วและค่าธรรมเนียมต่ำ",
+            },
+        ],
+    },
+    {
+        id: "order-lifecycle",
+        name: "5. Order Creation & Storage",
+        role: "วงจรชีวิตของออเดอร์และการเก็บหลักฐาน",
+        source: "Supabase orders table",
+        details: [
+            {
+                label: "Slip Attachment",
+                desc: "ระบบอัปโหลดหลักฐานการโอนเงินเข้าสู่ Storage Bucket พร้อมผูกลิงก์กับ Order ID ทันที",
+            },
+            {
+                label: "Atomic Invoicing",
+                desc: "สร้างรายการออเดอร์ในฐานข้อมูลพร้อมรันเลขใบสั่งซื้อ (Order Number) แบบไม่ซ้ำกัน",
+            },
+            {
+                label: "Captcha Verification",
+                desc: "ระบบคำนวณเลขคณิต (Math Captcha) ชั้นสุดท้ายเพื่อยืนยันความเป็นมนุษย์ก่อนยืนยันออเดอร์",
+            },
+        ],
+    },
+    {
+        id: "fulfillment-sync",
+        name: "6. Fulfillment Synchronization",
+        role: "การส่งต่อข้อมูลเข้าสู่ระบบจัดการของผู้ขาย",
+        source: "Seller Notification Logic",
+        details: [
+            {
+                label: "Instant Routing",
+                desc: "กระจายรายการสินค้าจากหนึ่งออเดอร์ไปยังร้านค้าต่างๆ (Sellers) ที่เกี่ยวข้องผ่านระบบแยกออเดอร์ย่อย",
+            },
+            {
+                label: "Real-time Notification",
+                desc: "ส่งสัญญาณแจ้งเตือนไปยังแต่อะร้านค้าว่ามีรายการชำระเงินใหม่รอการตรวจสอบสลิป",
+            },
+            {
+                label: "Stock Locking",
+                desc: "ระบบล็อคสต็อกสินค้าในระดับตะกร้าเมื่อเริ่มการชำระเงินเพื่อป้องกันการขายซ้อน (Overselling)",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            {
+                title: "Checkout System",
+                link: "/manual/module-checkout",
+                active: true,
+            },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Checkout & Payment Technical Guide | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]"
+                            >Transactional Pipeline</span
+                        >
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Checkout System
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เบื้องหลังระบบการชำระเงินแบบ Hybrid ที่เชื่อมต่อโลกของ
+                        Fiat และ Decentralized Finance เข้าด้วยกัน
+                        เจาะลึกกลไกการคำนวณส่วนลดสมาชิก ระบบแลกแต้ม
+                        และการออกใบเสร็จแบบอัตโนมัติ
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Checkout Logic Modules
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >6 Conversion Systems</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Transaction Security
+                        Logic
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Anti-Bot Protocol
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                นอกเหนือจาก Math Captcha
+                                ระบบยังใช้ลอจิกวิเคราะห์พฤติกรรมการกรอกและเวลาทำงาน
+                                (Time-on-Page) เพื่อระบุและสกัดการทำธุรกรรมแบบ
+                                Brute Force ในขั้นตอนสุดท้ายของการจ่ายเงิน
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Atomic Commit
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                การจองสินค้าจะเกิดขึ้นในรูปแบบ Transactional
+                                Lock สินค้าจะคงอยู่ในสถานะ 'Booking'
+                                จนกว่าแอดมินหรือระบบตรวจสอบสลิปจะยืนยัน
+                                เพื่อให้มั่นใจว่าสต็อกจริงจะถูกตัดเมื่อได้เงินแล้วเท่านั้น
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/module-cart"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← Shopping Cart</a
+                    >
+                    <a
+                        href="/manual/course-system"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Course Hub →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

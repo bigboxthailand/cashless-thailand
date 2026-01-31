@@ -1,0 +1,439 @@
+---
+// src/pages/manual/page-shop.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "data-fetching",
+        name: "1. Supabase Data Integration",
+        role: "ระบบดึงข้อมูลสินค้าแบบ Dynamic (Real-time Catalog)",
+        source: "Supabase (products table)",
+        details: [
+            {
+                label: "Query Logic",
+                desc: "ใช้ supabase.from('products').select('*') โดยเรียงลำดับตามความใหม่ (created_at desc) เป็นค่าเริ่มต้น",
+            },
+            {
+                label: "Force Reordering",
+                desc: "มีลอจิกพิเศษ (Explicit reorder) เพื่อสลับลำดับ CryptoClock Basic ให้ขึ้นก่อน Saving เพื่อลำดับความสำคัญทางการตลาด",
+            },
+            {
+                label: "JSON Parsing",
+                desc: "จัดการข้อมูล JSONB ในฟิลด์ meta, pricing, config และ media เพื่อนำมาสกัดเป็นข้อมูล UI ที่พร้อมใช้งาน",
+            },
+        ],
+    },
+    {
+        id: "category-system",
+        name: "2. Intelligent Category Mapping",
+        role: "ระบบแยกหมวดหมู่สินค้าอัตโนมัติ",
+        source: "Internal Logic / categoryMeta",
+        details: [
+            {
+                label: "Auto Extraction",
+                desc: "ระบบจะสแกนหาสนค้าทั้งหมดใน DB และสกัดหมวดหมู่ (Unique Categories) ออกมาเพื่อสร้างหน้าเว็บโดยไม่ต้องระบุ Category ล่วงหน้า",
+            },
+            {
+                label: "Category Metadata",
+                desc: "ตาราง CategoryMeta ใช้กำหนดชื่อหัวข้อ (Title) และคำโปรย (Description) ที่สวยงามสำหรับแต่ละหมวด เช่น BiTTerm Solutions",
+            },
+            {
+                label: "Priority Sorting",
+                desc: "จัดลำดับหมวดหมู่ตามความสำคัญ: Clock > Kiosk > POS > Node > Others เพื่อให้สินค้า Hardware หลักอยู่ด้านบนเสมอ",
+            },
+        ],
+    },
+    {
+        id: "dynamic-sections",
+        name: "3. Flexible Content Sections",
+        role: "โครงสร้างหน้าเว็บแบบปรับเปลี่ยนตามสินค้า",
+        source: "Astro Mapping Logic",
+        details: [
+            {
+                label: "Section Autonomy",
+                desc: "ใช้การ Map ข้อมูล Categories เพื่อสร้าง Section ใหม่โดยอัตโนมัติ หากไม่มีสินค้าในหมวดนั้น Section จะไม่ถูกแสดงผล",
+            },
+            {
+                label: "Scroll Navigation",
+                desc: "ทุกลิงก์จาก Navbar (เช่น /shop#kiosk) จะเชื่อมตรงมายัง ID ของ Section ในหน้านี้ พร้อม Offset การเลื่อนที่แม่นยำ",
+            },
+            {
+                label: "Visual Separators",
+                desc: "คั่นระหว่างหมวดหมู่ด้วยเส้น Gradient และลำดับ Collection (01, 02...) เพื่อสร้างบรรยากาศห้างสรรพสินค้าดิจิทัล",
+            },
+        ],
+    },
+    {
+        id: "pricing-engine",
+        name: "4. Advanced Pricing Engine",
+        role: "กลไกการคำนวณราคาและส่วนลด (Complex Variation)",
+        source: "Pricing / Config Metadata",
+        details: [
+            {
+                label: "Variant Priority",
+                desc: "ระบบจะเช็คราคาสินค้าจาก Variants ก่อน หากมีหลายระดับจะเลือกราคาที่ต่ำที่สุดมาโชว์เป็น 'Starts at'",
+            },
+            {
+                label: "Compare Price",
+                desc: "ดึงราคาเปรียบเทียบ (Compare Price) ที่สูงที่สุดในกลุ่มมาใช้เพื่อคำนวณยอดส่วนลดสสูงสุดของรุ่นนั้นๆ",
+            },
+            {
+                label: "Discount Calculation",
+                desc: "สูตรคำนวณส่วนลด % อัตโนมัติ (Compare - Current) / Compare * 100 เพื่อแสดงป้าย Sale",
+            },
+        ],
+    },
+    {
+        id: "inventory-sync",
+        name: "5. Real-time Inventory Feedback",
+        role: "ระบบจัดการสถานะสต็อกในหน้า Catalog",
+        source: "Database Stock Status",
+        details: [
+            {
+                label: "Inventory Summation",
+                desc: "สำหรับสินค้าที่มีหลายโมเดล ระบบจะรวบยอด Stock จากทก Variant เพื่อตรวจสอบสถานะรวม",
+            },
+            {
+                label: "Sold Out Overlay",
+                desc: "หากสินค้าหมด (Stock <= 0) ระบบจะซ้อนทับด้วย Layer 'SOLD OUT' และลดความชัดของรูปภาพอัตโนมัติ",
+            },
+            {
+                label: "Visual Urgency",
+                desc: "มี Ribbon ป้าย 'SALE' พร้อมแอนิเมชัน Shimmer (แสงวิ่ง) เพื่อดึงดูดสายตาสำหรับสินค้าที่ลดราคา",
+            },
+        ],
+    },
+    {
+        id: "product-card-ui",
+        name: "6. Premium Product Card UI",
+        role: "การออกแบบ Card สินค้าเพื่อประสิทธิภาพการตลาด",
+        source: "Tailwind CSS / CSS Animations",
+        details: [
+            {
+                label: "Glassmorphism Card",
+                desc: "ใช้ความโปร่งใส (Alpha) และ Border ที่บางเบาเพื่อให้ดูทันสมัยและสะอาดตาแบบ Apple Style",
+            },
+            {
+                label: "Hover Interactions",
+                desc: "เมื่อผู้ใช้เอาเมาส์วาง ภาพจะซูมเข้า (Scale 110%) และแสดงปุ่ม 'View Details' พร้อมเงาสีทองนวลตา (Global glow)",
+            },
+            {
+                label: "Delayed Entrance",
+                desc: "แอนิเมชันการโผล่ขึ้นมาของสินค้า (Entrance Animation) แบบสไลด์ขึ้นทีละใบ (Staggered) เพื่อความสุนทรีย์",
+            },
+        ],
+    },
+    {
+        id: "visual-media-logic",
+        name: "7. Media & Metadata Handling",
+        role: "ระบบจัดการรูปภาพและข้อมูลจำเพาะ",
+        source: "Storage / Meta Fields",
+        details: [
+            {
+                label: "Lazy Loading",
+                desc: "ใช้ Loading='lazy' สำหรับรูปภาพทั้งหมดเพื่อทำให้หน้า Shop โหลดได้รวดเร็วแม้จะมีสินค้าเป็นร้อยรายการ",
+            },
+            {
+                label: "Fallback Images",
+                desc: "มีระบบ Error Handling หากรูปภาพใน DB ผิดพลาด จะโชว์ 'No Image' Placeholder ไม่ให้หน้าเว็บพัง",
+            },
+            {
+                label: "Tag System",
+                desc: "ดึง Tag ตัวแรกจาก Array (เช่น Trending, New) มาโชว์เป็นป้ายทองขนาดเล็กเหนือรูปสินค้า",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            {
+                title: "Shop Catalog",
+                link: "/manual/page-shop",
+                active: true,
+            },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+
+const sidebarTemplate = `
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={\`block px-4 py-2 rounded-lg text-sm transition-all \${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}\`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={section.link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+`;
+---
+
+<Layout title="Deep Technical Detail: Shop Catalog | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Shop Service</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Shop Catalog System
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        นวัตกรรมการนำเสนอรายการสินค้า (Product Discovery)
+                        ของเราถูกออกแบบให้เป็นแบบ <strong>Data-Driven</strong>
+                        โดยสมบูรณ์ ทุกการจัดหมวดหมู่ ราคา และสถานะสต็อก จะซิงก์ตรงจาก
+                        Supabase เพื่อความแม่นยำสูงสุด
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Catalog Engine Components
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >7 Core High-Level Modules</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Structural Map -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Shop Architecture Workflow
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Category Logic Flow
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                1. Fetch All Products <br />
+                                2. Extract Category Slugs <br />
+                                3. Match against Meta-titles <br />
+                                4. Group products for layout rendering
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Pricing Guard
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                ระบบจะคำนวณราคาที่ต่ำที่สุดเสนอเป็นจุดเริ่มต้น
+                                เพื่อเพิ่มอัตรา Click-through rate (CTR)
+                                พร้อมทั้งตรวจสอบว่าหากสินค้ามีหลาย Variant
+                                ต้องคำนวณราคาเฉลี่ยหรือไม่
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer Nav -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/page-profile"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← User Profile System</a
+                    >
+                    <a
+                        href="/manual/page-product"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Product Detail →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

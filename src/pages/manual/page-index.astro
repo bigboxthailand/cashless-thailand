@@ -1,0 +1,773 @@
+---
+// src/pages/manual/page-index.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Hero from "../../components/Hero.astro";
+import Marquee from "../../components/Marquee.astro";
+import Features from "../../components/Features.astro";
+import ProductGallery from "../../components/ProductGallery.astro";
+import FeaturedGrid from "../../components/FeaturedGrid.astro";
+import Testimonials from "../../components/Testimonials.astro";
+import CommunityEvents from "../../components/CommunityEvents.astro";
+import BlogSection from "../../components/BlogSection.astro";
+import BTCMap from "../../components/BTCMap.astro";
+import FAQ from "../../components/FAQ.astro";
+import Footer from "../../components/Footer.astro";
+
+const sections = [
+    {
+        id: "loader",
+        name: "1. Loader Animation & Preloader",
+        role: "ระบบจัดการสถานะระหว่างโหลด (Loading State Management)",
+        source: "Hardcoded JS / CSS Animations",
+        details: [
+            {
+                label: "Initializing UI",
+                desc: "แสดงข้อความ INITIALIZING พร้อมตัวหมุน (Spinner) สีทองเพื่อคุมโทนความหรูหรา",
+            },
+            {
+                label: "Astro Page Load",
+                desc: "ใช้ Event 'astro:page-load' ร่วมกับ setTimeout 500ms เพื่อคุมจังหวะการ Fade-out",
+            },
+            {
+                label: "Performance Note",
+                desc: "ซ่อน Loader ด้วย 'display: none' หลังจากจางหายเพื่อประหยัดทรัพยากร Browser",
+            },
+        ],
+    },
+    {
+        id: "nav",
+        name: "2. Global Navbar & Navigation",
+        role: "ส่วนนำทางหลักและระบบจัดการโปรไฟล์ผู้ใช้",
+        source: "Astro + React (UserMenu) + Nanostores",
+        details: [
+            {
+                label: "Main Navigation",
+                desc: "Link รายการ: Home (/), Shop (/shop), Courses (/course), Knowledge (/blog)",
+            },
+            {
+                label: "Shop Dropdown",
+                desc: "ทางลัดเข้าหมวดหมู่: All Products, Our Vendors (/shops), และ Jump links (#clock, #kiosk, #pos, #node)",
+            },
+            {
+                label: "Cart Global Bridge",
+                desc: "ปุ่มเปิด CartDrawer ที่ซิงก์จำนวนเงินและสินค้าแบบ Real-time จาก Local Storage",
+            },
+            {
+                label: "Auth Integration",
+                desc: "แสดงเมนูผู้ใช้ (Profile, Wallet, Logout) และ Badge ตาม Tier ของสมาชิก",
+            },
+        ],
+    },
+    {
+        id: "hero",
+        name: "3. Hero Cinematic Section",
+        role: "ต้อนรับและนำเสนอวิสัยทัศน์ (Brand Impression)",
+        source: "Hardcoded Content / SVG Animations",
+        details: [
+            {
+                label: "Core Headline",
+                desc: "เน้นคำสำคัญ 'Bitcoin Hardware' ด้วย Gradient Animation สไลด์สีทอง",
+            },
+            {
+                label: "Vision Text",
+                desc: "อธิบายผลิตภัณฑ์หลัก 3 ตัว: CryptoClock, BiTTerm, และ BiTNode",
+            },
+            {
+                label: "CTA Links",
+                desc: "ปุ่ม 'Shop Now' ไปที่ /shop และปุ่ม 'See BiTTerm' ไปที่ /shop#kiosk",
+            },
+        ],
+    },
+    {
+        id: "marquee",
+        name: "4. Rotating Marquee Ticker",
+        role: "แถบข้อความวิ่งสร้าง Movement (Engagement Ticker)",
+        source: "Hardcoded CSS Anim",
+        details: [
+            {
+                label: "Ticker Message",
+                desc: "ข้อความตอกย้ำจุดยืน: DON'T TRUST VERIFY, FIX THE MONEY, OWN YOUR KEY",
+            },
+            {
+                label: "Visual Style",
+                desc: "เอียง -1 องศาเพื่อตัดกับเส้นสายแนวตั้งของเว็บไซต์ สร้างความรู้สึกไดนามิก",
+            },
+        ],
+    },
+    {
+        id: "features",
+        name: "5. Features (Ecosystem Steps)",
+        role: "เจาะลึก 4 ขั้นตอนนวัตกรรม (Step-by-Step Info)",
+        source: "Supabase DB (Products Table)",
+        details: [
+            {
+                label: "Product Fetching",
+                desc: "ดึงข้อมูลจาก DB ตาม ID สินค้าที่กำหนด เพื่อโชว์ Title, Desc, Image",
+            },
+            {
+                label: "Dynamic Links",
+                desc: "ปุ่ม 'Explore' ในแต่ละขั้นจะนำผู้ใช้ไปยังหน้า Product Detail (/products/[id])",
+            },
+            {
+                label: "Consult CTA",
+                desc: "ส่วนท้ายมีปุ่ม 'คุยกับทีมงานบน LINE' เพื่อขอรับคำปรึกษาสำหรับธุรกิจโดยเฉพาะ",
+            },
+        ],
+    },
+    {
+        id: "gallery",
+        name: "6. Lifestyle Gallery",
+        role: "The Lifestyle: Cashless Revolution",
+        source: "React + LuxuryMotionGallery",
+        details: [
+            {
+                label: "Visual Focus",
+                desc: "แสดภาพการใช้งานจริง (Use Cases) ในคาเฟ่ หรือโต๊ะเทรด เพื่อสร้างความอยากได้",
+            },
+            {
+                label: "Motion Gallery",
+                desc: "ใช้ Framer Motion ควบคุมการเลื่อนไหลของภาพแบบ Infinite สลับซ้ายขวา",
+            },
+        ],
+    },
+    {
+        id: "shop-grid",
+        name: "7. Featured Grid (Shop Selection)",
+        role: "พื้นที่แสดงสินค้าแนะนำและระบบสต็อก",
+        source: "Supabase DB (Products/Variants)",
+        details: [
+            {
+                label: "Automatic Tags",
+                desc: "คำนวณป้าย 'Sale %' และป้าย 'SOLD OUT' อัตโนมัติจากข้อมูลสต็อกใน DB",
+            },
+            {
+                label: "Variant Logic",
+                desc: "ดึงราคาเริ่มต้นของ Variant ที่ถูกที่สุดมาแสดงเป็นราคาเริ่มต้น (Starting From)",
+            },
+            {
+                label: "Product Link",
+                desc: "การ์ดสินค้าทุกลิงก์จะนำไปที่ /products/[id] พร้อมระบบเปลี่ยนรูปภาพเมื่อ Hover",
+            },
+        ],
+    },
+    {
+        id: "testimonials",
+        name: "8. Testimonials (Trust Section)",
+        role: "ความไว้วางใจจากผู้ใช้งานจริง (Social Proof)",
+        source: "Hardcoded Content",
+        details: [
+            {
+                label: "Infinite Reviews",
+                desc: "แถบรีวิวลูกค้ายอดนิยม 4 รายการ เลื่อนวนลูปแบบไม่สิ้นสุด",
+            },
+            {
+                label: "Key Messages",
+                desc: "เน้นความปลอดภัย (Trezor), ความง่ายในการเรียนคอร์ส และความพรีเมียมของแบรนด์",
+            },
+        ],
+    },
+    {
+        id: "community",
+        name: "9. Community & Events Hub",
+        role: "ศูนย์รวมกิจกรรมและกลุ่มพูดคุย",
+        source: "Events Configuration Array",
+        details: [
+            {
+                label: "Upcoming Queue",
+                desc: "แสดงงานปัจจุบัน: Block Mountain, Satoshi Square, Road to Consensus",
+            },
+            {
+                label: "External Links",
+                desc: "ทุกลิงก์ในอีเวนต์จะไปที่หน้า Facebook หรือ Meetup ของงานนั้นๆ โดยตรง",
+            },
+            {
+                label: "Telegram CTA",
+                desc: "ปุ่มใหญ่ 'Join Telegram' เพื่อดึงผู้ใช้เข้าสู่ Official Community Group",
+            },
+        ],
+    },
+    {
+        id: "knowledge",
+        name: "10. Knowledge Base & Newsletter",
+        role: "การสร้างฐานความรู้และระบบติดตามข่าวสาร",
+        source: "Supabase DB (Posts Table)",
+        details: [
+            {
+                label: "Blog Feed",
+                desc: "โชว์บทความล่าสุด 4 รายการ ลิงก์ไปยัง /blog/[slug] เพื่ออ่านรายละเอียด",
+            },
+            {
+                label: "Stay Ahead Hook",
+                desc: "ส่วนรับอีเมลลงตาราง 'newsletter_subscribers' เพื่อส่งบทวิเคราะห์เจาะลึก",
+            },
+            {
+                label: "Category Tags",
+                desc: "ป้ายกำกับหมวดหมู่บทความ (เช่น Education, Analysis) ที่ดึงจากหน้าบ้าน",
+            },
+        ],
+    },
+    {
+        id: "map",
+        name: "11. Bitcoin Merchant Map",
+        role: "แผนที่ร้านค้าและสถานที่รับบิตคอยน์",
+        source: "BTCMap.org Embed Integration",
+        details: [
+            {
+                label: "Map Interface",
+                desc: "ฝัง Iframe ของ BTCMap.org ที่พิกัดประเทศไทย (Lat 13.7, Lng 100.5)",
+            },
+            {
+                label: "Action Links",
+                desc: "ปุ่ม 'Open Full Map' ไปที่ btcmap.org/map และ 'Add Your Shop' ไปที่หน้าลงทะเบียน",
+            },
+            {
+                label: "Stats Dashboard",
+                desc: "โชว์ตัวเลข Merchants in TH (452) และ Verified Outlets (382) แบบกึ่งคงพิกัด",
+            },
+        ],
+    },
+    {
+        id: "faq-footer",
+        name: "12. FAQ & Detailed Footer",
+        role: "ส่วนสนับสนุนผู้ใช้และลิ้งก์นโยบายสำคัญ",
+        source: "Global Footer Component",
+        details: [
+            {
+                label: "Privacy & Support",
+                desc: "ลิงก์นโยบาย: Refund, Privacy, Terms, Shipping (/policies/...)",
+            },
+            {
+                label: "Support Links",
+                desc: "ลิงก์บริการ: Track Order (/track-order), Contact Us (/support/contact)",
+            },
+            {
+                label: "Social Presence",
+                desc: "ทางลัดไป Facebook, Twitter, Line, YouTube ของแบรนด์",
+            },
+            {
+                label: "Payment Trust",
+                desc: "ป้ายยืนยันการรับชำระผ่าน Bitcoin, Lightning Network และ Promptpay",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            {
+                title: "Home Page (Index)",
+                link: "/manual/page-index",
+                active: true,
+            },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Technical Detail: Home Page | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Index.astro Core</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Home Page (Index)
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เอกสารฉบับสมบูรณ์ที่ระบุรายละเอียดทุกส่วนประกอบ
+                        (Components) ในหน้าแรก
+                        พร้อมช่องทางการเชื่อมโยงจุดหมายปลายทางของทุกลิงก์ (Link
+                        Mapping) เพื่อให้เห็นภาพรวมการเดินทางของผู้ใช้ (User
+                        Journey) ทั้งหมด
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Full Component Breakdown
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >12 Sections Detected</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* --- Interactive Modules Injection --- */}
+
+                                        {section.id === "loader" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black border border-white/10 rounded-2xl p-12 flex justify-center items-center">
+                                                    <div class="relative flex flex-col items-center gap-6">
+                                                        <div class="w-16 h-16 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+                                                        <div class="flex flex-col items-center">
+                                                            <span class="text-white font-black text-xl tracking-tighter">
+                                                                CASHLESS
+                                                                <span class="text-[#D4AF37]">
+                                                                    .
+                                                                </span>
+                                                                TH
+                                                            </span>
+                                                            <span class="text-[#D4AF37] text-[8px] font-bold tracking-[0.5em] animate-pulse mt-2">
+                                                                INITIALIZING
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "nav" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black border border-white/10 rounded-2xl overflow-hidden relative h-24">
+                                                    <div class="absolute inset-0 flex items-center justify-between px-8 bg-black/80 backdrop-blur-md">
+                                                        <div class="text-white font-black tracking-tight text-lg">
+                                                            CASHLESS
+                                                            <span class="text-[#D4AF37]">
+                                                                .
+                                                            </span>
+                                                            TH
+                                                        </div>
+                                                        <div class="hidden md:flex gap-8 text-xs font-bold text-white/50 uppercase tracking-widest">
+                                                            <span>Home</span>
+                                                            <span>Shop</span>
+                                                            <span>Courses</span>
+                                                        </div>
+                                                        <div class="flex gap-3">
+                                                            <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10" />
+                                                            <div class="w-8 h-8 rounded-full bg-[#D4AF37] flex items-center justify-center text-black font-bold text-xs">
+                                                                A
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "hero" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="rounded-3xl border border-white/10 overflow-hidden relative">
+                                                    <Hero />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "marquee" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="py-12 bg-black/50 rounded-3xl border border-white/10 overflow-hidden">
+                                                    <Marquee />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "features" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-hidden">
+                                                    <Features />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "gallery" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 overflow-hidden">
+                                                    <ProductGallery />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "shop-grid" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-hidden">
+                                                    <FeaturedGrid />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "testimonials" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-hidden">
+                                                    <Testimonials />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "community" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-hidden">
+                                                    <CommunityEvents />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "knowledge" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 overflow-hidden">
+                                                    <BlogSection />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "map" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 overflow-hidden">
+                                                    <BTCMap />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "faq-footer" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 overflow-hidden">
+                                                    <div class="p-8">
+                                                        <FAQ />
+                                                    </div>
+                                                    <div class="border-t border-white/5">
+                                                        <Footer />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Footer Summary (Important Links Highlight) -->
+                <section
+                    class="mt-20 p-10 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[3rem] space-y-10"
+                >
+                    <h2
+                        class="text-2xl font-bold text-white flex items-center gap-3 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Destination Link Mapping
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Internal Hubs
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40">Home Root</span>
+                                    <code class="text-[#D4AF37]">/</code>
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Marketplace</span
+                                    >
+                                    <code class="text-[#D4AF37]">/shop</code>
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Learning Center</span
+                                    >
+                                    <code class="text-[#D4AF37]">/course</code>
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Knowledge Base</span
+                                    >
+                                    <code class="text-[#D4AF37]">/blog</code>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Policies & Support
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Refund / Return</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >/policies/refund</code
+                                    >
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Shipping Info</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >/policies/shipping</code
+                                    >
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Order Tracking</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >/track-order</code
+                                    >
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Global Help</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >/support/contact</code
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Status Check -->
+                <div
+                    class="flex items-center gap-4 pt-12 text-white/20 text-[10px] font-black uppercase tracking-[0.4em]"
+                >
+                    <span>Last Updated: 31 JAN 2026</span>
+                    <span>•</span>
+                    <span class="text-green-500/50">Documentation Verified</span
+                    >
+                </div>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+
+    details > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        background: rgba(212, 175, 55, 0.05);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+</style>

@@ -1,0 +1,220 @@
+---
+// src/pages/manual/system-workflow.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const steps = [
+    {
+        number: "01",
+        title: "Platform Onboarding",
+        subtitle: "การสร้างตัวตนและระบบความจำ (Identity Store)",
+        description: "ผู้ใช้เข้าสู่ระบบผ่าน Hybrid Auth (Email หรือ Metamask) ระบบจะทำการสร้าง Profile ID และเตรียมพร้อมสำหรับการเก็บแต้มและประวัติการสั่งซื้อ",
+        icon: "🧧",
+        technical: "supabase.auth.signIn() / ethers.js Web3 Provider"
+    },
+    {
+        number: "02",
+        title: "Smart Discovery",
+        subtitle: "การค้นหาและวิเคราะห์สินค้า (Product Engine)",
+        description: "ผู้ใช้เลือกชมสินค้าผ่านหมวดหมู่ในหน้า Shop หรืออ่านความรู้จาก Blog ระบบจะแสดงผลรีวิวจากเพื่อนสมาชิก และ Metadata ของสินค้าแบบเจาะลึก",
+        icon: "🔍",
+        technical: "Supabase PG Filter / Real-time Stock Check"
+    },
+    {
+        number: "03",
+        title: "Cart Orchestration",
+        subtitle: "การจัดการตะกร้าสินค้าแบบ Persistent (Local State)",
+        description: "สินค้าถูกเพิ่มเข้าตะกร้าโดยใช้ Nanostores เพื่อความรวดเร็ว ระบบคำนวณราคาเบื้องต้นและจองสินค้าในสต็อกชั่วคราวผ่าน UI Drawer",
+        icon: "🛒",
+        technical: "persistentAtom (Nanostores) / cartStore.js"
+    },
+    {
+        number: "04",
+        title: "Tier-Aware Checkout",
+        subtitle: "การคำนวณส่วนลดตามสิทธิสมาชิก (Logic Layer)",
+        description: "ในขั้นตอนนี้ ระบบจะดึงข้อมูล Tier ของผู้ใช้มาคำนวณส่วนลดทันที (เช่น Gold ลด 5%) พร้อมตรวจสอบคูปองและแต้มสะสมเพื่อลดหย่อนราคาสุทธิ",
+        icon: "💳",
+        technical: "Membership Rewards Engine / Order Validation"
+    },
+    {
+        number: "05",
+        title: "Multi-Rail Payment",
+        subtitle: "การชำระเงินข้ามขีดจำกัด (Hybrid Gateway)",
+        description: "ผู้ใช้เลือกจ่ายผ่าน PromptPay (Scan & Verify), Web3 (Direct Wallet transfer) หรือ Bitcoin Lightning (Qr Code) ระบบจะเก็บหลักฐานการจ่ายเงินทันที",
+        icon: "⚡",
+        technical: "PromptPay EMVCo / Lightning Invoice / Web3 RPC"
+    },
+    {
+        number: "06",
+        title: "Fulfillment Sync",
+        subtitle: "การกระจายคำสั่งซื้อสู่ผู้ขาย (Supply Chain)",
+        description: "ระบบแจ้งเตือนร้านค้าเจ้าของผลิตภัณฑ์ผ่าน Seller Dashboard แอดมินตรวจสอบสลิปและเริ่มกระบวนการแพ็คสินค้าและส่ง Tracking Number",
+        icon: "📦",
+        technical: "Order Status Automation / Seller Notifications"
+    },
+    {
+        number: "07",
+        title: "The Rewarding Loop",
+        subtitle: "การเติบโตของสมาชิกและรายได้ Passive (Growth)",
+        description: "เมื่อผู้ใช้กดยืนยันได้รับสินค้า แต้มสะสมจะถูกโอนเข้าบัญชีทันทีเพื่ออัปเกรด Tier และแชร์รายได้ค่า Affiliate ให้กับผู้แนะนำ (5% Commission)",
+        icon: "💎",
+        technical: "Point Distribution / Affiliate Referral Credit"
+    }
+];
+
+const sidebarItems = [
+    { title: "Introduction", items: [
+        { title: "Overview", link: "/manual" },
+        { title: "System Workflow", link: "/manual/system-workflow", active: true },
+        { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+    ]},
+    { title: "Core Features", items: [
+        { title: "Home Page (Index)", link: "/manual/page-index" },
+        { title: "Shop Catalog", link: "/manual/page-shop" },
+        { title: "Product Detail", link: "/manual/page-product" },
+        { title: "User Profile", link: "/manual/page-profile" },
+    ]},
+    { title: "Logic & State", items: [
+        { title: "Shopping Cart", link: "/manual/module-cart" },
+        { title: "Checkout System", link: "/manual/module-checkout" },
+        { title: "Auth & Tiers", link: "/manual/module-auth" },
+        { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+    ]},
+    { title: "Edu-System", items: [
+        { title: "Course Hub", link: "/manual/course-system" },
+        { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+    ]},
+    { title: "Marketing & Growth", items: [
+        { title: "Insights & Blog", link: "/manual/blog-system" },
+        { title: "Affiliate System", link: "/manual/affiliate-manual" },
+    ]},
+    { title: "Management Systems", items: [
+        { title: "Admin Portal", link: "/manual/admin-interface" },
+        { title: "Seller Dashboard", link: "/manual/seller-guide" },
+    ]}
+];
+---
+
+<Layout title="System Workflow | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20">
+            <nav class="space-y-8">
+                {sidebarItems.map(section => (
+                    <div>
+                        {section.items ? (
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">{section.title}</h4>
+                                <ul class="space-y-1">
+                                    {section.items.map(item => (
+                                        <li>
+                                            <a href={item.link} class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}>
+                                                {item.title}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                    </div>
+                ))}
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto">
+            <div class="space-y-20">
+                <!-- Header -->
+                <header class="space-y-8">
+                    <div class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]">
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Operational Blueprint</span>
+                    </div>
+                    <h1 class="text-4xl md:text-7xl font-black text-white tracking-tighter leading-none">System <br/> Workflow</h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-3xl">
+                        แผนผังการทำงานเชิงเทคนิคที่เชื่อมต่อทุกส่วนของเนื้อหาเข้าด้วยกัน 
+                        ตั้งแต่การสร้างตัวตน การเลือกซื้อสินค้า จนถึงระบบสมาชิกและการรับรายได้
+                    </p>
+                </header>
+
+                <!-- Step-by-Step Interactive Guide -->
+                <div class="relative space-y-12">
+                    <!-- Vertical Line -->
+                    <div class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-[#D4AF37]/50 via-white/5 to-transparent hidden md:block"></div>
+
+                    {steps.map(step => (
+                        <div class="relative pl-0 md:pl-24 group">
+                            <!-- Floating Number Indicator -->
+                            <div class="absolute left-0 top-0 w-16 h-16 bg-[#111] border border-white/5 rounded-2xl hidden md:flex items-center justify-center z-10 group-hover:border-[#D4AF37]/50 transition-all group-hover:scale-110 shadow-2xl">
+                                <span class="text-xl font-black text-[#D4AF37]">{step.number}</span>
+                            </div>
+
+                            <div class="bg-[#111] border border-white/5 rounded-[2.5rem] p-8 md:p-12 hover:bg-[#151515] transition-all relative overflow-hidden group-hover:border-[#D4AF37]/20">
+                                <!-- Background Icon Overlay -->
+                                <div class="absolute -right-8 -bottom-8 text-9xl opacity-[0.03] group-hover:scale-125 transition-transform duration-700 pointer-events-none">
+                                    {step.icon}
+                                </div>
+
+                                <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
+                                    <div class="space-y-4 max-w-2xl">
+                                        <div class="space-y-1">
+                                            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">{step.subtitle}</span>
+                                            <h3 class="text-3xl font-black text-white">{step.title}</h3>
+                                        </div>
+                                        <p class="text-white/50 leading-relaxed text-lg">
+                                            {step.description}
+                                        </p>
+                                        <div class="pt-4 flex items-center gap-3">
+                                            <span class="px-3 py-1 bg-black/50 border border-white/10 rounded-lg text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                                                Technical: {step.technical}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="hidden lg:block">
+                                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl grayscale group-hover:grayscale-0 transition-all group-hover:scale-110">
+                                            {step.icon}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <!-- Closing Strategic Section -->
+                <section class="p-16 bg-gradient-to-br from-[#D4AF37]/5 to-black border border-[#D4AF37]/10 rounded-[4rem] text-center space-y-8">
+                    <h2 class="text-4xl font-black text-white">The Unified Ecosystem</h2>
+                    <p class="text-white/60 max-w-2xl mx-auto leading-relaxed text-lg">
+                        ทุกขั้นตอนถูกออกแบบมาเพื่อสร้างความลื่นไหล (Seamless Experience) 
+                        โดยมีระบบ Membership เป็นกระดูกสันหลังที่เชื่อมโยงพฤติกรรมการใช้งานเข้ากับรางวัลที่จับต้องได้จริง
+                    </p>
+                    <div class="flex justify-center gap-6 pt-8">
+                        <a href="/manual/page-index" class="px-8 py-4 bg-[#D4AF37] text-black font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-[0_10px_40px_rgba(212,175,55,0.3)]">Explore Index</a>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]">
+                    <a href="/manual" class="text-white/20 hover:text-[#D4AF37] transition-all">← Overview</a>
+                    <a href="/manual/page-index" class="text-[#D4AF37] hover:text-white transition-all">Next: Home Page →</a>
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar { width: 4px; }
+    aside::-webkit-scrollbar-track { background: transparent; }
+    aside::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+</style>

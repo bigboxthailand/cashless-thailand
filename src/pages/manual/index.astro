@@ -1,0 +1,297 @@
+---
+// src/pages/manual/index.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual", active: true },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+
+const featuredModules = [
+    {
+        title: "System Workflow",
+        desc: "แผนผังการทำงานเชิงเทคนิค 7 ขั้นตอน ตั้งแต่ Onboarding จนถึง Completion",
+        link: "/manual/system-workflow",
+        icon: "🔄",
+    },
+    {
+        title: "Visual Logic Flows",
+        desc: "อินโฟกราฟิกแบบเคลื่อนไหวแสดงขั้นตอนการสมัครและซื้อสินค้าอย่างละเอียด",
+        link: "/manual/visual-flows",
+        icon: "✨",
+    },
+    {
+        title: "Membership Tiers",
+        desc: "เจาะลึกระบบสมาชิกและการคำนวณสิทธิประโยชน์ (Gold/Bitcoin Tier)",
+        link: "/manual/module-auth",
+        icon: "💎",
+    },
+    {
+        title: "Home Page",
+        desc: "โครงสร้างหน้าหลักและการเชื่อมต่อข้อมูล Ecosystem",
+        link: "/manual/page-index",
+        icon: "🏠",
+    },
+    {
+        title: "Shopping Cart",
+        desc: "ระบบจัดการตะกร้าสินค้าแบบ Persistent และ Atomic Totals",
+        link: "/manual/module-cart",
+        icon: "🛒",
+    },
+    {
+        title: "Checkout System",
+        desc: "Gateway การชำระเงินแบบ Hybrid (PromptPay/Crypto/Lightning)",
+        link: "/manual/module-checkout",
+        icon: "💳",
+    },
+    {
+        title: "Admin Panel",
+        desc: "ระบบจัดการสินค้า สต็อก และคำสั่งซื้อสำหรับผู้ดูแล",
+        link: "/manual/admin-interface",
+        icon: "⚙️",
+    },
+];
+---
+
+<Layout title="Documentation Hub | Cashless Thailand">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${
+                                                        item.active
+                                                            ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold"
+                                                            : "text-white/50 hover:text-white hover:bg-white/5"
+                                                    }`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class={`block px-6 py-2 text-sm transition-all rounded-lg ${
+                                        (section as any).active
+                                            ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold"
+                                            : "text-white/50 hover:text-white hover:bg-white/5"
+                                    }`}
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-16">
+                <!-- Hero Section -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37] text-[10px] font-black uppercase tracking-widest"
+                    >
+                        Technical Manual v1.0
+                    </div>
+                    <h1
+                        class="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none"
+                    >
+                        Cashless Thailand <br />
+                        <span class="text-[#D4AF37]">Docs & Knowledge.</span>
+                    </h1>
+                    <p
+                        class="text-white/50 text-xl font-light leading-relaxed max-w-3xl"
+                    >
+                        ยินดีต้อนรับสู่ศูนย์กลางข้อมูลทางเทคนิคของ Cashless
+                        Thailand แหล่งรวมคู่มือการใช้งาน ผังโครงสร้างระบบ
+                        และการเชื่อมต่อ API ต่างๆ สำหรับผู้พัฒนาและผู้ดูแลระบบ
+                    </p>
+                </header>
+
+                <!-- Grid Guide -->
+                <section class="space-y-8">
+                    <h2 class="text-2xl font-bold text-white">
+                        Quick Start Guides
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {
+                            featuredModules.map((module) => (
+                                <a
+                                    href={module.link}
+                                    class="group p-8 bg-[#111] border border-white/5 rounded-3xl hover:border-[#D4AF37]/30 transition-all"
+                                >
+                                    <div class="text-4xl mb-6 group-hover:scale-110 transition-transform inline-block">
+                                        {module.icon}
+                                    </div>
+                                    <h3 class="text-lg font-bold text-white mb-2 group-hover:text-[#D4AF37] transition-colors">
+                                        {module.title}
+                                    </h3>
+                                    <p class="text-sm text-white/40 leading-relaxed">
+                                        {module.desc}
+                                    </p>
+                                </a>
+                            ))
+                        }
+                    </div>
+                </section>
+
+                <!-- System Architecture -->
+                <section
+                    class="p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem] space-y-8"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                ><rect x="3" y="3" width="7" height="7"
+                                ></rect><rect x="14" y="3" width="7" height="7"
+                                ></rect><rect x="14" y="14" width="7" height="7"
+                                ></rect><rect x="3" y="14" width="7" height="7"
+                                ></rect></svg
+                            >
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white">
+                                System Architecture
+                            </h2>
+                            <p class="text-sm text-white/40">
+                                ภาพรวมการทำงานของ Tech Stack ทั้งหมด
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37]"
+                            >
+                                Frontend Layer
+                            </h4>
+                            <p class="text-sm text-white/60 leading-relaxed">
+                                พัฒนาด้วย Astro Framework ร่วมกับ React สำหรับ
+                                Interactive Components เน้นประสิทธิภาพการโหลด
+                                (SSG/SSR) และ SEO สูงสุด
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37]"
+                            >
+                                Data Layer
+                            </h4>
+                            <p class="text-sm text-white/60 leading-relaxed">
+                                ใช้ Supabase (PostgreSQL)
+                                เป็นหัวใจหลักในการจัดการข้อมูลสินค้า คำสั่งซื้อ
+                                และระบบสมาชิก พร้อม Real-time Subscription
+                                สำหรับ Stock Sync
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer Action -->
+                <div class="flex justify-center pt-12">
+                    <a
+                        href="/manual/page-index"
+                        class="bg-[#D4AF37] text-black px-10 py-4 rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)]"
+                    >
+                        Explore Full Documentation
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 10px;
+    }
+</style>

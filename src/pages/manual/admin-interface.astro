@@ -1,0 +1,732 @@
+---
+// src/pages/manual/admin-interface.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import DashboardCharts from "../../components/admin/DashboardCharts.jsx";
+import ThailandOrdersMap from "../../components/admin/ThailandOrdersMap.jsx";
+import CustomerCharts from "../../components/admin/CustomerCharts.jsx";
+import ProductManager from "../../components/admin/ProductManager.jsx";
+import CouponManager from "../../components/admin/CouponManager.jsx";
+import {
+    SecurityVisual,
+    OrderTableVisual,
+    DisputeCenterVisual,
+    SettingsVisual,
+} from "../../components/admin/manual/AdminManualVisuals.jsx";
+
+const sections = [
+    {
+        id: "admin-auth",
+        name: "1. Admin Security & Middleware",
+        role: "ระบบควบคุมการเข้าถึงระดับสูงสุด (Elevated Access Control)",
+        source: "Supabase Admin & Edge Functions",
+        details: [
+            {
+                label: "Admin Role Check",
+                desc: "หน้าตาทั้งหมดใน /admin ถูกป้องกันด้วยลอจิกตรวจสอบสถานะ 'is_admin: true' ใน User Metadata เท่านั้น",
+            },
+            {
+                label: "Superuser Actions",
+                desc: "การแก้ไขข้อมูลที่เซนซิทีฟ (เช่น ลบร้านค้า) ใช้สิทธิ์พิเศษของ Service Role เพื่อข้าม RLS บางส่วนในกรณีฉุกเฉิน",
+            },
+            {
+                label: "Protected Layout",
+                desc: "ใช้ AdminLayout.astro เพื่อคุมหน้าตาและแถบเมนู (Sidebar) ให้เหมือนกันทุกหน้าเพื่อความสะดวกในการจัดการ",
+            },
+        ],
+    },
+    {
+        id: "dashboard-kpi",
+        name: "2. Strategic Dashboard & KPI",
+        role: "ศูนย์บัญชาการข้อมูลภาพรวม (Master Dashboard)",
+        source: "Real-time Order Data",
+        details: [
+            {
+                label: "Revenue Monitoring",
+                desc: "แสดงยอดขายรวมทั้งสกุลเงิน THB และ SATS (Bitcoin) แบบนาทีต่อนาที พร้อมตัวเลขเฉลี่ยการเติบโต",
+            },
+            {
+                label: "Critical Alerts",
+                desc: "ระบบแจ้งเตือนสีแดงสำหรับออเดอร์ที่ค้างชำระ (Pending) และออเดอร์ที่มีปัญหาข้อพิพาท (Disputes)",
+            },
+            {
+                label: "Tax Calculation",
+                desc: "คำนวณภาษีมูลค่าเพิ่ม (VAT) อัตโนมัติตามอัตราที่ตั้งไว้ในระบบ เพื่อช่วยในการทำบัญชีส่งรัฐ",
+            },
+        ],
+    },
+    {
+        id: "geo-analytics",
+        name: "3. Geo-Analytics & Maps",
+        role: "ระบบวิเคราะห์ที่ตั้งและทิศทางตลาด (Market Intelligence)",
+        source: "Thailand Map SVG / Order Data",
+        details: [
+            {
+                label: "Thailand Heatmap",
+                desc: "แผนที่ประเทศไทยแสดงความหน้าแน่นของการสั่งซื้อแต่ละจังหวัด เพื่อให้แอดมินวางแผนการตลาดได้ถูกจุด",
+            },
+            {
+                label: "Customer Breakdown",
+                desc: "กราฟวงกลม (Pie Chart) แสดงสัดส่วนกลุ่มเป้าหมายแยกตามเพศ ช่วงอายุ และพฤติกรรมการซื้อ",
+            },
+            {
+                label: "Real-time Notify",
+                desc: "ระบบป๊อปอัพแจ้งเตือนทันทีที่มีการสั่งซื้อใหม่บนเว็บไซต์ผ่านฟีเจอร์ Realtime Order Notify",
+            },
+        ],
+    },
+    {
+        id: "product-ops",
+        name: "4. Master Product Operations",
+        role: "การจัดการสต็อกและรายการสินค้า (Full Inventory Control)",
+        source: "Admin Product Manager",
+        details: [
+            {
+                label: "Unified Creation",
+                desc: "แบบฟอร์มเพิ่มสินค้าที่รวมเอาทุก Option มาไว้ที่เดียว: ข้อมูลจำเพาะ, การตลาด และตัวเลือกเสริม (Variants)",
+            },
+            {
+                label: "Global Inventory",
+                desc: "หน้าจอสรุปจำนวนสต็อกคงเหลือของสินค้าทกรายการในระบบ สามารถแก้ไข (Overwrite) ได้ทันทีหากพบความผิดพลาด",
+            },
+            {
+                label: "Shop Assignment",
+                desc: "แอดมินสามารถดึงสินค้าไปวางขายในร้านค้า (Shops) ใดก็ได้ หรือย้ายร้านค้าย้อนหลังได้ตามต้องการ",
+            },
+        ],
+    },
+    {
+        id: "order-actions",
+        name: "5. Comprehensive Order Actions",
+        role: "ระบบจัดการวงจรชีวิตออเดอร์ (Order Lifecycle Control)",
+        source: "Advanced Order Manager",
+        details: [
+            {
+                label: "Full Traceability",
+                desc: "ดูรายละเอียดการชำระเงิน เส้นทางการขนส่ง และประวัติการสนทนาระหว่างผู้ซื้อ-ผู้ขายในที่เดียว",
+            },
+            {
+                label: "Payment Overrides",
+                desc: "แอดมินสามารถกดยืนยันการชำระเงินได้ด้วยตนเอง (Manual Mark as Paid) หากตรวจเจอสลิปโอนที่ระบบตรวจไม่พบ",
+            },
+            {
+                label: "Refund & Void",
+                desc: "ลอจิกการยกเลิกออเดอร์และคืนคะแนน/เงินสะสมให้ผู้ใช้ตามนโยบายบริษัท",
+            },
+        ],
+    },
+    {
+        id: "dispute-resolution",
+        name: "6. Dispute & Resolution Center",
+        role: "ศาลตัดสินและไกล่เกลี่ยข้อพิพาท (Justice Center)",
+        source: "Escrow Logic / Disputes DB",
+        details: [
+            {
+                label: "Evidence Review",
+                desc: "พื้นที่ตรวจสอบรูปภาพหลักฐานจากฝั่งลูกค้า และข้อโต้แย้งจากฝั่งผู้ขายแบบ Case-by-Case",
+            },
+            {
+                label: "Resolution Payout",
+                desc: "ปุ่มตัดสิน: คืนเงินให้ลูกค้า (Refund) หรือ โอนเงินต่อให้ผู้ขาย (Release Fund) เพื่อปิดเคสทันที",
+            },
+            {
+                label: "Blacklist Power",
+                desc: "ส่งรายงานและแบนบัญชีผู้ซื้อหรือผู้ขายที่ทำผิดกฎซ้ำซ้อนผ่านหน้าจัดการข้อพิพาท",
+            },
+        ],
+    },
+    {
+        id: "affiliate-marketing",
+        name: "7. Affiliate & Growth Engine",
+        role: "ระบบจัดการพันธมิตรและแคมเปญการตลาด",
+        source: "Marketing Suite",
+        details: [
+            {
+                label: "Partner Moderation",
+                desc: "ตรวจสอบและอนุมัติใบสมัครของ Influencer/Affiliate ที่ต้องการเข้าร่วมระดมยอดขาย",
+            },
+            {
+                label: "Commission Payouts",
+                desc: "ระบบอนุมัติการถอนเงินคอมมิชชันที่ผู้แนะนำทำได้ โดยมีการตรวจสอบความถูกต้องของยอดขายก่อนจ่ายจริง",
+            },
+            {
+                label: "Coupon Factory",
+                desc: "สร้างโค้ดส่วนลดแบบกำหนดเงื่อนไข: วันหมดอายุ, ขั้นต่ำการสั่งซื้อ และหมวดหมู่ที่ใช้ได้",
+            },
+        ],
+    },
+    {
+        id: "system-settings",
+        name: "8. Global Configuration & Taxes",
+        role: "การตั้งค่าโครงสร้างระบบ (Core System Config)",
+        source: "Store Settings API",
+        details: [
+            {
+                label: "Platform Parameters",
+                desc: "ตั้งชื่อไซต์, โลโก้, ข้อมูลติดต่อ และลิงก์โซเชียลมีเดียทั่วทั้งเว็บไซต์จากศูนย์กลาง",
+            },
+            {
+                label: "Global Tax Logic",
+                desc: "เปิด-ปิดระบบ VAT และกำหนดอัตราภาษีที่มีผลต่อการแสดงผลราคาสินค้าและใบแจ้งหนี้",
+            },
+            {
+                label: "Gateway Maintenance",
+                desc: "สวิตช์ควบคุมการเปิด-ปิดระบบชำระเงินแต่ละประเภท (BTC, PrompTPay) ในกรณีที่เกิดการปรับปรุงระบบ",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            {
+                title: "Admin Portal",
+                link: "/manual/admin-interface",
+                active: true,
+            },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+
+// --- Mock Data for Interactive Manual ---
+const currentYear = new Date().getFullYear();
+const mockOrders = [
+    {
+        id: "101",
+        created_at: `${currentYear}-01-15T10:00:00Z`,
+        total_price: 1500,
+        province: "Bangkok",
+        payment_method: "PromptPay",
+        payment_status: "paid",
+        sex: "Male",
+        age: 28,
+        buy_duration: 50,
+        shop_id: "s1",
+    },
+    {
+        id: "102",
+        created_at: `${currentYear}-02-20T14:30:00Z`,
+        total_price: 3200,
+        province: "Chiang Mai",
+        payment_method: "BTC",
+        payment_status: "paid",
+        sex: "Female",
+        age: 34,
+        buy_duration: 120,
+        shop_id: "s2",
+    },
+    {
+        id: "103",
+        created_at: `${currentYear}-03-10T09:15:00Z`,
+        total_price: 890,
+        province: "Phuket",
+        payment_method: "PromptPay",
+        payment_status: "shipped",
+        sex: "Male",
+        age: 22,
+        buy_duration: 30,
+        shop_id: "s1",
+    },
+    {
+        id: "104",
+        created_at: `${currentYear}-04-05T18:45:00Z`,
+        total_price: 12000,
+        province: "Chon Buri",
+        payment_method: "BTC",
+        payment_status: "paid",
+        sex: "Male",
+        age: 40,
+        buy_duration: 200,
+        shop_id: "s3",
+    },
+    {
+        id: "105",
+        created_at: `${currentYear}-05-12T11:20:00Z`,
+        total_price: 4500,
+        province: "Khon Kaen",
+        payment_method: "PromptPay",
+        payment_status: "pending",
+        sex: "Female",
+        age: 29,
+        buy_duration: 400,
+        shop_id: "s2",
+    },
+    {
+        id: "106",
+        created_at: `${currentYear}-06-01T13:00:00Z`,
+        total_price: 2100,
+        province: "Bangkok",
+        payment_method: "PromptPay",
+        payment_status: "paid",
+        sex: "Male",
+        age: 35,
+        buy_duration: 60,
+        shop_id: "s1",
+    },
+    {
+        id: "107",
+        created_at: `${currentYear}-06-15T09:00:00Z`,
+        total_price: 6700,
+        province: "Ubon Ratchathani",
+        payment_method: "BTC",
+        payment_status: "paid",
+        sex: "Female",
+        age: 26,
+        buy_duration: 90,
+        shop_id: "s3",
+    },
+    {
+        id: "108",
+        created_at: `${currentYear}-07-20T16:20:00Z`,
+        total_price: 900,
+        province: "Nakhon Ratchasima",
+        payment_method: "PromptPay",
+        payment_status: "paid",
+        sex: "Male",
+        age: 31,
+        buy_duration: 45,
+        shop_id: "s2",
+    },
+];
+
+const mockCustomers = mockOrders.map((o) => ({
+    province: o.province,
+    totalSpent: o.total_price,
+}));
+
+const mockShops = [
+    { id: "s1", name: "Gadget Store" },
+    { id: "s2", name: "Fashion Hub" },
+    { id: "s3", name: "Crypto Gear" },
+];
+
+const mockProducts = [
+    {
+        id: 1,
+        name: "Ledger Nano X",
+        price: 5500,
+        stock: 45,
+        category: "Hardware Wallet",
+        status: "active",
+        images: [""],
+    },
+    {
+        id: 2,
+        name: "Trezor Model T",
+        price: 7900,
+        stock: 12,
+        category: "Hardware Wallet",
+        status: "active",
+        images: [""],
+    },
+    {
+        id: 3,
+        name: "Bitcoin Cap",
+        price: 450,
+        stock: 100,
+        category: "Apparel",
+        status: "active",
+        images: [""],
+    },
+    {
+        id: 4,
+        name: "HODL T-Shirt",
+        price: 590,
+        stock: 200,
+        category: "Apparel",
+        status: "active",
+        images: [""],
+    },
+    {
+        id: 5,
+        name: "Mining Rig Frame",
+        price: 2500,
+        stock: 8,
+        category: "Electronics",
+        status: "active",
+        images: [""],
+    },
+];
+---
+
+<Layout title="Deep Technical Detail: Admin Portal | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Admin Governance</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Admin Portal Ops
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เบื้องหลังการควบคุมทุกมิติของ Cashless Thailand
+                        ตั้งแต่การมอนิเตอร์รายได้แบบเรียลไทม์
+                        ไปจนถึงการตัดสินข้อพิพาทและจัดการระบบโครงสร้างพื้นฐานทั่วโลก
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Governance Modules
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >8 Master Control Systems</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* --- Interactive Modules Injection --- */}
+
+                                        {section.id === "admin-auth" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-2 overflow-hidden">
+                                                    <SecurityVisual client:only="react" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "dashboard-kpi" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-2 overflow-hidden">
+                                                    <DashboardCharts
+                                                        client:only="react"
+                                                        orders={mockOrders}
+                                                        shops={mockShops}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "geo-analytics" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                                                    <div class="bg-black/50 rounded-3xl border border-white/10 p-6 overflow-hidden min-h-[400px]">
+                                                        <ThailandOrdersMap
+                                                            client:only="react"
+                                                            orders={mockOrders}
+                                                        />
+                                                    </div>
+                                                    <div class="bg-black/50 rounded-3xl border border-white/10 p-6 overflow-hidden">
+                                                        <CustomerCharts
+                                                            client:only="react"
+                                                            customers={
+                                                                mockCustomers
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "product-ops" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-x-auto">
+                                                    <div class="min-w-[800px]">
+                                                        <ProductManager
+                                                            client:only="react"
+                                                            initialProducts={
+                                                                mockProducts
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "order-actions" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8 overflow-x-auto">
+                                                    <div class="min-w-[700px]">
+                                                        <OrderTableVisual client:only="react" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id ===
+                                            "dispute-resolution" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8">
+                                                    <DisputeCenterVisual client:only="react" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id ===
+                                            "affiliate-marketing" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8">
+                                                    <CouponManager client:only="react" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "system-settings" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Module Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-4 md:p-8">
+                                                    <SettingsVisual client:only="react" />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Structural Map -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Admin Authority Workflow
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Full Visibility Stack
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                แอดมินสามารถสลับมุมมองระหว่างผู้ซื้อและผู้ขาย
+                                เพื่อจำลองเหตุการณ์หรือแก้ปัญหาด้านการใช้งานให้ถูกต้องและรวดเร็วที่สุด
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Real-time DB Sync
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                ทุกการแก้ไขสถานะในหน้า Admin
+                                จะซิงก์กลับไปยังแอปของผู้ใช้และแจ้งเตือนผ่านอีเมล/ป๊อปอัพทันทีอย่างไร้รอยต่อ
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/blog-system"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← Insights & Blog Manual</a
+                    >
+                    <a
+                        href="/manual/seller-guide"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Seller Dashboard →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

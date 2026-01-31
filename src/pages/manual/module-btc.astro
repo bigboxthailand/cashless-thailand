@@ -1,0 +1,444 @@
+---
+// src/pages/manual/module-btc.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import CryptoRateWidget from "../../components/CryptoRateWidget.jsx";
+
+const sections = [
+    {
+        id: "price-oracle",
+        name: "1. Price Oracle (CoinGecko API)",
+        role: "ระบบดึงราคาบิตคอยน์แบบ Real-time",
+        source: "CoinGecko V3 Public API",
+        details: [
+            {
+                label: "Fetch Mechanism",
+                desc: "ดึงราคา BTC/THB และ BTC/USD ทุกๆ 60 วินาที เพื่อให้ราคาอัปเดตเสมอแต่ไม่ติด Rate Limit",
+            },
+            {
+                label: "Fallback Rate",
+                desc: "หาก API ล่ม จะใช้ราคาล่าสุดที่ Cached ไว้ใน LocalStorage เพื่อป้องกันหน้าเว็บพัง",
+            },
+            {
+                label: "Global Store",
+                desc: "เก็บค่าราคาไว้ใน Nanostores ($btcPrice) เพื่อให้ทุก Component (Cart, Checkout) เรียกใช้ได้ทันที",
+            },
+        ],
+    },
+    {
+        id: "sats-conversion",
+        name: "2. Fiat-to-Sats Converter",
+        role: "กลไกแปลงเงินบาทเป็นหน่วย SATS",
+        source: "Utils Helper Function",
+        details: [
+            {
+                label: "Conversion Logic",
+                desc: "สูตร: (ราคาบาท / ราคา BTC) * 100,000,000 = จำนวน Sats",
+            },
+            {
+                label: "Display Formatting",
+                desc: "จัดรูปแบบตัวเลขให้มี Commas (เช่น 25,000 sats) เพื่อให้อ่านง่าย",
+            },
+            {
+                label: "Rounding Mode",
+                desc: "ปัดเศษขึ้นเสมอ (Math.ceil) เพื่อให้มั่นใจว่าร้านค้าจะไม่ขาดทุนจากจุดทศนิยม",
+            },
+        ],
+    },
+    {
+        id: "lightning-integration",
+        name: "3. Lightning Network Invoice",
+        role: "ระบบสร้าง QRCode สำหรับจ่ายเงิน",
+        source: "LNURL / BTCPay Server (Mock)",
+        details: [
+            {
+                label: "QR Generation",
+                desc: "สร้าง QR Code ที่รองรับมาตรฐาน BIP-21 (bitcoin:...?amount=...&lightning=...)",
+            },
+            {
+                label: "Payment Monitoring",
+                desc: "Polling สถานะการจ่ายเงินทุก 3 วินาที (WebSocket/REST) จนกว่าจะได้รับสถานะ 'Settled'",
+            },
+            {
+                label: "Slippage Protection",
+                desc: "ล็อคอัตราแลกเปลี่ยน (Lock Rate) เป็นเวลา 15 นาที เพื่อป้องกันความผันผวนระหว่างรอจ่าย",
+            },
+        ],
+    },
+    {
+        id: "wallet-connect",
+        name: "4. Web3 / Wallet Bridge",
+        role: "การเชื่อมต่อกับกระเป๋าเงินผู้ใช้",
+        source: "Window.webln / Metamask (Future)",
+        details: [
+            {
+                label: "WebLN Standard",
+                desc: "รองรับ Alby Browser Extension และกระเป๋าที่รองรับ WebLN เพื่อกดจ่ายในคลิกเดียว",
+            },
+            {
+                label: "Deep Linking",
+                desc: "บนมือถือจะใช้ Link 'lightning:...' เพื่อเปิดแอป Wallet (Wallet of Satoshi, Phoenix) โดยตรง",
+            },
+            {
+                label: "Signed Messages",
+                desc: "ใช้ลายเซ็นดิจิทัล (Sign Message) เพื่อยืนยันตัวตนในบางกรณีโดยไม่ต้องใช้ Password",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            {
+                title: "BTC/SATS Engine",
+                link: "/manual/module-btc",
+                active: true,
+            },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+
+// --- Mock Components for Visuals ---
+// Note: In a real scenario, we might import actual components or create specific visualizations.
+// For BTC module, we can visualize the rate ticker, a sample conversion, and a QR code placeholder.
+---
+
+<Layout title="Technical Detail: BTC/SATS Engine | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Core Engine</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        BTC/SATS Logic Model
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เจาะลึกกลไกการคำนวณราคาและแปลงค่าเงิน (Fiat-to-Crypto
+                        Bridge) หัวใจสำคัญที่ทำให้ Cashless Thailand
+                        รองรับการชำระเงินผ่าน Bitcoin ได้อย่างแม่นยำ
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Logic & Architecture
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >4 Core Systems</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* --- Visual Logic Previews --- */}
+
+                                        {section.id === "price-oracle" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Live Ticker Preview
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-8 flex justify-center items-center">
+                                                    <div class="scale-125">
+                                                        <CryptoRateWidget client:only="react" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id === "sats-conversion" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Format Visualization
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-8">
+                                                    <div class="flex flex-col md:flex-row items-center justify-around gap-8 text-center font-mono">
+                                                        <div class="space-y-2">
+                                                            <div class="text-white/40 text-sm uppercase">
+                                                                Thai Baht
+                                                            </div>
+                                                            <div class="text-3xl font-black text-white">
+                                                                ฿ 1,000.00
+                                                            </div>
+                                                        </div>
+                                                        <div class="hidden md:block text-[#D4AF37] text-2xl">
+                                                            →
+                                                        </div>
+                                                        <div class="space-y-2">
+                                                            <div class="text-white/40 text-sm uppercase">
+                                                                Bitcoin (Sats)
+                                                            </div>
+                                                            <div class="text-3xl font-black text-[#D4AF37]">
+                                                                ~ 29,500 sats
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center mt-6 text-xs text-white/30">
+                                                        *
+                                                        อัตราแลกเปลี่ยนจริงขึ้นอยู่กับราคาตลาด
+                                                        ณ ขณะนั้น
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {section.id ===
+                                            "lightning-integration" && (
+                                            <div class="mt-12 pt-12 border-t border-white/5">
+                                                <div class="mb-6 flex items-center gap-2">
+                                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                                    <span class="text-xs font-mono text-green-500 uppercase tracking-widest">
+                                                        Invoice Mockup
+                                                    </span>
+                                                </div>
+                                                <div class="bg-black/50 rounded-3xl border border-white/10 p-8 flex flex-col items-center">
+                                                    <div class="w-48 h-48 bg-white p-2 rounded-xl mb-6 opacity-80">
+                                                        <img
+                                                            src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:test-invoice"
+                                                            class="w-full h-full"
+                                                            alt="Mock QR"
+                                                        />
+                                                    </div>
+                                                    <div class="w-full max-w-lg bg-white/5 rounded-lg p-4 font-mono text-xs text-white/60 break-all text-center border border-white/10">
+                                                        lnbc100u1.........
+                                                        (Lightning Invoice
+                                                        String)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Footer Summary (Important Links Highlight) -->
+                <section
+                    class="mt-20 p-10 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[3rem] space-y-10"
+                >
+                    <h2
+                        class="text-2xl font-bold text-white flex items-center gap-3 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> System Dependencies
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                External APIs
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40">Price Feed</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >CoinGecko V3</code
+                                    >
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40"
+                                        >Payment Node</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >BTCPay Server (Self-Hosted)</code
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Libraries
+                            </h4>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40">QR Code</span>
+                                    <code class="text-[#D4AF37]"
+                                        >qrcode.react</code
+                                    >
+                                </li>
+                                <li class="flex justify-between text-sm">
+                                    <span class="text-white/40">State Mgmt</span
+                                    >
+                                    <code class="text-[#D4AF37]"
+                                        >nanostores</code
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+
+    code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        background: rgba(212, 175, 55, 0.05);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+</style>

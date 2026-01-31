@@ -1,0 +1,405 @@
+---
+// src/pages/manual/page-product.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "product-loading",
+        name: "1. Dynamic Product SSR",
+        role: "ระบบดึงข้อมูลสินค้าแบบ Server-Side Rendering",
+        source: "Supabase (products table) + Params",
+        details: [
+            {
+                label: "Identity Lookup",
+                desc: "ใช้ [id] จาก URL เพื่อดึงข้อมูลสินค้าเฉพาะตัว พร้อมทำ Join กับตาราง Shops เพื่อแสดงข้อมูลผู้ขาย",
+            },
+            {
+                label: "Data Sanitization",
+                desc: "มีระบบ parseIfNeeded เพื่อจัดการข้อมูล JSONB ที่อาจถูกส่งกลับมาเป็น String ให้เป็น Object ที่พร้อมใช้งาน",
+            },
+            {
+                label: "Error Handling",
+                desc: "หากไม่พบสินค้า (ID ผิดพลาด) ระบบจะทำ Redirect ไปหน้า 404 โดยอัตโนมัติ",
+            },
+        ],
+    },
+    {
+        id: "media-gallery",
+        name: "2. Visual Media Engine",
+        role: "ระบบแกลเลอรีรูปภาพและปฏิสัมพันธ์",
+        source: "CSS Animations / JS Swipe Logic",
+        details: [
+            {
+                label: "Interactive Gallery",
+                desc: "รองรับการ Swipe เปลี่ยนรูปภาพบน Mobile และการคลิก Thumbnail เพื่อเปลี่ยนรูปหลักพร้อมแอนิเมชัน Fade",
+            },
+            {
+                label: "Responsive Zoom",
+                desc: "รูปภาพหลักใช้เทคนิค Object-contain พร้อมเอฟเฟกต์ Scale-on-hover เพื่อความคมชัดทุกรายละเอียดสินค้า",
+            },
+            {
+                label: "Metadata Links",
+                desc: "ระบบดึงรูปจาก Variants อัตโนมัติเมื่อมีการเลือก Options เพื่อความแม่นยำในการนำเสนอ",
+            },
+        ],
+    },
+    {
+        id: "pricing-discount",
+        name: "3. Smart Pricing & Discount",
+        role: "ระบบคำนวณราคาและส่วนลดอัจฉริยะ",
+        source: "Pricing Metadata",
+        details: [
+            {
+                label: "Variant Pricing",
+                desc: "คำนวณราคาเริ่มต้น (Base Price) จาก Variant ที่ถูกที่สุดเป็นค่าเริ่มต้นเมื่อโหลดหน้า",
+            },
+            {
+                label: "Discount Analysis",
+                desc: "แสดงยอดเงินที่ประหยัดไป (Save Amount) และเปอร์เซ็นต์ส่วนลดเทียบกับราคาตั้งต้น (Compare Price)",
+            },
+            {
+                label: "Shipping Info",
+                desc: "แสดงข้อมูลค่าจัดส่งคงที่ (Fixed Delivery Fee) กึ่งอัตโนมัติเพื่อประกอบการตัดสินใจ",
+            },
+        ],
+    },
+    {
+        id: "advanced-variants",
+        name: "4. Multi-Variant Selector",
+        role: "ระบบเลือกคุณสมบัติสินค้าขั้นสูง",
+        source: "Config Metadata (variants/options)",
+        details: [
+            {
+                label: "Visual Color Swatches",
+                desc: "แสดงตัวเลือกสีเป็นวงกลมสีจริง (Hex Code) พร้อม Tooltip รายชื่อสี",
+            },
+            {
+                label: "Model Selection",
+                desc: "ปุ่มเลือกโมเดล (Standard, Pro, etc.) ที่ปรับเปลี่ยนราคาและสต็อกทันทีที่คลิก",
+            },
+            {
+                label: "Composite Options",
+                desc: "NEW: ระบบเลือก Option หลายระดับ (เช่น ความจุ + สี) พร้อมการบวกราคาส่วนเพิ่มแบบทับซ้อน",
+            },
+        ],
+    },
+    {
+        id: "cart-automation",
+        name: "5. Cart & Stock Automation",
+        role: "การเชื่อมต่อกับตะกร้าสินค้าและระบบสต็อก",
+        source: "Nanostores (cartStore) / Local Storage",
+        details: [
+            {
+                label: "Stock Validation",
+                desc: "ตรวจสอบสต็อกจริงก่อนกดยืนยัน หากสินค้าหมด ปุ่ม Add to Cart จะถูกปิดใช้งาน (Disabled)",
+            },
+            {
+                label: "Quantity Control",
+                desc: "ระบบนับจำนวนสินค้า (Qty) พร้อมการจำกัดขั้นต่ำและขั้นสูงสุดตามสต็อกที่มีอยู่จริง",
+            },
+            {
+                label: "Mini-Cart Bridge",
+                desc: "เมื่อกด Add to Cart ข้อมูลจะถูกส่งเข้า nanostores เพื่อเปิด CartDrawer ให้ผู้ใช้ดูสรุปทันที",
+            },
+        ],
+    },
+    {
+        id: "marketing-tech-specs",
+        name: "6. Marketing & Technical Core",
+        role: "ส่วนข้อมูลเชิงลึกและการโน้มน้าวใจ",
+        source: "Marketing & TechSpecs Metadata",
+        details: [
+            {
+                label: "Iconic Benefits",
+                desc: "ตารางสรุปจุดเด่นสินค้าพร้อมไอคอนและคำอธิบายเจาะลึก 3 หมวดหมู่",
+            },
+            {
+                label: "Hardware Specs",
+                desc: "Grid ตารางข้อมูลทางเทคนิค (Tech Specs) ที่ดึงค่า Label/Value จากฐานข้อมูลมาจัดเรียงอัตโนมัติ",
+            },
+            {
+                label: "External Manual",
+                desc: "ลิงก์ User Guide สำหรับดาวน์โหลดคู่มือการใช้งาน หรือดูวิดีโอสาธิตจากผู้ผลิต",
+            },
+        ],
+    },
+    {
+        id: "review-integration",
+        name: "7. User Review Ecosystem",
+        role: "ระบบความคิดเห็นและความไว้วางใจ",
+        source: "React (Reviews.jsx) / Supabase",
+        details: [
+            {
+                label: "Global Rating",
+                desc: "การดึงคะแนนเฉลี่ยดาว (Stars) จากรีวิวทั้งหมดของสินค้านั้นๆ มาแสดงผลแบบ Real-time",
+            },
+            {
+                label: "Detailed Feedback",
+                desc: "แสดงความคิดเห็นจากผู้ซื้อจริงพร้อมวันที่และสถานะยืนยันการซื้อ (Verified Purchase)",
+            },
+            {
+                label: "Filter Logic",
+                desc: "ระบบคัดกรองรีวิวเพื่อให้ผู้ใช้เห็นความพึงพอใจโดยรวมก่อนการตัดสินใจซื้อ",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            {
+                title: "Product Detail",
+                link: "/manual/page-product",
+                active: true,
+            },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Deep Technical Detail: Product Page | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Product Experience</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Product Detail Page
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        หน้าที่รวมทุกความละเอียดอ่อนของสินค้าแต่ละรายการ
+                        จากการดึงข้อมูล SSR ที่รวดเร็ว ไปจนถึงประสบการณ์การเลือก
+                        Options ที่ลื่นไหลแบบ App-like Experience
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Core Frontend Logic
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >7 Detail-Rich Modules</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Complex States Overview
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Variant Switching Logic
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                เมื่อเลือก Variant ใหม่ JavaScript จะอัปเดต 4
+                                ส่วนทันที: <br />
+                                1. ราคาสุทธิบนหน้าจอ <br />
+                                2. ราคาเปรียบเทียบ (Compare Price) <br />
+                                3. รูปภาพสินค้าหลัก <br />
+                                4. สถานะความสว่างของปุ่ม Add to Cart ตามสต็อก
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Composite Price Mapping
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                สำหรับระบบ Composite ตัวเลือกย่อยแต่ละตัวจะมี
+                                "Price Addon" เฉพาะตน ลอจิกจะบวกสะสม (Addition)
+                                จาก Base Price
+                                เพื่อแสดงยอดรวมที่ถูกต้องที่สุดก่อนเข้าตะกร้า
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/page-shop"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← Shop Catalog</a
+                    >
+                    <a
+                        href="/manual/page-profile"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: User Profile System →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

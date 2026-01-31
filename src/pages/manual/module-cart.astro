@@ -1,0 +1,384 @@
+---
+// src/pages/manual/module-cart.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "persistent-state",
+        name: "1. Nanostores Persistent State",
+        role: "ระบบจัดการสถานะสินค้าในตะกร้าแบบถาวร",
+        source: "src/lib/cartStore.js",
+        details: [
+            {
+                label: "Local Persistence",
+                desc: "ใช้ persistentAtom จาก Nanostores เพื่อเก็บข้อมูลไว้ใน Local Storage ทำให้ข้อมูลไม่หายเมื่อรีเฟรชหรือปิดเบราว์เซอร์",
+            },
+            {
+                label: "Atomic Updates",
+                desc: "ใช้โครงสร้างข้อมูลแบบอะตอมมิกช่วยให้ทุกส่วนของเว็บไซต์ที่เรียกใช้ตะกร้าได้รับข้อมูลล่าสุดในทันที",
+            },
+            {
+                label: "Automatic Sync",
+                desc: "ระบบ Encode/Decode ข้อมูลเป็น JSON อัตโนมัติเมื่อมีการเปลี่ยนแปลงค่าใน Store",
+            },
+        ],
+    },
+    {
+        id: "real-time-calc",
+        name: "2. Dynamic Pricing & Totals",
+        role: "ระบบคำนวณราคาสุทธิและหน่วย Bitcoin",
+        source: "cartStore.totals()",
+        details: [
+            {
+                label: "Multi-Currency Calculation",
+                desc: "คำนวณราคารวมในหน่วยบาท (THB) และแปลงเป็นหน่วยซาโตชิ (Sats) แบบเรียลไทม์",
+            },
+            {
+                label: "Quantity Logic",
+                desc: "ระบบรวมจำนวนสินค้าแบบแยกตาม SKU เพื่อแสดงราคารวมที่ถูกต้องในแต่ละรายการ",
+            },
+            {
+                label: "Sats Conversion",
+                desc: "ใช้อัลกอริทึมพื้นฐานในการประเมินมูลค่าบิตคอยน์เบื้องต้นเพื่อให้ผู้ใช้เห็นความคุ้มค่า",
+            },
+        ],
+    },
+    {
+        id: "event-bridge",
+        name: "3. Global Event Bridge",
+        role: "ระบบสื่อสารระหว่าง Astro และ React",
+        source: "CustomEvent Ecosystem",
+        details: [
+            {
+                label: "cart-updated Event",
+                desc: "ส่งสัญญาณ CustomEvent ไปทั่วเว็บเมื่อมีการเพิ่มหรือลบสินค้า เพื่ออัปเดต Badge บน Navbar",
+            },
+            {
+                label: "toggle-cart Signal",
+                desc: "ระบบรับ-ส่งคำสั่งเปิด/ปิดลิ้นชักตะกร้าข้าม Component (เช่น จากหน้า Product Detail ไปที่ CartDrawer)",
+            },
+            {
+                label: "Bubbling System",
+                desc: "ใช้หลักการ Event Bubbling เพื่อให้ Element ชั้นบนสามารถดักฟังและสั่งงานตะกร้าได้จากทุกจุด",
+            },
+        ],
+    },
+    {
+        id: "ui-drawer",
+        name: "4. Interactive Cart Drawer",
+        role: "อินเทอร์เฟซลิ้นชักตะกร้าสินค้าแบบพรีเมียม",
+        source: "CartDrawer.astro",
+        details: [
+            {
+                label: "Sliding Panel",
+                desc: "ดีไซน์แผงเลื่อนด้านข้างที่ประหยัดพื้นที่และไม่รบกวนการเลือกชมสินค้าในหน้าหลัก",
+            },
+            {
+                label: "Micro-Interactions",
+                desc: "ปุ่มบวก-ลบจำนวนสินค้าและการลบรายการที่ทำงานได้ทันทีโดยไม่ต้องโหลดหน้าใหม่",
+            },
+            {
+                label: "Empty State UI",
+                desc: "การแสดงผลที่สวยงามเมื่อไม่มีสินค้าในตะกร้า พร้อมปุ่มนำทางกลับไปที่หน้า Shop",
+            },
+        ],
+    },
+    {
+        id: "checkout-vortex",
+        name: "5. Checkout Vortex Pipeline",
+        role: "ขั้นตอนการส่งต่อข้อมูลสู่ระบบชำระเงิน",
+        source: "checkout.astro Integration",
+        details: [
+            {
+                label: "Data Integrity",
+                desc: "การแพ็กข้อมูลสินค้าทั้งหมด (ID, Name, Price, Qty) เตรียมพร้อมสำหรับการคำนวณในหน้าใบกำกับภาษี",
+            },
+            {
+                label: "Zero-Data Strategy",
+                desc: "ระบบล้างข้อมูลในตะกร้า (cart.clear) เฉพาะเมื่อการสั่งซื้อได้รับการยืนยันหรือเข้าสู่สถานะจ่ายเงินแล้ว",
+            },
+            {
+                label: "Secure Handover",
+                desc: "การไหลของข้อมูลที่เน้นความสอดคล้องระหว่างหน้า Cart และหน้าชำระเงินเพื่อป้องกันราคาคลาดเคลื่อน",
+            },
+        ],
+    },
+    {
+        id: "stock-sync",
+        name: "6. Real-time Stock Sync",
+        role: "ระบบตรวจสอบความถูกต้องของสินค้า",
+        source: "Cart Validation Logic",
+        details: [
+            {
+                label: "Instant Validation",
+                desc: "ระบบตรวจสอบสต็อกล่าสุดจากฐานข้อมูลทันทีเมื่อเปิดตะกร้า (Trigger Verification)",
+            },
+            {
+                label: "Auto-Adjustment",
+                desc: "หากสินค้าในสต็อกเหลือน้อยกว่าจำนวนในตะกร้า ระบบจะปรับลดให้อัตโนมัติพร้อมแจ้งเตือนผู้ใช้",
+            },
+            {
+                label: "Expired Item Removal",
+                desc: "ระบบลบสินค้าที่ถูกนำออกจากร้านค้า (De-listed) ออกจากตะกร้าโดยอัตโนมัติ",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            {
+                title: "Shopping Cart",
+                link: "/manual/module-cart",
+                active: true,
+            },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Shopping Cart Technical Guide | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]"
+                            >Logic & State Engineering</span
+                        >
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Shopping Cart
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เจาะลึกระบบจัดการตะกร้าสินค้าแบบอะตอมมิก
+                        ที่เชื่อมโยงระหว่าง Framework ต่างชนิด (Astro & React)
+                        ผ่านระบบ Global Event และการเก็บสถานะแบบ Persistent
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Cart Architecture Modules
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >6 Complex State Modules</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Cart State Philosophy
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Single Source of Truth
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                ทุก Component ไม่ว่าจะอยู่บนหน้าไหนก็ตาม
+                                จะต้องเรียกดูข้อมูลจาก `cartItems` เดียวกันเสมอ
+                                เพื่อป้องกันความสับสนของราคาสินค้าหรือจำนวนสต็อกที่อาจเกิดขึ้นจากการแยกตัวแปรสถานะ
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Event-Driven Architecture
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                การใช้ Custom Events ช่วยลดภาระของ Main
+                                Framework (Astro) ในการคุมทุกการกระทำ
+                                โดยอนุญาตให้เกาะกลุ่มการอัปเดต (Batch Updates)
+                                ทำงานในฝั่ง Client-side
+                                ได้อย่างสมบูรณ์และรวดเร็ว
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/page-profile"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← User Profile</a
+                    >
+                    <a
+                        href="/manual/course-system"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Course Hub →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

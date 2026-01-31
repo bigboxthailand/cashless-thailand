@@ -1,0 +1,386 @@
+---
+// src/pages/manual/course-system.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "hero-vision",
+        name: "1. Course Vision & Hybrid Logic",
+        role: "การรวมศาสตร์ฝั่งเทคนิคและฝั่งธุรกิจเข้าด้วยกัน",
+        source: "course.astro (Hero Section)",
+        details: [
+            {
+                label: "BiTNode Focus",
+                desc: "เน้นการสร้างรากฐานด้านเทคนิค (Server Administration) เพื่อให้ผู้เรียนมีความสามารถในการรันระบบส่วนตัวได้จริง",
+            },
+            {
+                label: "BiTTerm Focus",
+                desc: "เน้นการนำเทคโนโลยีไปสร้างรายได้ (Monetization) ผ่านโมเดลธุรกิจตู้ ATM คริปโตและ POS หน้าร้าน",
+            },
+            {
+                label: "AOS Animations",
+                desc: "ใช้ห้องสมุด AOS (Animate On Scroll) เพื่อสร้างประสบการณ์การเลื่อนดูข้อมูลที่ลื่นไหลระดับสากล",
+            },
+        ],
+    },
+    {
+        id: "curriculum-tech",
+        name: "2. Technical Infrastructure (Day 1-4)",
+        role: "หลักสูตรปรับพื้นฐานและวิศวกรรมเครือข่าย",
+        source: "Section: Curriculum - Week 1",
+        details: [
+            {
+                label: "Security Hardening",
+                desc: "สอนการตั้งค่า UFW, SSH Keys และ Tor เพื่อให้ Node มีความปลอดภัยสูงสุดจากการโจมตีภายนอก",
+            },
+            {
+                label: "Bitcoin Node Ops",
+                desc: "การติดตั้งและจัดการ Bitcoin Core พร้อมการทำ RPC Bridge เพื่อให้แอปพลิเคชันอื่นเรียกใช้ข้อมูลได้",
+            },
+            {
+                label: "Lightning Liquidity",
+                desc: "สอนศาสตร์การบริหาร Channel Liquidity (Inbound/Outbound) ซึ่งเป็นหัวใจสำคัญของการทำงานใน Layer 2",
+            },
+        ],
+    },
+    {
+        id: "curriculum-biz",
+        name: "3. Business Integration (Day 5-8)",
+        role: "การประยุกต์ใช้เพื่อการพาณิชย์และระบบชำระเงิน",
+        source: "Section: Curriculum - Week 2",
+        details: [
+            {
+                label: "Hardware Integration",
+                desc: "สอนการ Calibrate อุปกรณ์รับแบงค์และการสื่อสารระหว่าง Microcontroller กับ Node ผ่าน API",
+            },
+            {
+                label: "PromptPay Gateway",
+                desc: "การเชื่อมต่อระบบธนาคารไทยเข้ากับ Lightning Network เพื่อทำระบบ Auto-Convert (Sats to Fiat)",
+            },
+            {
+                label: "Business Bio & Marketing",
+                desc: "โมดูลการทำตลาดแบบ Bitcoin Tourism เพื่อดึงดูดนักเดินทางคริปโตจากทั่วโลกเข้ามาใช้บริการ",
+            },
+        ],
+    },
+    {
+        id: "hardware-specs",
+        name: "4. Production-Grade Hardware",
+        role: "ข้อกำหนดของฮาร์ดแวร์สำหรับรันระบบ 24/7",
+        source: "Section: Hardware Specification",
+        details: [
+            {
+                label: "X86 Architecture",
+                desc: "ทำไมต้องใช้ Intel/AMD แทน Raspberry Pi: เพื่อความเสถียรในการประมวลผลธุรกรรมจำนวนมาก",
+            },
+            {
+                label: "NVMe Reliability",
+                desc: "การเลือกใช้ SSD เกรดสูงเพื่อรองรับการเขียนทับข้อมูล Block ข้ามปีโดยไม่เกิดความเสียหาย",
+            },
+            {
+                label: "Thermal Management",
+                desc: "ระบบระบายความร้อนของ Mini PC ที่ออกแบบมาสำหรับการทำงานต่อเนื่องนับพันชั่วโมง",
+            },
+        ],
+    },
+    {
+        id: "pricing-logic",
+        name: "5. Pricing & Enrollment Funnel",
+        role: "ระบบจัดการแพ็กเกจราคาและการสมัครเรียน",
+        source: "Section: Pricing / Tiers",
+        details: [
+            {
+                label: "Hybrid Pricing",
+                desc: "การตั้งราคาแยกตามอุปกรณ์ที่ได้รับ (ตู้ ATM, Node Server หรือรวมทั้งสองอย่าง)",
+            },
+            {
+                label: "Installment Logic",
+                desc: "รองรับการมัดจำ 50% เพื่อจองสิทธิ์ในแต่ละรอบการเรียน (Limit 10 seats per batch)",
+            },
+            {
+                label: "Tier Benefits",
+                desc: "การแยกสิทธิ์การรับประกันเครื่องและการเข้าถึงระบบ Cloud LNBits ตามแพ็กเกจที่เลือก",
+            },
+        ],
+    },
+    {
+        id: "learning-ux",
+        name: "6. Learning Atmosphere & Visuals",
+        role: "การสร้างความไว้วางใจผ่านหลักฐานเชิงภาพ",
+        source: "YouTube Embed / Multi-Gallery",
+        details: [
+            {
+                label: "Workshop Proof",
+                desc: "การใช้ภาพจริงจากบรรยากาศการเรียนรุ่นก่อนๆ เพื่อลดความกังวลของผู้เริ่มเรียนใหม่",
+            },
+            {
+                label: "Video Integration",
+                desc: "ระบบฝังวิดีโอจาก YouTube พร้อมโหมดตัดแต่งขอบพรีเมียมและการแสดงผลแบบ Cinematic",
+            },
+            {
+                label: "Interactive Hover",
+                desc: "แกลเลอรีภาพที่รองรับ Hover Zoom และ Caption Overlay เพื่อให้เห็นรายละเอียดของอุปกรณ์",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            {
+                title: "Course Hub",
+                link: "/manual/course-system",
+                active: true,
+            },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            { title: "Insights & Blog", link: "/manual/blog-system" },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Course Hub Technical Guide | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]"
+                            >Educational Infrastructure</span
+                        >
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Course Hub
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        เบื้องหลังระบบการเรียนรู้เพื่อสร้างธนาคารส่วนตัวและธุรกิจ
+                        Bitcoin ที่รวมเอาหลักสูตร Technical
+                        เชิงลึกและการบริหารจัดการธุรกิจตู้ ATM มาไว้ในที่เดียว
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Course Operation Modules
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >6 Strategic Modules</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Educational Funnel Logic
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Student Acquisition
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                หน้า Course
+                                ถูกออกแบบมาเพื่อเปลี่ยนผู้ที่สนใจเรื่องบิตคอยน์เบื้องต้น
+                                ให้กลายเป็นผู้เชี่ยวชาญระดับ Operator
+                                ผ่านการนำเสนอเนื้อหาที่ลดความซับซ้อน
+                                (Simplification) แต่ยังคงความถูกต้องระดับ Expert
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Ecosystem Retention
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                ผู้ที่ผ่านการอบรมจะกลายเป็นส่วนหนึ่งของ Cashless
+                                Thailand Ecosystem ในฐานะเจ้าของตู้ (Vendors)
+                                ซึ่งจะนำไปสู่การใช้งานระบบ Seller Dashboard และ
+                                Affiliate ต่อไป
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/page-profile"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← User Profile</a
+                    >
+                    <a
+                        href="/manual/blog-system"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Insights & Blog →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>

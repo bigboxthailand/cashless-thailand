@@ -1,0 +1,383 @@
+---
+// src/pages/manual/blog-system.astro
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+
+const sections = [
+    {
+        id: "dynamic-fetching",
+        name: "1. Dynamic Content Delivery",
+        role: "ระบบดึงข้อมูลบทความแบบ Real-time",
+        source: "Supabase (blog_posts table)",
+        details: [
+            {
+                label: "Published Only",
+                desc: "คัดกรองเฉพาะบทความที่ตั้งสถานะ 'is_published: true' เท่านั้นเพื่อให้มั่นใจในคุณภาพคอนเทนต์ก่อนแสดงผล",
+            },
+            {
+                label: "Sorted Hierarchy",
+                desc: "จัดลำดับบทความตามเวลาที่สร้าง (created_at) จากใหม่ไปเก่าโดยอัตโนมัติ",
+            },
+            {
+                label: "Category Filtering",
+                desc: "รองรับการแบ่งหมวดหมู่ (Bitcoin, Tech, Lifestyle) เพื่อให้ผู้ใช้ค้นหาเนื้อหาที่สนใจได้ง่ายขึ้น",
+            },
+        ],
+    },
+    {
+        id: "seo-engine",
+        name: "2. Strategic SEO & Metadata",
+        role: "ระบบทำ SEO อัตโนมัติรายบทความ",
+        source: "Dynamic Meta Tags",
+        details: [
+            {
+                label: "Dynamic OpenGraph",
+                desc: "สร้างภาพ OG และ Meta Title แตกต่างกันไปตามแต่ละบทความเพื่อการแชร์โซเชียลที่มีประสิทธิภาพ",
+            },
+            {
+                label: "Auto Keywords",
+                desc: "สกัด Tags จากฐานข้อมูลมาแปลงเป็น Meta Keywords เพื่อช่วยในการจัดลำดับการค้นหาบน Google",
+            },
+            {
+                label: "Breadcrumb Logic",
+                desc: "ระบบโครงสร้างลิงก์ (Breadcrumbs) ที่ช่วยทั้งผู้ใช้และ Search Engine ในการทำความเข้าใจโครงสร้างเว็บไซต์",
+            },
+        ],
+    },
+    {
+        id: "interactions",
+        name: "3. Interactive Engagement Layer",
+        role: "ระบบปฏิสัมพันธ์ระหว่างผู้อ่านและเนื้อหา",
+        source: "React (BlogInteractions.jsx)",
+        details: [
+            {
+                label: "Reaction System",
+                desc: "ปุ่ม Like/Share ที่ประมวลผลผ่าน React เพื่อความลื่นไหลโดยไม่ต้องรีเฟรชหน้าเว็บ",
+            },
+            {
+                label: "Comment Thread",
+                desc: "พื้นที่แสดงความคิดเห็นสำหรับผู้ใช้ที่ล็อกอินแล้ว เพื่อสร้าง Community รอบบทความ",
+            },
+            {
+                label: "Engagement Tracking",
+                desc: "เก็บสถิติการคลิกและ Reaction เพื่อนำไปวิเคราะห์ความนิยมของหัวข้อต่างๆ ในฝั่ง Admin",
+            },
+        ],
+    },
+    {
+        id: "view-stats",
+        name: "4. Real-time View Analytics",
+        role: "ระบบนับยอดการเข้าชมผ่านฐานข้อมูล",
+        source: "Supabase RPC (increment_view_count)",
+        details: [
+            {
+                label: "Atomic Counting",
+                desc: "ใช้ฟังก์ชัน RPC เพื่อบวกเลขยอดวิวในระดับฐานข้อมูล ป้องกันข้อมูลคลาดเคลื่อนเมื่อมีคนคลิกพร้อมกัน",
+            },
+            {
+                label: "Session Throttling",
+                desc: "ลอจิกป้องกันการปั่นยอดวิวจากการรีเฟรชซ้ำๆ เพื่อความแม่นยำของสถิติเชิงลึก",
+            },
+            {
+                label: "Admin Insight",
+                desc: "ยอดวิวจะถูกส่งไปแสดงผลใน Admin Dashboard เพื่อจัดอันดับบทความยอดนิยม (Trending)",
+            },
+        ],
+    },
+    {
+        id: "premium-ui",
+        name: "5. Premium Content Experience",
+        role: "ประสบการณ์การอ่านระดับ High-end",
+        source: "Custom CSS / JS Progress",
+        details: [
+            {
+                label: "Scroll Progress",
+                desc: "แถบสถานะการอ่านด้านบน (Progress Bar) ที่บอกตำแหน่งการอ่านแบบ Real-time",
+            },
+            {
+                label: "Anuphan Typography",
+                desc: "ใช้ฟอนต์ Anuphan ที่ถูกปรับแต่งให้เหมาะกับการอ่านเนื้อหายาวๆ บนหน้าจอทุกขนาด",
+            },
+            {
+                label: "Image Zoom & Blur",
+                desc: "ระบบแสดงภาพหน้าปกแบบ Full-width พร้อมเอฟเฟกต์ Scale-on-scroll และ Background Blur",
+            },
+        ],
+    },
+    {
+        id: "content-processing",
+        name: "6. Rich Text Processing",
+        role: "การประมวลผลเนื้อหาจาก Admin Panel",
+        source: "HTML Sanitizer / set:html",
+        details: [
+            {
+                label: "Rich Media Support",
+                desc: "รองรับการแทรกวิดีโอ, รูปภาพ, และ Code Block จากฝั่งหลังบ้านได้อย่างอิสระ",
+            },
+            {
+                label: "Blockquote Stylist",
+                desc: "ดีไซน์กล่องคำคม (Quote) ที่เน้นความพรีเมียมด้วยโดไล่เฉดสีทองซิกเนเจอร์",
+            },
+            {
+                label: "Smart Responsive",
+                desc: "รูปภาพและสื่อในเนื้อหาจะถูกปรับขนาดให้พอดีกับหน้าจอ Mobile อัตโนมัติ",
+            },
+        ],
+    },
+];
+
+const sidebarItems = [
+    {
+        title: "Introduction",
+        items: [
+            { title: "Overview", link: "/manual" },
+            { title: "System Workflow", link: "/manual/system-workflow" },
+            { title: "Visual Logic Flows", link: "/manual/visual-flows" },
+        ],
+    },
+    {
+        title: "Core Features",
+        items: [
+            { title: "Home Page (Index)", link: "/manual/page-index" },
+            { title: "Shop Catalog", link: "/manual/page-shop" },
+            { title: "Product Detail", link: "/manual/page-product" },
+            { title: "User Profile", link: "/manual/page-profile" },
+        ],
+    },
+    {
+        title: "Logic & State",
+        items: [
+            { title: "Shopping Cart", link: "/manual/module-cart" },
+            { title: "Checkout System", link: "/manual/module-checkout" },
+            { title: "Auth & Tiers", link: "/manual/module-auth" },
+            { title: "BTC/SATS Engine", link: "/manual/module-btc" },
+        ],
+    },
+    {
+        title: "Edu-System",
+        items: [
+            { title: "Course Hub", link: "/manual/course-system" },
+            { title: "Learn Track (Soon)", link: "/manual/learn-track" },
+        ],
+    },
+    {
+        title: "Marketing & Growth",
+        items: [
+            {
+                title: "Insights & Blog",
+                link: "/manual/blog-system",
+                active: true,
+            },
+            { title: "Affiliate System", link: "/manual/affiliate-manual" },
+        ],
+    },
+    {
+        title: "Management Systems",
+        items: [
+            { title: "Admin Portal", link: "/manual/admin-interface" },
+            { title: "Seller Dashboard", link: "/manual/seller-guide" },
+        ],
+    },
+];
+---
+
+<Layout title="Insights & Blog Technical Guide | Cashless Thailand Manual">
+    <Navbar />
+
+    <div class="min-h-screen bg-[#0a0a0a] pt-32 flex">
+        <!-- Sidebar Navigation -->
+        <aside
+            class="w-72 border-r border-white/5 bg-[#050505] hidden lg:block overflow-y-auto px-6 py-10 fixed top-32 bottom-0 h-[calc(100vh-8rem)] z-20"
+        >
+            <nav class="space-y-8">
+                {
+                    sidebarItems.map((section) => (
+                        <div>
+                            {section.items ? (
+                                <div class="space-y-4">
+                                    <h4 class="text-[10px] uppercase tracking-[0.2em] text-white/30 font-black px-2">
+                                        {section.title}
+                                    </h4>
+                                    <ul class="space-y-1">
+                                        {section.items.map((item) => (
+                                            <li>
+                                                <a
+                                                    href={item.link}
+                                                    class={`block px-4 py-2 rounded-lg text-sm transition-all ${item.active ? "bg-[#D4AF37]/10 text-[#D4AF37] font-bold" : "text-white/50 hover:text-white hover:bg-white/5"}`}
+                                                >
+                                                    {item.title}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <a
+                                    href={(section as any).link}
+                                    class="block px-6 py-2 text-sm text-white/50 hover:text-white hover:bg-white/5 rounded-lg transition-all font-bold"
+                                >
+                                    {section.title}
+                                </a>
+                            )}
+                        </div>
+                    ))
+                }
+            </nav>
+        </aside>
+
+        <!-- Main Documentation Content -->
+        <main
+            class="flex-1 lg:ml-72 px-6 md:px-12 py-12 md:py-20 lg:py-24 max-w-5xl mx-auto"
+        >
+            <div class="space-y-12">
+                <!-- Header -->
+                <header class="space-y-8 border-b border-white/5 pb-16">
+                    <div
+                        class="flex items-center gap-2 text-white/30 text-[10px] font-black uppercase tracking-[0.3em]"
+                    >
+                        <span>Directory</span>
+                        <span>/</span>
+                        <span class="text-[#D4AF37]">Growth & Media</span>
+                    </div>
+                    <h1
+                        class="text-4xl md:text-6xl font-black text-white tracking-tight"
+                    >
+                        Insights & Blog
+                    </h1>
+                    <p class="text-white/50 text-xl leading-relaxed max-w-4xl">
+                        ระบบฐานความรู้และการปฏิวัติข้อมูลทางการเงิน
+                        เบื้องหลังการทำงานของหน้าบทความที่รวมเอาเทคโนโลยี SEO
+                        ขั้นสูงและประสบการณ์การอ่านระดับ Premium
+                    </p>
+                </header>
+
+                <!-- Detailed Sections Breakdown -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2
+                            class="text-2xl font-bold text-white uppercase tracking-wider flex items-center gap-3"
+                        >
+                            <span class="w-1.5 h-8 bg-[#D4AF37] rounded-full"
+                            ></span>
+                            Blog Operation Modules
+                        </h2>
+                        <span
+                            class="text-[10px] font-mono text-white/20 uppercase tracking-widest italic"
+                            >6 Core Content Systems</span
+                        >
+                    </div>
+
+                    <div class="space-y-6">
+                        {
+                            sections.map((section) => (
+                                <div class="bg-[#111] border border-white/5 rounded-[2.5rem] overflow-hidden">
+                                    <div class="px-10 py-8 bg-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5">
+                                        <div class="space-y-2">
+                                            <h3 class="text-2xl font-black text-white">
+                                                {section.name}
+                                            </h3>
+                                            <p class="text-xs text-[#D4AF37] font-bold uppercase tracking-[0.2em]">
+                                                {section.role}
+                                            </p>
+                                        </div>
+                                        <div class="px-4 py-2 bg-black/40 rounded-xl border border-white/10 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                                            {section.source}
+                                        </div>
+                                    </div>
+                                    <div class="p-10">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                            {section.details.map((detail) => (
+                                                <div class="space-y-3 p-6 bg-black/20 rounded-2xl border border-white/5 hover:border-[#D4AF37]/30 transition-all group">
+                                                    <div class="flex items-center gap-2 mb-2">
+                                                        <span class="w-5 h-5 bg-[#D4AF37]/10 text-[#D4AF37] rounded-lg flex items-center justify-center text-[10px] font-black group-hover:scale-110 transition-transform">
+                                                            ✓
+                                                        </span>
+                                                        <h4 class="text-sm font-black text-white/80 uppercase tracking-widest">
+                                                            {detail.label}
+                                                        </h4>
+                                                    </div>
+                                                    <p class="text-sm text-white/40 leading-relaxed font-light pl-7">
+                                                        {detail.desc}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
+                <!-- Strategic Summary -->
+                <section
+                    class="mt-20 p-12 bg-gradient-to-br from-[#111] to-black border border-white/5 rounded-[4rem] space-y-12"
+                >
+                    <h2
+                        class="text-3xl font-black text-white flex items-center gap-4 italic"
+                    >
+                        <span class="text-[#D4AF37]">#</span> Visual Insight Logic
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Engagement Funnel
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                ทุกบทความถูกออกแบบมาเพื่อดึงดูดผู้ใช้เข้าสู่ระบบ
+                                Affiliate และตะกร้าสินค้า
+                                ผ่านระบบสอดแทรกสินค้าแนะนำ (Internal Linking)
+                                ที่แอดมินสามารถกำหนดได้เอง
+                            </p>
+                        </div>
+                        <div class="space-y-6">
+                            <h4
+                                class="text-xs font-black uppercase tracking-widest text-[#D4AF37] border-b border-[#D4AF37]/30 pb-2"
+                            >
+                                Incremental Building
+                            </h4>
+                            <p class="text-sm text-white/40 leading-relaxed">
+                                หน้าบทความเป็นแบบ SSR
+                                เพื่อให้ดึงข้อมูลใหม่ล่าสุดเสมอ แต่ละบทความจะถูก
+                                Cache ในระดับ Edge
+                                เพื่อความเร็วสูงสุดในการเข้าถึงจากทั่วโลก
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <footer
+                    class="pt-16 border-t border-white/5 flex justify-between items-center text-sm font-black uppercase tracking-[0.3em]"
+                >
+                    <a
+                        href="/manual/course-system"
+                        class="text-white/20 hover:text-[#D4AF37] transition-all"
+                        >← Course Hub</a
+                    >
+                    <a
+                        href="/manual/admin-interface"
+                        class="text-[#D4AF37] hover:text-white transition-all"
+                        >Next: Admin Portal →</a
+                    >
+                </footer>
+            </div>
+        </main>
+    </div>
+</Layout>
+
+<style is:global>
+    aside::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 10px;
+    }
+</style>
