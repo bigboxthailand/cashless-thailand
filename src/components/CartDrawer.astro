@@ -97,9 +97,69 @@
     }
 </style>
 <script>
-    import { cartStore } from "../lib/cartStore.js";
+    import { cartStore, cartItems } from "../lib/cartStore.js";
+    import { supabase } from "../lib/supabase";
 
     document.addEventListener("astro:page-load", () => {
+        // --- Real-time Stock Sync ---
+        async function syncCartStock() {
+            const currentCart = cartStore.get();
+            if (currentCart.length === 0) return;
+
+            const productIds = [
+                ...new Set(currentCart.map((item: any) => item.product_id)),
+            ];
+
+            try {
+                const { data: latestProducts, error } = await supabase
+                    .from("products")
+                    .select("id, config, stock")
+                    .in("id", productIds);
+
+                if (error) throw error;
+                if (!latestProducts) return;
+
+                let hasChanged = false;
+                const validatedCart = currentCart.filter((item: any) => {
+                    const product = latestProducts.find(
+                        (p) => p.id === item.product_id,
+                    );
+                    if (!product) {
+                        hasChanged = true;
+                        return false;
+                    }
+
+                    const config = product.config;
+                    let stock = 0;
+
+                    if (item.variant_name && config?.variants) {
+                        const variant = config.variants.find(
+                            (v: any) => v.name === item.variant_name,
+                        );
+                        stock = variant ? parseInt(variant.stock) : 0;
+                    } else {
+                        stock = parseInt(
+                            config?.inventory?.stock || product.stock || 0,
+                        );
+                    }
+
+                    if (stock <= 0) {
+                        hasChanged = true;
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (hasChanged) {
+                    cartItems.set(validatedCart);
+                    window.dispatchEvent(new CustomEvent("cart-updated"));
+                    console.log("♻️ Cart items updated due to stock changes");
+                }
+            } catch (err) {
+                console.error("Cart Sync Error:", err);
+            }
+        }
+
         const container = document.getElementById("cart-drawer-container");
         const backdrop = document.getElementById("cart-backdrop");
         const panel = document.getElementById("cart-panel");
@@ -116,9 +176,11 @@
             return;
         }
 
-        const toggleDrawer = (open: boolean) => {
+        const toggleDrawer = async (open: boolean) => {
             if (open) {
                 container.classList.remove("invisible", "pointer-events-none");
+                // Pre-verify stock before rendering
+                await syncCartStock();
                 // Render content when opening
                 renderCart();
                 requestAnimationFrame(() => {
@@ -212,11 +274,13 @@
                             .map(
                                 (item: any) => `
                             <div class="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 relative group">
-                                <div class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0">
+                                <a href="/products/${item.product_id}" class="w-16 h-16 bg-black rounded-lg overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-[#D4AF37] transition-all">
                                     <img src="${item.image}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/100x100?text=No+Image'"/>
-                                </div>
+                                </a>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-sm font-bold text-white truncate pr-6">${item.title}</h3>
+                                    <a href="/products/${item.product_id}" class="block group/title">
+                                        <h3 class="text-sm font-bold text-white truncate pr-6 group-hover/title:text-[#D4AF37] transition-colors">${item.title}</h3>
+                                    </a>
                                     <div class="flex items-center justify-between mt-2">
                                         <p class="text-[#D4AF37] text-xs font-bold">${Number(item.price).toLocaleString()} ฿</p>
                                         <div class="flex items-center gap-2 bg-black/40 rounded-lg p-1">
