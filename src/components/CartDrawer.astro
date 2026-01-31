@@ -107,8 +107,14 @@
             if (currentCart.length === 0) return;
 
             const productIds = [
-                ...new Set(currentCart.map((item: any) => item.product_id)),
+                ...new Set(
+                    currentCart
+                        .map((item: any) => item.product_id)
+                        .filter((id: any) => !!id),
+                ),
             ];
+
+            if (productIds.length === 0) return;
 
             try {
                 const { data: latestProducts, error } = await supabase
