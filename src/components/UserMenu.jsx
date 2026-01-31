@@ -109,11 +109,13 @@ export default function UserMenu() {
                                     ⚠️ Verify Your Email
                                 </a>
                             )}
-                            {(profile?.role === 'admin' || ["mycryptoclock@gmail.com"].includes(session.user.email)) && (
-                                <a href="/admin" className="block px-4 py-3 text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 text-xs font-bold uppercase tracking-wider transition-colors border-t border-white/5">
-                                    Admin Dashboard
-                                </a>
-                            )}
+                            {(profile?.role?.toLowerCase() === 'admin' ||
+                                ["mycryptoclock@gmail.com"].includes(session?.user?.email) ||
+                                profile?.id === '3b5859ea-54b3-4f24-bc6d-74d440092abe') && (
+                                    <a href="/admin" className="block px-4 py-3 text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 text-xs font-bold uppercase tracking-wider transition-colors border-t border-white/5">
+                                        Admin Dashboard
+                                    </a>
+                                )}
                         </>
                     )}
                     <button
