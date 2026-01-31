@@ -233,6 +233,20 @@ const categories = uniqueCategorySlugs
                                         comparePrice > displayPrice
                                             ? comparePrice
                                             : 0;
+
+                                    const totalStock = hasVariants
+                                        ? item.config.variants.reduce(
+                                              (acc: number, v: any) =>
+                                                  acc +
+                                                  (parseInt(v.stock) || 0),
+                                              0,
+                                          )
+                                        : parseInt(
+                                              item.config?.inventory?.stock ||
+                                                  item.stock ||
+                                                  0,
+                                          );
+
                                     return (
                                         <a
                                             href={`/products/${item.id}`}
@@ -247,6 +261,17 @@ const categories = uniqueCategorySlugs
                                                     loading="lazy"
                                                     onerror="this.src='https://placehold.co/600x800/1a1a1a/FFF?text=No+Image'"
                                                 />
+
+                                                {/* Out of Stock Overlay */}
+                                                {totalStock <= 0 && (
+                                                    <div class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                                        <div class="px-6 py-3 bg-white/10 border border-white/20 backdrop-blur-xl rounded-2xl shadow-xl transform -rotate-12">
+                                                            <span class="text-xl font-black text-white/40 uppercase tracking-widest">
+                                                                SOLD OUT
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
 
                                                 <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
 

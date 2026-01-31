@@ -65,6 +65,12 @@ const items = (sortedProducts || []).map((p) => {
         category: p.category || "General",
         tag: p.tags?.[0] || (discount > 0 ? "SALE" : null),
         slug: p.id, // Using ID as slug for reliable linking to [id].astro
+        totalStock: hasVariants
+            ? p.config.variants.reduce(
+                  (acc: number, v: any) => acc + (parseInt(v.stock) || 0),
+                  0,
+              )
+            : parseInt(p.config?.inventory?.stock || p.stock || 0),
     };
 });
 ---
@@ -136,9 +142,21 @@ const items = (sortedProducts || []).map((p) => {
                                 />
                             )}
 
+                            {/* Out of Stock Overlay */}
+                            {item.totalStock <= 0 && (
+                                <div class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                    <div class="px-6 py-3 bg-white/10 border border-white/20 backdrop-blur-xl rounded-2xl shadow-xl transform -rotate-12">
+                                        <span class="text-xl font-black text-white/40 uppercase tracking-widest">
+                                            OUT OF STOCK
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Sale Ribbon */}
                             {item.discount > 0 && (
                                 <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden pointer-events-none z-30">
+
                                     <div class="absolute top-6 -right-10 w-40 bg-gradient-to-r from-[#ff0000] to-[#cc0000] text-white text-[10px] font-black tracking-widest uppercase py-1.5 text-center rotate-45 shadow-lg border-y border-white/20">
                                         SALE -{item.discount}%
                                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer-simple_3s_infinite]" />

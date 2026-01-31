@@ -44,6 +44,26 @@ const product = {
     manualLink: productData.manual_link || productData.manualLink,
 };
 
+// --- Stock Logic (Server Side) ---
+let totalStock = 0;
+if (product.config?.variantType === "variants" && product.config.variants) {
+    totalStock = product.config.variants.reduce(
+        (acc: number, v: any) => acc + (parseInt(v.stock) || 0),
+        0,
+    );
+} else if (product.config?.variantType === "composite") {
+    // For composite, we'd ideally check combinations, but for simplicity let's check base stock
+    totalStock = parseInt(
+        product.config?.inventory?.stock || productData.stock || 0,
+    );
+} else {
+    totalStock = parseInt(
+        product.config?.inventory?.stock || productData.stock || 0,
+    );
+}
+
+const isSoldOut = totalStock <= 0;
+
 // Use optional chaining and snake_case for DB columns
 const hasMarketing =
     product.marketing &&
@@ -116,6 +136,18 @@ const productJson = JSON.stringify(product);
                         class="w-full h-full object-contain transition-all duration-300 pointer-events-none"
                         loading="eager"
                     />
+
+                    {
+                        isSoldOut && (
+                            <div class="absolute inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                                <div class="px-8 py-4 bg-white/10 border border-white/20 backdrop-blur-xl rounded-[2rem] shadow-2xl transform -rotate-12">
+                                    <span class="text-3xl font-black text-white/40 uppercase tracking-[0.3em]">
+                                        SOLD OUT
+                                    </span>
+                                </div>
+                            </div>
+                        )
+                    }
 
                     {
                         hasGallery && (
@@ -293,6 +325,7 @@ const productJson = JSON.stringify(product);
                                                     data-image={variant.image}
                                                     data-name={variant.name}
                                                     data-price={variant.price}
+                                                    data-stock={variant.stock}
                                                     data-compare-price={
                                                         variant.comparePrice
                                                     }
@@ -308,6 +341,7 @@ const productJson = JSON.stringify(product);
                                                     data-image={variant.image}
                                                     data-name={variant.name}
                                                     data-price={variant.price}
+                                                    data-stock={variant.stock}
                                                     data-compare-price={
                                                         variant.comparePrice
                                                     }
@@ -357,6 +391,9 @@ const productJson = JSON.stringify(product);
                                                                 }
                                                                 data-price={
                                                                     val.price
+                                                                }
+                                                                data-stock={
+                                                                    val.stock
                                                                 }
                                                                 data-image={
                                                                     val.image ||
@@ -409,29 +446,40 @@ const productJson = JSON.stringify(product);
 
                         <button
                             id="add-to-cart-btn"
-                            class="flex-1 relative overflow-hidden bg-[#D4AF37] text-black rounded-xl font-black uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 group"
+                            disabled={isSoldOut}
+                            class={`flex-1 relative overflow-hidden rounded-xl font-black uppercase tracking-wider transition-all group ${
+                                isSoldOut
+                                    ? "bg-white/10 text-white/20 cursor-not-allowed border border-white/10"
+                                    : "bg-[#D4AF37] text-black shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:shadow-[0_0_50px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95"
+                            }`}
                         >
                             <span
                                 class="relative z-10 flex items-center justify-center gap-2"
                             >
-                                Add to Cart
-                                <svg
-                                    class="w-4 h-4 transition-transform group-hover:translate-x-1"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    ><path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                                    ></path></svg
-                                >
+                                {isSoldOut ? "Sold Out" : "Add to Cart"}
+                                {
+                                    !isSoldOut && (
+                                        <svg
+                                            class="w-4 h-4 transition-transform group-hover:translate-x-1"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                            />
+                                        </svg>
+                                    )
+                                }
                             </span>
-                            <div
-                                class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"
-                            >
-                            </div>
+                            {
+                                !isSoldOut && (
+                                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                )
+                            }
                         </button>
                     </div>
                 </div>
@@ -904,6 +952,49 @@ const productJson = JSON.stringify(product);
                         "active-variant",
                     );
                 }
+
+                // --- Stock Check for Variants ---
+                const stock = parseInt(target.dataset.stock || "0");
+                if (addBtn) {
+                    if (stock <= 0) {
+                        addBtn.disabled = true;
+                        addBtn.innerHTML = "Sold Out";
+                        addBtn.classList.add(
+                            "bg-white/10",
+                            "text-white/20",
+                            "cursor-not-allowed",
+                            "border",
+                            "border-white/10",
+                        );
+                        addBtn.classList.remove(
+                            "bg-[#D4AF37]",
+                            "text-black",
+                            "shadow-[0_0_30px_rgba(212,175,55,0.2)]",
+                        );
+                    } else {
+                        addBtn.disabled = false;
+                        addBtn.innerHTML = `
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                Add to Cart
+                                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                </svg>
+                            </span>
+                        `;
+                        addBtn.classList.remove(
+                            "bg-white/10",
+                            "text-white/20",
+                            "cursor-not-allowed",
+                            "border",
+                            "border-white/10",
+                        );
+                        addBtn.classList.add(
+                            "bg-[#D4AF37]",
+                            "text-black",
+                            "shadow-[0_0_30px_rgba(212,175,55,0.2)]",
+                        );
+                    }
+                }
             });
         });
 
@@ -1008,12 +1099,56 @@ const productJson = JSON.stringify(product);
                     150,
                 );
             }
-        };
 
-        // Run once on init for composite
-        if (productData.config?.variantType === "composite") {
-            updateCompositeState();
-        }
+            // --- Stock Check for Composite ---
+            const comboStock = matchedCombo
+                ? parseInt(matchedCombo.stock) || 0
+                : parseInt(
+                      productData.config?.inventory?.stock ||
+                          productData.stock ||
+                          0,
+                  );
+            if (addBtn) {
+                if (comboStock <= 0) {
+                    addBtn.disabled = true;
+                    addBtn.innerHTML = "Sold Out";
+                    addBtn.classList.add(
+                        "bg-white/10",
+                        "text-white/20",
+                        "cursor-not-allowed",
+                        "border",
+                        "border-white/10",
+                    );
+                    addBtn.classList.remove(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "shadow-[0_0_30px_rgba(212,175,55,0.2)]",
+                    );
+                } else {
+                    addBtn.disabled = false;
+                    addBtn.innerHTML = `
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            Add to Cart
+                            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                        </span>
+                    `;
+                    addBtn.classList.remove(
+                        "bg-white/10",
+                        "text-white/20",
+                        "cursor-not-allowed",
+                        "border",
+                        "border-white/10",
+                    );
+                    addBtn.classList.add(
+                        "bg-[#D4AF37]",
+                        "text-black",
+                        "shadow-[0_0_30px_rgba(212,175,55,0.2)]",
+                    );
+                }
+            }
+        };
 
         optionBtns.forEach((btn) => {
             // Clone to remove old listeners if any
@@ -1021,7 +1156,7 @@ const productJson = JSON.stringify(product);
             if (btn.parentNode) btn.parentNode.replaceChild(newBtn, btn);
 
             newBtn.addEventListener("click", (e) => {
-                const target = e.currentTarget;
+                const target = e.currentTarget as HTMLElement;
                 const groupIdx = parseInt(target.dataset.groupIndex || "0");
                 const valIdx = parseInt(target.dataset.valueIndex || "0");
 
@@ -1057,6 +1192,22 @@ const productJson = JSON.stringify(product);
                 updateCompositeState();
             });
         });
+
+        // Initialize initial state by triggering clicks
+        const initialVariant = document.querySelector(
+            ".active-variant",
+        ) as HTMLElement;
+        if (initialVariant) initialVariant.click();
+
+        const initialOption = document.querySelector(
+            ".active-option",
+        ) as HTMLElement;
+        if (initialOption) initialOption.click();
+
+        // Run once on init for composite
+        if (productData.config?.variantType === "composite") {
+            updateCompositeState();
+        }
 
         minusBtn?.addEventListener("click", () => {
             if (qtyInput) {
