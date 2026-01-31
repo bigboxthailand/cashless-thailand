@@ -50,7 +50,7 @@ export default function UserMenu() {
     }, []);
 
     const fetchProfile = async (userId, walletAddr) => {
-        let query = supabase.from('profiles').select('avatar_url, full_name, id');
+        let query = supabase.from('profiles').select('avatar_url, full_name, id, role');
         if (userId) query = query.eq('id', userId);
         else if (walletAddr) query = query.eq('wallet_address', walletAddr);
 
@@ -109,7 +109,7 @@ export default function UserMenu() {
                                     ⚠️ Verify Your Email
                                 </a>
                             )}
-                            {["mycryptoclock@gmail.com"].includes(session.user.email) && (
+                            {(profile?.role === 'admin' || ["mycryptoclock@gmail.com"].includes(session.user.email)) && (
                                 <a href="/admin" className="block px-4 py-3 text-[#D4AF37] hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 text-xs font-bold uppercase tracking-wider transition-colors border-t border-white/5">
                                     Admin Dashboard
                                 </a>
