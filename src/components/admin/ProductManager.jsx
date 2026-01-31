@@ -645,15 +645,17 @@ const ProductManager = ({ initialProducts }) => {
                                 {filteredProducts.map((product) => (
                                     <tr key={product.id} className="hover:bg-white/2 transition-colors">
                                         <td className="p-4 flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-white/5 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                                            <a href={`/products/${product.id}`} target="_blank" className="w-12 h-12 bg-white/5 rounded-lg overflow-hidden border border-white/10 shrink-0 hover:border-[#D4AF37] transition-colors">
                                                 <img
                                                     src={product.media?.mainImage || product.image_url || "https://placehold.co/100"}
                                                     alt={product.name}
                                                     className="w-full h-full object-cover"
                                                 />
-                                            </div>
+                                            </a>
                                             <div>
-                                                <div className="text-white font-bold text-base line-clamp-1">{product.name || product.title || product.meta?.title}</div>
+                                                <a href={`/products/${product.id}`} target="_blank" className="text-white font-bold text-base line-clamp-1 hover:text-[#D4AF37] transition-colors">
+                                                    {product.name || product.title || product.meta?.title}
+                                                </a>
                                                 <div className="text-xs text-white/40 font-mono mt-1">ID: {product.id.substring(0, 8)}</div>
                                             </div>
                                         </td>
@@ -671,6 +673,7 @@ const ProductManager = ({ initialProducts }) => {
                                             {formatCurrency(product.pricing?.basePrice || product.price || 0)}
                                         </td>
                                         <td className="p-4 text-right">
+                                            <a href={`/products/${product.id}`} target="_blank" className="text-[#D4AF37] hover:text-white px-2 py-1">View</a>
                                             <button onClick={() => openEditModal(product)} className="text-white/50 hover:text-white px-2 py-1">Edit</button>
                                             <button onClick={() => handleDelete(product.id)} className="text-red-500/50 hover:text-red-500 px-2 py-1">Del</button>
                                         </td>
@@ -694,6 +697,13 @@ const ProductManager = ({ initialProducts }) => {
                                 />
                                 {/* Overlay Actions */}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    <a
+                                        href={`/products/${product.id}`}
+                                        target="_blank"
+                                        className="bg-[#D4AF37] text-black px-3 py-1.5 rounded-full text-xs font-bold hover:bg-white transition-colors"
+                                    >
+                                        View
+                                    </a>
                                     <button
                                         onClick={() => openEditModal(product)}
                                         className="bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold hover:bg-[#D4AF37] transition-colors"

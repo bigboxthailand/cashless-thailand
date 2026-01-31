@@ -143,11 +143,13 @@
 
                     if (item.variant_name && config?.variants) {
                         const variant = config.variants.find(
-                            (v: any) => v.name === item.variant_name,
+                            (v: any) =>
+                                v.name?.toLowerCase() ===
+                                item.variant_name?.toLowerCase(),
                         );
-                        stock = variant ? parseInt(variant.stock) : 0;
+                        stock = variant ? parseInt(variant.stock) || 0 : 0;
                     } else {
-                        stock = parseInt(config?.inventory?.stock || 0);
+                        stock = parseInt(config?.inventory?.stock || 0) || 0;
                     }
 
                     if (stock <= 0) {

@@ -46,15 +46,13 @@ const product = {
 
 // --- Stock Logic (Server Side) ---
 let totalStock = 0;
-if (product.config?.variantType === "variants" && product.config.variants) {
+const hasVariants =
+    product.config?.variants && product.config.variants.length > 0;
+
+if (hasVariants) {
     totalStock = product.config.variants.reduce(
         (acc: number, v: any) => acc + (parseInt(v.stock) || 0),
         0,
-    );
-} else if (product.config?.variantType === "composite") {
-    // For composite, we'd ideally check combinations, but for simplicity let's check base stock
-    totalStock = parseInt(
-        product.config?.inventory?.stock || productData.stock || 0,
     );
 } else {
     totalStock = parseInt(
