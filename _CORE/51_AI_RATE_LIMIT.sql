@@ -17,6 +17,10 @@ CREATE INDEX IF NOT EXISTS idx_ai_usage_last_reset ON ai_usage_tracking(last_res
 -- Enable RLS
 ALTER TABLE ai_usage_tracking ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own AI usage" ON ai_usage_tracking;
+DROP POLICY IF EXISTS "Service role can manage AI usage" ON ai_usage_tracking;
+
 -- Policy: Users can view their own usage
 CREATE POLICY "Users can view their own AI usage" ON ai_usage_tracking
     FOR SELECT USING (auth.uid() = user_id);
@@ -75,7 +79,7 @@ CREATE OR REPLACE FUNCTION increment_ai_usage(p_user_id UUID, p_conversation_id 
 RETURNS JSONB AS $$
 DECLARE
     v_new_count INTEGER;
-    v_limit INTEGER := 120;
+    v_limit INTEGER := 20;
     v_now TIMESTAMP WITH TIME ZONE := NOW();
     v_today_start TIMESTAMP WITH TIME ZONE;
 BEGIN
@@ -117,7 +121,7 @@ RETURNS TABLE(
     reset_at TIMESTAMP WITH TIME ZONE
 ) AS $$
 DECLARE
-    v_limit INTEGER := 120;
+    v_limit INTEGER := 20;
     v_today_start TIMESTAMP WITH TIME ZONE := DATE_TRUNC('day', NOW());
 BEGIN
     RETURN QUERY
