@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { toast } from '../../lib/toast';
 import { motion } from 'framer-motion';
+import { THAILAND_PROVINCES, COMMON_DISTRICTS } from '../../lib/thailandData';
 
 const SellerSettings = ({ shopId: propShopId }) => {
     const [shopId, setShopId] = useState(propShopId);
@@ -15,6 +16,10 @@ const SellerSettings = ({ shopId: propShopId }) => {
     const [description, setDescription] = useState('');
     const [logoUrl, setLogoUrl] = useState('');
     const [bannerUrl, setBannerUrl] = useState('');
+
+    // Location
+    const [district, setDistrict] = useState('');
+    const [province, setProvince] = useState('');
 
     // Payment Methods
     const [promptpayId, setPromptpayId] = useState('');
@@ -71,6 +76,8 @@ const SellerSettings = ({ shopId: propShopId }) => {
             setDescription(data.description || '');
             setLogoUrl(data.logo_url || '');
             setBannerUrl(data.banner_url || '');
+            setDistrict(data.district || '');
+            setProvince(data.province || '');
             setPromptpayId(data.promptpay_id || '');
             setLightningAddress(data.lightning_address || '');
             setWalletAddress(data.wallet_address || '');
@@ -91,6 +98,8 @@ const SellerSettings = ({ shopId: propShopId }) => {
                 description,
                 logo_url: logoUrl,
                 banner_url: bannerUrl,
+                district,
+                province,
                 promptpay_id: promptpayId,
                 lightning_address: lightningAddress,
                 updated_at: new Date().toISOString()
@@ -214,6 +223,58 @@ const SellerSettings = ({ shopId: propShopId }) => {
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none transition-colors resize-none"
                             ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Location Section */}
+                <div className="bg-[#111] border border-white/10 rounded-2xl p-6 space-y-6">
+                    <h3 className="text-xl font-bold text-white uppercase flex items-center gap-2">
+                        <span className="w-1 h-6 bg-[#D4AF37] rounded-full"></span>
+                        📍 Shipping Location
+                    </h3>
+                    <p className="text-white/40 text-xs">
+                        ระบุที่อยู่ผู้ส่งเพื่อประเมินระยะเวลาการจัดส่งให้ลูกค้า
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-xs font-bold text-white/60 uppercase mb-2">
+                                จังหวัด (Province) *
+                            </label>
+                            <select
+                                value={province}
+                                onChange={(e) => setProvince(e.target.value)}
+                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                            >
+                                <option value="">-- เลือกจังหวัด --</option>
+                                {THAILAND_PROVINCES.map((prov) => (
+                                    <option key={prov} value={prov}>
+                                        {prov}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-white/60 uppercase mb-2">
+                                อำเภอ (District)
+                            </label>
+                            <input
+                                type="text"
+                                value={district}
+                                onChange={(e) => setDistrict(e.target.value)}
+                                list="common-districts"
+                                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#D4AF37] outline-none transition-colors"
+                                placeholder="เช่น เมือง, บางกะปิ"
+                            />
+                            <datalist id="common-districts">
+                                {COMMON_DISTRICTS.map((dist) => (
+                                    <option key={dist} value={dist} />
+                                ))}
+                            </datalist>
+                            <p className="text-white/30 text-[10px] mt-1">
+                                ไม่บังคับ แต่จะช่วยประเมินเวลาส่งได้แม่นยำขึ้น
+                            </p>
                         </div>
                     </div>
                 </div>
