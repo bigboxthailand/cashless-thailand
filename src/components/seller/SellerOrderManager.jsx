@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { toast } from '../../lib/toast';
 
 const SellerOrderManager = ({ shopId: propShopId }) => {
     const [shopId, setShopId] = useState(propShopId);
@@ -146,12 +147,12 @@ const SellerOrderManager = ({ shopId: propShopId }) => {
 
             if (error) throw error;
 
-            alert("Order shipped! Tracking updated.");
+            toast.success("Order shipped! Tracking updated.");
             setIsShipModalOpen(false);
             fetchOrders(); // Refresh
 
         } catch (err) {
-            alert("Error: " + err.message);
+            toast.error("Error: " + err.message);
         } finally {
             setIsSaving(false);
         }

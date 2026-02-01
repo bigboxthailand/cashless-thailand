@@ -1042,7 +1042,7 @@ import Footer from "../components/Footer.astro";
             }
 
             if (ptsToUse > userPoints) {
-                alert("คุณมีแต้มไม่พอ");
+                toast.warning("คุณมีแต้มไม่พอ");
                 pointsInput.value = userPoints.toString();
                 return;
             }
@@ -1423,7 +1423,9 @@ import Footer from "../components/Footer.astro";
         btnAlby?.addEventListener("click", async () => {
             const webln = (window as any).webln;
             if (!webln) {
-                alert("Please install Alby or a WebLN compatible wallet!");
+                toast.warning(
+                    "Please install Alby or a WebLN compatible wallet!",
+                );
                 return;
             }
 
@@ -1477,7 +1479,7 @@ import Footer from "../components/Footer.astro";
                     btn.classList.add("bg-green-500", "text-white");
                     btn.classList.remove("bg-[#FFE100]");
 
-                    alert("Bitcoin Payment Success!");
+                    toast.success("Bitcoin Payment Success!");
 
                     if (fileLabel) {
                         fileLabel.innerText = "✓ Verified by Alby (Lightning)";
@@ -1486,7 +1488,7 @@ import Footer from "../components/Footer.astro";
                 }
             } catch (err: any) {
                 console.error("Alby Error:", err);
-                alert(
+                toast.error(
                     "Alby Payment Failed: " + (err.message || "Unknown error"),
                 );
                 if (btnAlby) {
@@ -1845,7 +1847,7 @@ import Footer from "../components/Footer.astro";
             (async () => {
                 const ethereum = (window as any).ethereum;
                 if (!ethereum) {
-                    alert("กรุณาติดตั้ง Metamask ก่อนใช้งาน!");
+                    toast.warning("กรุณาติดตั้ง Metamask ก่อนใช้งาน!");
                     return;
                 }
 
@@ -1994,7 +1996,9 @@ import Footer from "../components/Footer.astro";
                         );
                         metamaskBtn.classList.remove("bg-[#26A17B]");
 
-                        alert(`ชำระเงินเรียบร้อยแล้ว!\nTx Hash: ${tx.hash}`);
+                        toast.success(
+                            `ชำระเงินเรียบร้อยแล้ว! Tx Hash: ${tx.hash.slice(0, 10)}...`,
+                        );
 
                         if (fileLabel) {
                             fileLabel.innerText = "✓ ตรวจสอบโดย Metamask แล้ว";
@@ -2003,7 +2007,9 @@ import Footer from "../components/Footer.astro";
                     }
                 } catch (err: any) {
                     console.error(err);
-                    alert("การชำระเงินล้มเหลว: " + (err.reason || err.message));
+                    toast.error(
+                        "การชำระเงินล้มเหลว: " + (err.reason || err.message),
+                    );
                     updatePayButtonText(); // Reset text
                     metamaskBtn.disabled = false;
                 }
@@ -2042,7 +2048,9 @@ import Footer from "../components/Footer.astro";
                     .value,
             );
             if (userAnswer !== correctSum) {
-                alert(`❌ คำตอบผิดครับ! กรุณาตรวจสอบผลบวก (${n1} + ${n2})`);
+                toast.warning(
+                    `❌ คำตอบผิดครับ! กรุณาตรวจสอบผลบวก (${n1} + ${n2})`,
+                );
                 return;
             }
 

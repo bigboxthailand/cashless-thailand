@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { toast } from '../../lib/toast';
 import { motion } from 'framer-motion';
 
 const SellerSettings = ({ shopId: propShopId }) => {
@@ -101,13 +102,13 @@ const SellerSettings = ({ shopId: propShopId }) => {
                 .eq('id', shopId);
 
             if (error) throw error;
-            alert('Shop settings updated successfully!');
+            toast.success('Shop settings updated successfully!');
 
             // Refresh local data
             fetchShopDetails();
 
         } catch (error) {
-            alert('Error updating settings: ' + error.message);
+            toast.error('Error updating settings: ' + error.message);
         } finally {
             setSaving(false);
         }

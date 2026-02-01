@@ -2,6 +2,7 @@
 import { ViewTransitions } from "astro:transitions";
 import "../styles/global.css";
 import AdminSidebar from "../components/admin/AdminSidebar.astro";
+import ToastContainer from "../components/ui/ToastContainer";
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
@@ -49,6 +50,8 @@ const currentPath = Astro.url.pathname.split("/")[2] || "dashboard";
                 <slot />
             </div>
         </main>
+
+        <ToastContainer client:load />
 
         <script>
             import { supabase } from "../lib/supabase";

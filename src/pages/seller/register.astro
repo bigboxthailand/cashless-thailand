@@ -159,6 +159,7 @@ import Footer from "../../components/Footer.astro";
 <script>
     // @ts-nocheck
     import { supabase } from "../../lib/supabase";
+    import { toast } from "../../lib/toast";
 
     // Slug Generator
     const nameInput = document.querySelector('input[name="name"]');
@@ -246,7 +247,9 @@ import Footer from "../../components/Footer.astro";
                             "❌ Failed to create profile:",
                             profileError,
                         );
-                        alert("Failed to create profile. Please try again.");
+                        toast.error(
+                            "Failed to create profile. Please try again.",
+                        );
                         btn.disabled = false;
                         btn.innerText = originalText;
                         return;
@@ -270,10 +273,13 @@ import Footer from "../../components/Footer.astro";
                     user = session.user;
                     console.log("✅ Using Session fallback with ID:", userId);
                 } else {
-                    alert(
-                        "Please log in first. You will be redirected to the login page.",
+                    toast.warning("Please log in first. Redirecting...");
+                    setTimeout(
+                        () =>
+                            (window.location.href =
+                                "/login?redirect=/seller/register"),
+                        1500,
                     );
-                    window.location.href = "/login?redirect=/seller/register";
                     return;
                 }
             }
@@ -290,7 +296,7 @@ import Footer from "../../components/Footer.astro";
             if (promptpayId) {
                 const isValid = /^[0-9]{10}$|^[0-9]{13}$/.test(promptpayId);
                 if (!isValid) {
-                    alert("PromptPay ID must be 10 or 13 digits");
+                    toast.warning("PromptPay ID must be 10 or 13 digits");
                     btn.disabled = false;
                     btn.innerText = originalText;
                     return;
@@ -322,13 +328,34 @@ import Footer from "../../components/Footer.astro";
                 throw error;
             }
 
+            // Notify Admin
+            try {
+                await fetch("/api/telegram-notify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        type: "NEW_SHOP_APPLICATION",
+                        shopName: name,
+                        ownerName:
+                            user?.email ||
+                            (walletAddress
+                                ? `Wallet: ${walletAddress.slice(0, 6)}...`
+                                : "Unknown"),
+                    }),
+                });
+            } catch (err) {
+                console.error("Notify Error", err);
+            }
+
             // Success
-            alert(
+            toast.success(
                 "Shop Application Submitted! Please wait for admin approval.",
             );
-            window.location.href = "/seller/pending";
+            setTimeout(() => {
+                window.location.href = "/seller/pending";
+            }, 2000);
         } catch (err) {
-            alert(err.message);
+            toast.error(err.message);
             btn.disabled = false;
             btn.innerText = originalText;
         }

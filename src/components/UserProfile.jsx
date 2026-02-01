@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { toast } from '../lib/toast';
 import { supabase } from '../lib/supabase';
 import ChatCenter from './chat/ChatCenter';
 
@@ -166,7 +167,7 @@ export default function UserProfile() {
             .reduce((sum, r) => sum + Number(r.commission_amount), 0);
 
         if (approvedComm <= 0) {
-            alert('คุณยังไม่มียอดเงินที่สามารถถอนได้ (ยอดเงินสะสมต้องได้รับการ Approved จากแอดมินก่อนครับ)');
+            toast.error('คุณยังไม่มียอดเงินที่สามารถถอนได้ (ยอดเงินสะสมต้องได้รับการ Approved จากแอดมินก่อนครับ)');
             return;
         }
 
@@ -174,15 +175,24 @@ export default function UserProfile() {
 
         setRequestingWithdrawal(true);
         try {
-            // Send to Telegram Admin
-            const msg = encodeURIComponent(`💰 *Withdrawal Request*\n\nUser: ${profile.first_name} ${profile.last_name}\nEmail: ${profile.email}\nAmount: ${approvedComm.toLocaleString()} THB\n\n_Please check admin dashboard to process payout._`);
-            window.open(`https://t.me/myCryptoClock?text=${msg}`, '_blank');
+            // Send to Telegram Admin (via API)
+            await fetch('/api/telegram-notify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'WITHDRAWAL_REQUEST',
+                    customerName: `${profile.first_name} ${profile.last_name}`,
+                    email: profile.email,
+                    amount: approvedComm
+                })
+            });
 
             // Set cooldown
             localStorage.setItem(`last_withdrawal_${profile.id}`, now.toString());
-            alert('ส่งคำขอถอนเงินเรียบร้อยแล้ว! ระบบกำลังพาไปส่งข้อความหาแอดมินทาง Telegram ครับ');
+            toast.success('ส่งคำขอถอนเงินเรียบร้อย! เจ้าหน้าที่จะตรวจสอบและโอนเงินให้ภายใน 24 ชม. ครับ');
         } catch (err) {
-            alert('เกิดข้อผิดพลาดในการส่งคำขอ');
+            console.error("Withdrawal error:", err);
+            toast.error('เกิดข้อผิดพลาดในการส่งคำขอ');
         } finally {
             setRequestingWithdrawal(false);
         }
@@ -201,7 +211,6 @@ export default function UserProfile() {
                     *,
                     reviews (product_id, rating),
                     order_items (
-                        product_id,
                         *,
                         product:product_id (meta, media)
                     )
@@ -248,12 +257,26 @@ export default function UserProfile() {
             .eq('id', orderId);
 
         if (error) {
-            alert('Error: ' + error.message);
+            toast.error('Error: ' + error.message);
         } else {
             // Success - refresh both orders AND profile (to catch any point/tier updates)
             await fetchOrders(profile.id);
             await fetchProfile();
-            alert('ขอบคุณ! เลือกสินค้าเพื่อรีวิวได้เลย');
+
+            // Notify Admin
+            try {
+                fetch('/api/telegram-notify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'ORDER_CONFIRMED',
+                        orderId: orderId,
+                        customerName: `${profile.first_name} ${profile.last_name}`.trim(),
+                    })
+                });
+            } catch (err) { console.error("Notify failed", err); }
+
+            toast.success('ขอบคุณ! เลือกสินค้าเพื่อรีวิวได้เลย');
         }
     };
 
@@ -268,7 +291,7 @@ export default function UserProfile() {
         e.preventDefault();
 
         if (!reviewTarget?.productId) {
-            alert('Error: Product ID is missing. Please try again.');
+            toast.error('Error: Product ID is missing. Please try again.');
             console.error('Review Target Missing Product ID:', reviewTarget);
             return;
         }
@@ -286,11 +309,28 @@ export default function UserProfile() {
             });
             if (error) throw error;
 
-            alert('รีวิวสำเร็จ! (Review Submitted)');
+            // Check for Low Rating (1-2 stars)
+            if (rating <= 2) {
+                try {
+                    fetch('/api/telegram-notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'LOW_RATING',
+                            productName: reviewTarget.title,
+                            rating: rating,
+                            comment: comment,
+                            orderId: reviewTarget.orderId
+                        })
+                    });
+                } catch (err) { console.error("Notify Error", err); }
+            }
+
+            toast.success('รีวิวสำเร็จ! (Review Submitted)');
             setShowReviewModal(false);
-            fetchOrders();
+            fetchOrders(profile.id);
         } catch (error) {
-            alert('Error: ' + error.message);
+            toast.error('Error: ' + error.message);
         }
     };
 
@@ -338,10 +378,13 @@ export default function UserProfile() {
         }
     };
 
-    const submitDispute = async (e) => {
-        e.preventDefault();
-        if (!confirm('ยืนยันแจ้งปัญหา? (Submit Dispute)')) return;
+    const submitDispute = async () => {
+        if (!disputeReason || !disputeDescription) {
+            toast.warning('กรุณาเลือกเหตุผลและอธิบายรายละเอียด');
+            return;
+        }
 
+        setSubmittingDispute(true);
         try {
             // 1. Create Dispute
             const { error: disputeError } = await supabase
@@ -365,12 +408,29 @@ export default function UserProfile() {
 
             if (orderError) throw orderError;
 
-            alert('แจ้งปัญหาเรียบร้อย เจ้าหน้าที่จะรีบตรวจสอบครับ');
+            // Notify Admin
+            try {
+                fetch('/api/telegram-notify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'DISPUTE_OPENED',
+                        orderId: disputeTarget.orderId,
+                        customerName: `${profile.first_name} ${profile.last_name}`.trim(),
+                        reason: disputeReason,
+                        description: disputeDescription
+                    })
+                });
+            } catch (err) { console.error("Notify failed", err); }
+
+            toast.success('แจ้งปัญหาเรียบร้อย เจ้าหน้าที่จะรีบตรวจสอบครับ');
             setShowDisputeModal(false);
-            fetchOrders();
+            fetchOrders(profile.id);
 
         } catch (error) {
-            alert('Error: ' + error.message);
+            toast.error('Error: ' + error.message);
+        } finally {
+            setSubmittingDispute(false);
         }
     };
 

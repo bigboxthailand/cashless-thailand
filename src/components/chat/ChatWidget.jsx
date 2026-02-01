@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import ChatOrderSelector from './ChatOrderSelector';
 import EmojiPicker from './EmojiPicker';
+import { checkAILimit, formatLimitMessage } from '../../lib/aiRateLimit';
 
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function ChatWidget() {
     const [showOrderSelector, setShowOrderSelector] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [isVisible, setIsVisible] = useState(true); // [NEW] Widget visibility state
+    const [aiLimitInfo, setAiLimitInfo] = useState(null); // AI rate limit info
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -84,6 +86,8 @@ export default function ChatWidget() {
         if (supportConv) {
             setConversationId(supportConv.conversation.id);
             fetchMessages(supportConv.conversation.id);
+            // Check AI limit for this conversation
+            checkAILimit(userId, supportConv.conversation.id).then(setAiLimitInfo);
         }
     };
 
@@ -118,6 +122,8 @@ export default function ChatWidget() {
 
             setConversationId(conv.id);
             setMessages([]);
+            // Check AI limit for new conversation
+            checkAILimit(session.user.id, conv.id).then(setAiLimitInfo);
         }
         setLoading(false);
     };
@@ -249,16 +255,61 @@ export default function ChatWidget() {
                         </div>
                     </div>
 
+                    {/* AI Limit Warning Banner */}
+                    {aiLimitInfo && aiLimitInfo.remaining <= 30 && (
+                        <div className={`px-4 py-2 border-b flex items-center gap-2 ${
+                            aiLimitInfo.remaining === 0 
+                                ? 'bg-red-500/10 border-red-500/20' 
+                                : aiLimitInfo.remaining <= 10
+                                    ? 'bg-orange-500/10 border-orange-500/20'
+                                    : 'bg-yellow-500/10 border-yellow-500/20'
+                        }`}>
+                            <svg className={`w-4 h-4 ${
+                                aiLimitInfo.remaining === 0 
+                                    ? 'text-red-400' 
+                                    : aiLimitInfo.remaining <= 10
+                                        ? 'text-orange-400'
+                                        : 'text-yellow-400'
+                            }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <p className={`text-xs ${
+                                aiLimitInfo.remaining === 0 
+                                    ? 'text-red-300' 
+                                    : aiLimitInfo.remaining <= 10
+                                        ? 'text-orange-300'
+                                        : 'text-yellow-300'
+                            }`}>
+                                {formatLimitMessage(aiLimitInfo.remaining)}
+                            </p>
+                        </div>
+                    )}
+
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/50 relative">
                         {!conversationId ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-                                <p className="text-white/60 text-sm">Need help with an order?</p>
+                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 px-6">
+                                <div className="w-16 h-16 bg-[#D4AF37]/10 rounded-full flex items-center justify-center mb-2 animate-pulse">
+                                    <span className="text-3xl">🤖</span>
+                                </div>
+                                <div className="text-sm prose prose-invert max-w-none">
+                                    <ReactMarkdown>Ready</ReactMarkdown>
+                                </div>
+                                <div className="text-sm prose prose-invert max-w-none">
+                                    <ReactMarkdown>ถามได้ทุกเรื่อง! ทั้งวิธีใช้งานระบบ, รายละเอียดสินค้า, หรือติดตามสถานะออเดอร์</ReactMarkdown>
+                                </div>
                                 <button
                                     onClick={startSupportChat}
                                     disabled={loading}
-                                    className="px-6 py-2 bg-[#D4AF37] text-black font-bold rounded-full hover:scale-105 transition-transform"
+                                    className="px-6 py-2 bg-[#D4AF37] text-black font-bold rounded-full hover:scale-105 transition-transform flex items-center gap-2"
                                 >
-                                    {loading ? 'Starting...' : 'Start Chat'}
+                                    {loading ? (
+                                        <span>Connecting...</span>
+                                    ) : (
+                                        <>
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                                            <span>Start Chatting</span>
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         ) : (
@@ -398,15 +449,18 @@ export default function ChatWidget() {
                         </div>
                     )}
                 </div>
-            )}
+            )
+            }
 
-            {showOrderSelector && (
-                <ChatOrderSelector
-                    userId={session.user.id}
-                    onSelect={handleOrderSelect}
-                    onClose={() => setShowOrderSelector(false)}
-                />
-            )}
-        </div>
+            {
+                showOrderSelector && (
+                    <ChatOrderSelector
+                        userId={session.user.id}
+                        onSelect={handleOrderSelect}
+                        onClose={() => setShowOrderSelector(false)}
+                    />
+                )
+            }
+        </div >
     );
 }

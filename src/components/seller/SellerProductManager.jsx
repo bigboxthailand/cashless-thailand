@@ -336,6 +336,23 @@ const SellerProductManager = ({ shopId: propShopId }) => {
                 console.error("Supabase Error:", error);
                 throw error;
             }
+
+            // Notify Admin (New Product Only)
+            try {
+                if (!isEditing) {
+                    fetch('/api/telegram-notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'NEW_PRODUCT',
+                            productName: formData.name,
+                            productPrice: formData.price,
+                            shopId: activeShopId
+                        })
+                    });
+                }
+            } catch (err) { console.error("Notify failed", err); }
+
             setIsModalOpen(false);
 
         } catch (err) {

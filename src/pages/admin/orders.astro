@@ -694,7 +694,161 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
             </div>
         </div>
     </div>
+    <!-- Payout Confirmation Modal -->
+    <div
+        id="payout-modal"
+        class="fixed inset-0 z-[60] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+        <div
+            class="bg-[#111] border border-[#D4AF37]/30 rounded-2xl w-full max-w-md p-6 space-y-6"
+        >
+            <h3 class="text-xl font-black text-white uppercase tracking-wider">
+                Confirm Payout
+            </h3>
+
+            <div
+                class="bg-white/5 p-4 rounded-xl border border-white/10 space-y-2"
+            >
+                <div class="flex justify-between">
+                    <span class="text-white/50 text-xs uppercase font-bold"
+                        >Shop</span
+                    >
+                    <span class="text-white font-bold" id="payout-shop-name"
+                    ></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-white/50 text-xs uppercase font-bold"
+                        >Amount</span
+                    >
+                    <span
+                        class="text-[#D4AF37] font-black text-lg"
+                        id="payout-amount"></span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-white/50 uppercase"
+                    >Upload Transfer Slip</label
+                >
+                <input
+                    type="file"
+                    id="payout-slip"
+                    accept="image/*"
+                    class="w-full bg-black/50 border border-white/10 rounded-lg text-sm text-white file:bg-[#333] file:text-white file:border-0 file:py-2 file:px-4 file:rounded-lg file:mr-4 hover:file:bg-[#444] transition-colors cursor-pointer"
+                />
+            </div>
+
+            <div class="flex gap-4">
+                <button
+                    onclick="document.getElementById('payout-modal').classList.add('hidden')"
+                    class="flex-1 py-3 rounded-xl font-bold text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    id="confirm-payout-btn"
+                    class="flex-1 py-3 rounded-xl font-bold bg-[#D4AF37] text-black hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20"
+                >
+                    Confirm Paid
+                </button>
+            </div>
+        </div>
+    </div>
 </AdminLayout>
+
+<script>
+    // @ts-nocheck
+    import { supabase } from "../../lib/supabase";
+
+    let activePayout = null;
+
+    window.handleSellerPayout = (shopId, amount, orderId, shopName) => {
+        activePayout = { shopId, amount, orderId, shopName };
+
+        document.getElementById("payout-shop-name").innerText = shopName;
+        document.getElementById("payout-amount").innerText =
+            `฿${amount.toLocaleString()}`;
+        document.getElementById("payout-slip").value = ""; // Reset file
+        document.getElementById("payout-modal").classList.remove("hidden");
+    };
+
+    document
+        .getElementById("confirm-payout-btn")
+        .addEventListener("click", async function () {
+            if (!activePayout) return;
+
+            const fileInput = document.getElementById("payout-slip");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please upload a payment slip.");
+                return;
+            }
+
+            this.disabled = true;
+            this.innerText = "Processing...";
+
+            try {
+                // 1. Upload Slip
+                const fileExt = file.name.split(".").pop();
+                const fileName = `payout_${activePayout.orderId}_${activePayout.shopId}_${Date.now()}.${fileExt}`;
+                const { data: uploadData, error: uploadError } =
+                    await supabase.storage
+                        .from("payout-slips") // Ensure this bucket exists or use chat-images temporarily
+                        .upload(fileName, file);
+
+                if (uploadError) throw uploadError;
+
+                const {
+                    data: { publicUrl },
+                } = supabase.storage
+                    .from("payout-slips")
+                    .getPublicUrl(fileName);
+
+                // 2. Update Order Items Status
+                // We update ALL items in this order for this specific shop
+                // Requires a slightly complex query, but we can do it via a custom RPC or raw query.
+                // For simplicity with Supabase client: fetch items first or update based on a filter if possible?
+                // Supabase update join is tricky. Let's assume we update by order_id.
+                // WAIT: We can't easily filter update by joined table (products.shop_id).
+                // Workaround: We find valid item_ids first.
+
+                const { data: items } = await supabase
+                    .from("order_items")
+                    .select("id, products!inner(shop_id)")
+                    .eq("order_id", activePayout.orderId)
+                    .eq("products.shop_id", activePayout.shopId);
+
+                if (items && items.length > 0) {
+                    const itemIds = items.map((i) => i.id);
+                    const { error: updateError } = await supabase
+                        .from("order_items")
+                        .update({
+                            payout_status: "paid",
+                            payout_proof_url: publicUrl,
+                            payout_at: new Date().toISOString(),
+                        })
+                        .in("id", itemIds);
+
+                    if (updateError) throw updateError;
+                }
+
+                // 3. Notify Admin (Telegram) - Optional log
+                // 4. Update UI
+                alert("Payout Recorded Successfully!");
+                document.getElementById("payout-modal").classList.add("hidden");
+
+                // Reload to reflect changes (simplest way to update nested logic)
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("Error processing payout: " + error.message);
+            } finally {
+                this.disabled = false;
+                this.innerText = "Confirm Paid";
+            }
+        });
+</script>
 
 <script define:vars={{ orders, commissionRate }}>
     // 1. ส่งข้อมูล orders เข้า window ทันทีที่โหลด
@@ -856,13 +1010,19 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
 
                     if (!sellerTotals[item.products.shop_id]) {
                         sellerTotals[item.products.shop_id] = {
+                            shop_id: item.products.shop_id,
                             name: shop.name,
                             promptpay: shop.promptpay_id || "Not Set",
                             total: 0,
+                            is_paid: true, // Start as true, mark false if pending item found
                         };
                     }
                     sellerTotals[item.products.shop_id].total +=
                         item.price * item.quantity;
+
+                    if (item.payout_status !== "paid") {
+                        sellerTotals[item.products.shop_id].is_paid = false;
+                    }
                 });
 
                 const shops = Object.values(sellerTotals);
@@ -873,6 +1033,9 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                             const commission =
                                 shop.total * (window.commissionRate / 100);
                             const netAmount = shop.total - commission;
+
+                            // Store netAmount for the button
+                            shop.netAmount = netAmount;
 
                             return `
                             <div class="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
@@ -899,7 +1062,11 @@ const thbFormatter = new Intl.NumberFormat("th-TH", {
                                     <p class="text-[9px] text-white/40 uppercase font-black tracking-widest mb-1">Total Payout to Seller</p>
                                     <div class="flex justify-between items-end">
                                         <span class="text-xl font-black text-[#D4AF37]">฿${netAmount.toLocaleString()}</span>
-                                        <button class="text-[10px] text-white/40 hover:text-white transition-colors underline uppercase font-bold">Copy Amount</button>
+                                        ${
+                                            shop.is_paid
+                                                ? `<span class="text-green-500 font-bold text-xs flex items-center gap-1 bg-green-500/10 px-2 py-1 rounded border border-green-500/20"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> PAID</span>`
+                                                : `<button onclick="window.handleSellerPayout('${shop.shop_id}', ${netAmount}, '${order.id}', '${shop.name}')" class="bg-[#D4AF37] text-black px-3 py-1.5 rounded font-bold text-xs hover:bg-white transition-colors shadow-lg shadow-[#D4AF37]/20">Mark as Paid</button>`
+                                        }
                                     </div>
                                 </div>
                             </div>

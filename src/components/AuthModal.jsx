@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { toast } from '../lib/toast';
 
 export default function AuthModal({ isOpen, onClose }) {
     const [isLogin, setIsLogin] = useState(true);
@@ -143,7 +144,8 @@ export default function AuthModal({ isOpen, onClose }) {
                                     setLoading(false);
                                 }
                             } else {
-                                alert('กรุณาติดตั้ง Metamask ก่อนใช้งาน!');
+                                toast.warning('กรุณาติดตั้ง Metamask ก่อนใช้งาน!');
+                                window.open('https://metamask.io/download.html', '_blank');
                             }
                         }}
                         disabled={loading}

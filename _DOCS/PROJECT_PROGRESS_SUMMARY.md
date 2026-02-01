@@ -94,5 +94,13 @@
   - คอร์สเรียนออนไลน์ (Course) สำหรับผู้เริ่มต้น
   - ระบบจัดการเนื้อหา (CMS) ในหลังบ้านสำหรับเขียนและแก้ไขบทความ
 
+## 8. Recent Updates (Manual & Documentation System)
+- **Documentation Platform Overhaul**: ยกระดับระบบคู่มือ (`/manual`) ให้เป็น "Interactive Documentation" ที่มี Live Component Preview
+  - **User Profile Manual**: เจาะลึก 10 โมดูลสำคัญ (Auth, Tier Cards, Avatar, Address, Orders, Reviews, Chat) พร้อมตัวอย่างที่จับต้องได้
+  - **BTC Logic Manual**: เอกสารอธิบายกลไกคำนวณราคา (Price Oracle) และการแปลงหน่วย Sats
+  - **Learn Track**: หน้าจำลองระบบ Gamification สำหรับการเรียนรู้ (Concept Art)
+  - **Home Page Manual**: คู่มือหน้าแรกพร้อม Component จริงที่นำมาแสดงผลใหม่
+- **Visual Component Library**: สร้างชุด Component พิเศษสำหรับงานเอกสารโดยเฉพาะ เพื่อให้คู่มือดูสวยงามและเข้าใจง่ายโดยไม่ต้อง Login จริง
+
 ---
-*ข้อมูล ณ วันที่ 30 มกราคม 2026*
+*ข้อมูล ณ วันที่ 31 มกราคม 2026*

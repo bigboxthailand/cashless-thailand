@@ -12,6 +12,8 @@ export default function ChatCenter() {
     const [session, setSession] = useState(null);
     const [myShopIds, setMyShopIds] = useState([]); // [NEW] Track my shops
     const [showEmojiPicker, setShowEmojiPicker] = useState(false); // [NEW] Emoji state
+    const [isAdmin, setIsAdmin] = useState(false); // Track if current user is admin
+    const [botDisabled, setBotDisabled] = useState(false); // Track if bot is disabled for active conversation
 
     // Attachment State
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -43,6 +45,7 @@ export default function ChatCenter() {
             }
 
             setSession({ user: currentUser });
+            await checkIfAdmin(currentUser.id); // Check admin status
             fetchConversations(currentUser.id);
             fetchMyShops(currentUser.id); // [NEW] Fetch my shops
 
@@ -65,6 +68,36 @@ export default function ChatCenter() {
     const fetchMyShops = async (userId) => {
         const { data } = await supabase.from('shops').select('id').eq('owner_id', userId);
         if (data) setMyShopIds(data.map(s => s.id));
+    };
+
+    // Check if user is admin
+    const checkIfAdmin = async (userId) => {
+        const { data } = await supabase.from('profiles').select('role').eq('id', userId).single();
+        if (data && data.role === 'admin') {
+            setIsAdmin(true);
+        }
+    };
+
+    // Toggle bot for conversation (Admin only)
+    const toggleBot = async () => {
+        if (!isAdmin || !activeConvId) return;
+        
+        const newBotStatus = !botDisabled;
+        const { error } = await supabase
+            .from('conversations')
+            .update({ 
+                bot_disabled: newBotStatus,
+                admin_handling: newBotStatus,
+                handling_admin_id: newBotStatus ? session.user.id : null
+            })
+            .eq('id', activeConvId);
+
+        if (!error) {
+            setBotDisabled(newBotStatus);
+            alert(newBotStatus ? '✅ Bot ถูกปิดแล้ว คุณสามารถตอบเองได้' : '✅ Bot ถูกเปิดแล้ว');
+        } else {
+            alert('❌ เกิดข้อผิดพลาด: ' + error.message);
+        }
     };
 
     const handleShopContact = async (shopId, shopName, myUserId) => {
@@ -156,7 +189,7 @@ export default function ChatCenter() {
             const { data: convs, error } = await supabase
                 .from('conversations')
                 .select(`
-                    id, type, title, updated_at, metadata,
+                    id, type, title, updated_at, metadata, bot_disabled, admin_handling, handling_admin_id,
                     participants:conversation_participants(
                         user_id,
                         profile:profiles(full_name, avatar_url, email, wallet_address)
@@ -194,6 +227,20 @@ export default function ChatCenter() {
         };
         loadMessages();
 
+        // Load bot status for this conversation
+        const loadBotStatus = async () => {
+            const { data } = await supabase
+                .from('conversations')
+                .select('bot_disabled')
+                .eq('id', activeConvId)
+                .single();
+            
+            if (data) {
+                setBotDisabled(data.bot_disabled || false);
+            }
+        };
+        loadBotStatus();
+
         const channel = supabase
             .channel(`chat:${activeConvId}`)
             .on('postgres_changes', {
@@ -204,6 +251,15 @@ export default function ChatCenter() {
             }, (payload) => {
                 setMessages(prev => [...prev, payload.new]);
                 scrollToBottom();
+            })
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'conversations',
+                filter: `id=eq.${activeConvId}`
+            }, (payload) => {
+                // Update bot status when conversation is updated
+                setBotDisabled(payload.new.bot_disabled || false);
             })
             .subscribe();
 
@@ -402,45 +458,80 @@ export default function ChatCenter() {
                 ) : (
                     <>
                         {/* Chat Header */}
-                        <div className="h-16 px-6 border-b border-white/10 flex items-center gap-4 bg-[#111]/50 backdrop-blur-md">
-                            <button onClick={() => setActiveConvId(null)} className="md:hidden text-white/50 hover:text-white">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                            </button>
-                            <div>
-                                <h3 className="text-white font-bold">
-                                    {(() => {
-                                        if (!activeConv) return 'Chat';
-                                        let name = activeConv.title;
-                                        if (activeConv.type === 'p2p' && activeConv.participants) {
-                                            const other = activeConv.participants.find(p => p.user_id !== session.user.id);
-                                            if (other && other.profile) {
-                                                const personName = other.profile.full_name
-                                                    || other.profile.email
-                                                    || (other.profile.wallet_address ? "Meta Mask's Shop" : 'Customer');
+                        <div className="h-16 px-6 border-b border-white/10 flex items-center justify-between gap-4 bg-[#111]/50 backdrop-blur-md">
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => setActiveConvId(null)} className="md:hidden text-white/50 hover:text-white">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                                </button>
+                                <div>
+                                    <h3 className="text-white font-bold">
+                                        {(() => {
+                                            if (!activeConv) return 'Chat';
+                                            let name = activeConv.title;
+                                            if (activeConv.type === 'p2p' && activeConv.participants) {
+                                                const other = activeConv.participants.find(p => p.user_id !== session.user.id);
+                                                if (other && other.profile) {
+                                                    const personName = other.profile.full_name
+                                                        || other.profile.email
+                                                        || (other.profile.wallet_address ? "Meta Mask's Shop" : 'Customer');
 
-                                                const shopIdStr = String(activeConv.metadata?.shop_id || '');
-                                                const amISeller = shopIdStr && myShopIds.includes(shopIdStr);
+                                                    const shopIdStr = String(activeConv.metadata?.shop_id || '');
+                                                    const amISeller = shopIdStr && myShopIds.includes(shopIdStr);
 
-                                                if (amISeller) {
-                                                    name = personName;
-                                                } else {
-                                                    // Prioritize Shop Name (Title) for Customer View if it's set
-                                                    if (activeConv.title && activeConv.title !== 'Shop Chat') {
-                                                        name = activeConv.title;
-                                                    } else {
+                                                    if (amISeller) {
                                                         name = personName;
+                                                    } else {
+                                                        // Prioritize Shop Name (Title) for Customer View if it's set
+                                                        if (activeConv.title && activeConv.title !== 'Shop Chat') {
+                                                            name = activeConv.title;
+                                                        } else {
+                                                            name = personName;
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        return name || 'Chat';
-                                    })()}
-                                </h3>
-                                <span className="text-xs text-[#D4AF37] opacity-80 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                    Online
-                                </span>
+                                            return name || 'Chat';
+                                        })()}
+                                    </h3>
+                                    <span className="text-xs text-[#D4AF37] opacity-80 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Online
+                                    </span>
+                                </div>
                             </div>
+
+                            {/* Admin Bot Control */}
+                            {isAdmin && (
+                                <div className="flex items-center gap-3">
+                                    {botDisabled && (
+                                        <span className="text-xs px-3 py-1 bg-orange-500/20 text-orange-300 rounded-full border border-orange-500/30 flex items-center gap-1">
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            Admin Handling
+                                        </span>
+                                    )}
+                                    <button
+                                        onClick={toggleBot}
+                                        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                                            botDisabled 
+                                                ? 'bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30' 
+                                                : 'bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30'
+                                        }`}
+                                        title={botDisabled ? 'เปิดบอทอัตโนมัติ' : 'ปิดบอทเพื่อตอบเอง'}
+                                    >
+                                        {botDisabled ? (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                                เปิดบอท
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                                ปิดบอท
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Messages List */}

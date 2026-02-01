@@ -5,6 +5,7 @@ import "../styles/global.css";
 import "../styles/cart-fix.css";
 import CartDrawer from "../components/CartDrawer.astro";
 import ChatWidget from "../components/chat/ChatWidget.jsx";
+import ToastContainer from "../components/ui/ToastContainer";
 
 interface Props {
     title: string;
@@ -233,6 +234,7 @@ const canonicalURL = new URL(
         </script>
         <CartDrawer />
         <ChatWidget client:load />
+        <ToastContainer client:load />
     </body>
 </html>
 

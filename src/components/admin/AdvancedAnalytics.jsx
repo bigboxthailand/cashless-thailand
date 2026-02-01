@@ -90,7 +90,12 @@ const AdvancedAnalytics = ({ data }) => {
             },
             x: {
                 grid: { display: false },
-                ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 10 } },
+                ticks: {
+                    color: 'rgba(255,255,255,0.5)',
+                    font: { size: 10 },
+                    maxTicksLimit: 7,
+                    autoSkip: true
+                },
             },
         },
     };
